@@ -18,8 +18,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class CreateUserTest {
 
-    static List<UserRequestDTO> inputUsers;
-    UserDAO userDAO;
+    private static List<UserRequestDTO> inputUsers;
+    private UserDAO userDAO;
 
     @BeforeAll
     public static void initAll() {
