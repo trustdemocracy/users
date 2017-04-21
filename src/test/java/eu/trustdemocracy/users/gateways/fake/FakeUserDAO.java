@@ -3,16 +3,30 @@ package eu.trustdemocracy.users.gateways.fake;
 import eu.trustdemocracy.users.core.entities.User;
 import eu.trustdemocracy.users.gateways.UserDAO;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class FakeUserDAO implements UserDAO {
+    private Map<UUID, User> users = new HashMap<>();
+    private UUID nextUniqueUUID;
+
     @Override
     public User createUser(User user) {
-        return null;
+        UUID uuid = getUniqueUUID();
+        user.setId(uuid);
+
+        users.put(uuid, user);
+
+        return user;
     }
 
     @Override
     public UUID getUniqueUUID() {
-        return null;
+        while (nextUniqueUUID == null || users.containsKey(nextUniqueUUID)) {
+            nextUniqueUUID = UUID.randomUUID();
+        }
+
+        return nextUniqueUUID;
     }
 }
