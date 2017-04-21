@@ -8,4 +8,6 @@ public interface UserDAO {
     User createUser(User user);
 
     UUID getUniqueUUID();
+
+    User findWithUsername(String username);
 }

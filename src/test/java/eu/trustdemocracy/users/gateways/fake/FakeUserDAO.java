@@ -29,4 +29,12 @@ public class FakeUserDAO implements UserDAO {
 
         return nextUniqueUUID;
     }
+
+    @Override
+    public User findWithUsername(String username) {
+        return users.values().stream()
+                .filter(user -> user.getUsername().equals(username))
+                .findFirst()
+                .orElse(null);
+    }
 }
