@@ -1,5 +1,6 @@
 package eu.trustdemocracy.users.core.interactors;
 
+import eu.trustdemocracy.users.core.interactors.exceptions.UsernameAlreadyExistsException;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
 import eu.trustdemocracy.users.gateways.UserDAO;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class CreateUserTest {
 
@@ -66,4 +68,12 @@ public class CreateUserTest {
             assertEquals(responseUser, expectedUser);
         }
     }
+
+    @Test
+    public void createWithExistingUsername() {
+        createSingleUser();
+        assertThrows(UsernameAlreadyExistsException.class, this::createSingleUser);
+    }
+
+
 }
