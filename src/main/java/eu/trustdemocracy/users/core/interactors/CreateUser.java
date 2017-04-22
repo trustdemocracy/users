@@ -14,17 +14,24 @@ public class CreateUser {
     }
 
     public UserResponseDTO execute(UserRequestDTO userRequestDTO) {
-        String username = userRequestDTO.getUsername();
-        if (username.isEmpty()) {
-            throw new IllegalStateException("The username cannot be empty");
-        }
+        validateUserState(userRequestDTO);
 
-        if (userDAO.findWithUsername(username) != null){
-            throw new UsernameAlreadyExistsException("The username ["+ username +"] already exists");
+        if (userDAO.findWithUsername(userRequestDTO.getUsername()) != null) {
+            throw new UsernameAlreadyExistsException("The username [" + userRequestDTO.getUsername() + "] already exists");
         }
 
         User user = userDAO.createUser(createUser(userRequestDTO));
         return createUserResponse(user);
+    }
+
+    private void validateUserState(UserRequestDTO user) {
+        if (user.getUsername().isEmpty()) {
+            throw new IllegalStateException("The username cannot be empty");
+        }
+
+        if (user.getEmail().isEmpty()) {
+            throw new IllegalStateException("The email cannot be empty");
+        }
     }
 
     private User createUser(UserRequestDTO userRequestDTO) {
