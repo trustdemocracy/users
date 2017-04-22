@@ -1,15 +1,15 @@
 package eu.trustdemocracy.users.gateways;
 
 import eu.trustdemocracy.users.core.entities.User;
-
 import java.util.UUID;
 
 public interface UserDAO {
-    User createUser(User user);
 
-    UUID getUniqueUUID();
+  User createUser(User user);
 
-    User findWithUsername(String username);
+  UUID getUniqueUUID();
 
-    User update(User user);
+  User findWithUsername(String username);
+
+  User update(User user);
 }
