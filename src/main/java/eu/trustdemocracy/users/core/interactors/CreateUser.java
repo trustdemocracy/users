@@ -32,6 +32,10 @@ public class CreateUser {
         if (user.getEmail().isEmpty()) {
             throw new IllegalStateException("The email cannot be empty");
         }
+
+        if (user.getPassword().isEmpty()) {
+            throw new IllegalStateException("The password cannot be empty");
+        }
     }
 
     private User createUser(UserRequestDTO userRequestDTO) {
