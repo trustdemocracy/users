@@ -5,7 +5,6 @@ import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
 import eu.trustdemocracy.users.gateways.UserDAO;
 import eu.trustdemocracy.users.gateways.fake.FakeUserDAO;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,8 +20,9 @@ public class CreateUserTest {
     private static List<UserRequestDTO> inputUsers;
     private UserDAO userDAO;
 
-    @BeforeAll
-    public static void initAll() {
+    @BeforeEach
+    public void init() {
+        userDAO = new FakeUserDAO();
         inputUsers = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             inputUsers.add(new UserRequestDTO()
@@ -30,11 +30,6 @@ public class CreateUserTest {
                     .setEmail("user" + i + "@user.com")
                     .setPassword("test" + i));
         }
-    }
-
-    @BeforeEach
-    public void init() {
-        userDAO = new FakeUserDAO();
     }
 
     @Test
@@ -75,5 +70,9 @@ public class CreateUserTest {
         assertThrows(UsernameAlreadyExistsException.class, this::createSingleUser);
     }
 
-
+    @Test
+    public void createWithEmptyUsername() {
+        UserRequestDTO inputUser = inputUsers.get(0).setUsername("");
+        assertThrows(IllegalStateException.class, () -> new CreateUser(userDAO).execute(inputUser));
+    }
 }
