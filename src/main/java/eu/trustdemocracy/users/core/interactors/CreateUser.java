@@ -14,12 +14,13 @@ public class CreateUser {
     }
 
     public UserResponseDTO execute(UserRequestDTO userRequestDTO) {
-        if (userRequestDTO.getUsername().isEmpty()) {
+        String username = userRequestDTO.getUsername();
+        if (username.isEmpty()) {
             throw new IllegalStateException("The username cannot be empty");
         }
 
-        if (userDAO.findWithUsername(userRequestDTO.getUsername()) != null){
-            throw new UsernameAlreadyExistsException();
+        if (userDAO.findWithUsername(username) != null){
+            throw new UsernameAlreadyExistsException("The username ["+ username +"] already exists");
         }
 
         User user = userDAO.createUser(createUser(userRequestDTO));
