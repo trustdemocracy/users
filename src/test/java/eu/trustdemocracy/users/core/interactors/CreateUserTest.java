@@ -75,4 +75,10 @@ public class CreateUserTest {
         UserRequestDTO inputUser = inputUsers.get(0).setUsername("");
         assertThrows(IllegalStateException.class, () -> new CreateUser(userDAO).execute(inputUser));
     }
+
+    @Test
+    public void createWithEmptyEmail() {
+        UserRequestDTO inputUser = inputUsers.get(0).setEmail("");
+        assertThrows(IllegalStateException.class, () -> new CreateUser(userDAO).execute(inputUser));
+    }
 }
