@@ -1,25 +1,27 @@
 package eu.trustdemocracy.users.core.interactors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
 import eu.trustdemocracy.users.gateways.UserDAO;
 import eu.trustdemocracy.users.gateways.fake.FakeUserDAO;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class UpdateUserTest {
 
-  private static List<UserResponseDTO> responseUsers;
+  private static Map<UUID, UserResponseDTO> responseUsers;
   private UserDAO userDAO;
 
   @BeforeEach
   public void init() {
     userDAO = new FakeUserDAO();
-    responseUsers = new ArrayList<>();
+    responseUsers = new HashMap<>();
 
     CreateUser interactor = new CreateUser(userDAO);
     for (int i = 0; i < 10; i++) {
@@ -29,13 +31,14 @@ public class UpdateUserTest {
           .setPassword("test" + i)
           .setName("Name" + i);
 
-      responseUsers.add(interactor.execute(inputUser));
+      UserResponseDTO responseUser = interactor.execute(inputUser);
+      responseUsers.put(responseUser.getId(), responseUser);
     }
   }
 
   @Test
   public void updateSingleUser() {
-    UserResponseDTO responseUser = responseUsers.get(0);
+    UserResponseDTO responseUser = responseUsers.values().iterator().next();
     UserRequestDTO inputUser = new UserRequestDTO()
         .setId(responseUser.getId())
         .setUsername(responseUser.getUsername())
@@ -57,7 +60,7 @@ public class UpdateUserTest {
 
   @Test
   public void updateSeveralUsers() {
-    for (UserResponseDTO responseUser : responseUsers) {
+    for (UserResponseDTO responseUser : responseUsers.values()) {
       UserRequestDTO inputUser = new UserRequestDTO()
           .setId(responseUser.getId())
           .setUsername(responseUser.getUsername())
@@ -80,7 +83,7 @@ public class UpdateUserTest {
 
   @Test
   public void updateUsername() {
-    UserResponseDTO responseUser = responseUsers.get(0);
+    UserResponseDTO responseUser = responseUsers.values().iterator().next();
     UserRequestDTO inputUser = new UserRequestDTO()
         .setId(responseUser.getId())
         .setUsername("NewUsername");
@@ -90,6 +93,19 @@ public class UpdateUserTest {
         .setUsername(responseUser.getUsername());
 
     assertEquals(expectedUser, new UpdateUser(userDAO).execute(inputUser));
+  }
+
+  @Test
+  public void updateUnexistingUser() {
+    UUID id;
+    do {
+      id = UUID.randomUUID();
+    } while (responseUsers.containsKey(id));
+
+    UserRequestDTO inputUser = new UserRequestDTO()
+        .setId(id);
+
+    assertThrows(IllegalStateException.class, () -> new UpdateUser(userDAO).execute(inputUser));
   }
 
 }
