@@ -3,6 +3,7 @@ package eu.trustdemocracy.users.core.interactors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import eu.trustdemocracy.users.core.entities.UserVisibility;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
 import eu.trustdemocracy.users.gateways.UserDAO;
@@ -106,6 +107,26 @@ public class UpdateUserTest {
         .setId(id);
 
     assertThrows(IllegalStateException.class, () -> new UpdateUser(userDAO).execute(inputUser));
+  }
+
+  @Test
+  public void updateVisibility() {
+    UserResponseDTO responseUser = responseUsers.values().iterator().next();
+
+    UserRequestDTO inputUser = new UserRequestDTO()
+        .setId(responseUser.getId())
+        .setVisibility(UserVisibility.PUBLIC);
+    assertEquals(UserVisibility.PUBLIC, new UpdateUser(userDAO).execute(inputUser).getVisibility());
+
+    inputUser = new UserRequestDTO()
+        .setId(responseUser.getId())
+        .setVisibility(UserVisibility.NORMAL);
+    assertEquals(UserVisibility.NORMAL, new UpdateUser(userDAO).execute(inputUser).getVisibility());
+
+    inputUser = new UserRequestDTO()
+        .setId(responseUser.getId())
+        .setVisibility(UserVisibility.PRIVATE);
+    assertEquals(UserVisibility.PRIVATE, new UpdateUser(userDAO).execute(inputUser).getVisibility());
   }
 
 }

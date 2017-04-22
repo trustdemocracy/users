@@ -1,5 +1,6 @@
 package eu.trustdemocracy.users.core.models.request;
 
+import eu.trustdemocracy.users.core.entities.UserVisibility;
 import java.util.UUID;
 
 public class UserRequestDTO {
@@ -10,6 +11,7 @@ public class UserRequestDTO {
   private String password;
   private String name;
   private String surname;
+  private UserVisibility visibility;
 
   public UUID getId() {
     return id;
@@ -62,6 +64,15 @@ public class UserRequestDTO {
 
   public UserRequestDTO setSurname(String surname) {
     this.surname = surname;
+    return this;
+  }
+
+  public UserVisibility getVisibility() {
+    return visibility;
+  }
+
+  public UserRequestDTO setVisibility(UserVisibility visibility) {
+    this.visibility = visibility;
     return this;
   }
 
