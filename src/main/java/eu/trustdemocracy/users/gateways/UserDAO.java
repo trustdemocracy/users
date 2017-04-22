@@ -10,4 +10,6 @@ public interface UserDAO {
     UUID getUniqueUUID();
 
     User findWithUsername(String username);
+
+    User update(User user);
 }

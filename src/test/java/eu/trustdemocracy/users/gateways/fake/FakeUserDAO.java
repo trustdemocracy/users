@@ -37,4 +37,10 @@ public class FakeUserDAO implements UserDAO {
                 .findFirst()
                 .orElse(null);
     }
+
+    @Override
+    public User update(User user) {
+        users.replace(user.getId(), user);
+        return user;
+    }
 }

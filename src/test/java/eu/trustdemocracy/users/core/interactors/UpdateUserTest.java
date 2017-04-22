@@ -42,8 +42,11 @@ public class UpdateUserTest {
                 .setId(responseUser.getId());
 
         UpdateUser interactor = new UpdateUser(userDAO);
-        responseUser = interactor.execute(inputUser.setName("TestName").setSurname(null));
+        responseUser = interactor.execute(inputUser
+                .setId(responseUser.getId())
+                .setName("TestName")
+                .setSurname(null));
 
-        assertEquals(responseUser, expectedUser);
+        assertEquals(expectedUser, responseUser);
     }
 }
