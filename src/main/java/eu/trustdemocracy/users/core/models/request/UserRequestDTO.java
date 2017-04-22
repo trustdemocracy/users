@@ -74,7 +74,9 @@ public class UserRequestDTO {
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (username != null ? !username.equals(that.username) : that.username != null) return false;
         if (email != null ? !email.equals(that.email) : that.email != null) return false;
-        return password != null ? password.equals(that.password) : that.password == null;
+        if (password != null ? !password.equals(that.password) : that.password != null) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        return surname != null ? surname.equals(that.surname) : that.surname == null;
     }
 
     @Override
@@ -83,6 +85,8 @@ public class UserRequestDTO {
         result = 31 * result + (username != null ? username.hashCode() : 0);
         result = 31 * result + (email != null ? email.hashCode() : 0);
         result = 31 * result + (password != null ? password.hashCode() : 0);
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (surname != null ? surname.hashCode() : 0);
         return result;
     }
 
@@ -93,6 +97,8 @@ public class UserRequestDTO {
                 ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
+                ", name='" + name + '\'' +
+                ", surname='" + surname + '\'' +
                 '}';
     }
 }
