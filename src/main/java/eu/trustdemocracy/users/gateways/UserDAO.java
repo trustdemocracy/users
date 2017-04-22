@@ -12,4 +12,6 @@ public interface UserDAO {
   User findWithUsername(String username);
 
   User update(User user);
+
+  User findById(UUID id);
 }

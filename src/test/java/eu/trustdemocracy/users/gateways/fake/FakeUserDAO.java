@@ -43,4 +43,9 @@ public class FakeUserDAO implements UserDAO {
     users.replace(user.getId(), user);
     return user;
   }
+
+  @Override
+  public User findById(UUID id) {
+    return users.get(id);
+  }
 }
