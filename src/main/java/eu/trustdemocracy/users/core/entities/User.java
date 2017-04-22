@@ -1,5 +1,7 @@
 package eu.trustdemocracy.users.core.entities;
 
+import eu.trustdemocracy.users.core.entities.utils.CryptoUtils;
+
 import java.util.UUID;
 
 public class User {
@@ -40,7 +42,7 @@ public class User {
     }
 
     public User setPassword(String password) {
-        this.password = password;
+        this.password = CryptoUtils.hash(password);
         return this;
     }
 }
