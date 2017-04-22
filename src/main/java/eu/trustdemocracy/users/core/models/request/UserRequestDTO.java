@@ -102,7 +102,10 @@ public class UserRequestDTO {
     if (name != null ? !name.equals(that.name) : that.name != null) {
       return false;
     }
-    return surname != null ? surname.equals(that.surname) : that.surname == null;
+    if (surname != null ? !surname.equals(that.surname) : that.surname != null) {
+      return false;
+    }
+    return visibility == that.visibility;
   }
 
   @Override
@@ -113,6 +116,7 @@ public class UserRequestDTO {
     result = 31 * result + (password != null ? password.hashCode() : 0);
     result = 31 * result + (name != null ? name.hashCode() : 0);
     result = 31 * result + (surname != null ? surname.hashCode() : 0);
+    result = 31 * result + (visibility != null ? visibility.hashCode() : 0);
     return result;
   }
 
@@ -125,6 +129,7 @@ public class UserRequestDTO {
         ", password='" + password + '\'' +
         ", name='" + name + '\'' +
         ", surname='" + surname + '\'' +
+        ", visibility='" + visibility + '\'' +
         '}';
   }
 }

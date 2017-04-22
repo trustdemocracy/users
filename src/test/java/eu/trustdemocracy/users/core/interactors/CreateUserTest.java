@@ -3,6 +3,7 @@ package eu.trustdemocracy.users.core.interactors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import eu.trustdemocracy.users.core.entities.UserVisibility;
 import eu.trustdemocracy.users.core.interactors.exceptions.UsernameAlreadyExistsException;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
@@ -39,7 +40,8 @@ public class CreateUserTest {
     UserResponseDTO expectedUser = new UserResponseDTO()
         .setUsername(inputUser.getUsername())
         .setEmail(inputUser.getEmail())
-        .setId(uuid);
+        .setId(uuid)
+        .setVisibility(UserVisibility.PRIVATE);
 
     CreateUser interactor = new CreateUser(userDAO);
     UserResponseDTO responseUser = interactor.execute(inputUser);
@@ -59,7 +61,8 @@ public class CreateUserTest {
         .setEmail(inputUser.getEmail())
         .setName(inputUser.getName())
         .setSurname(inputUser.getSurname())
-        .setId(uuid);
+        .setId(uuid)
+        .setVisibility(UserVisibility.PRIVATE);
 
     CreateUser interactor = new CreateUser(userDAO);
     UserResponseDTO responseUser = interactor.execute(inputUser);
@@ -76,7 +79,8 @@ public class CreateUserTest {
       UserResponseDTO expectedUser = new UserResponseDTO()
           .setUsername(inputUser.getUsername())
           .setEmail(inputUser.getEmail())
-          .setId(uuid);
+          .setId(uuid)
+          .setVisibility(UserVisibility.PRIVATE);
       UserResponseDTO responseUser = interactor.execute(inputUser);
 
       assertEquals(responseUser, expectedUser);

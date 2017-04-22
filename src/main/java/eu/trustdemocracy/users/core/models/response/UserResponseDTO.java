@@ -89,7 +89,10 @@ public class UserResponseDTO {
     if (name != null ? !name.equals(that.name) : that.name != null) {
       return false;
     }
-    return surname != null ? surname.equals(that.surname) : that.surname == null;
+    if (surname != null ? !surname.equals(that.surname) : that.surname != null) {
+      return false;
+    }
+    return visibility == that.visibility;
   }
 
   @Override
@@ -99,6 +102,7 @@ public class UserResponseDTO {
     result = 31 * result + (email != null ? email.hashCode() : 0);
     result = 31 * result + (name != null ? name.hashCode() : 0);
     result = 31 * result + (surname != null ? surname.hashCode() : 0);
+    result = 31 * result + (visibility != null ? visibility.hashCode() : 0);
     return result;
   }
 
@@ -110,6 +114,7 @@ public class UserResponseDTO {
         ", email='" + email + '\'' +
         ", name='" + name + '\'' +
         ", surname='" + surname + '\'' +
+        ", visibility='" + visibility + '\'' +
         '}';
   }
 }
