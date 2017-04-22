@@ -49,6 +49,26 @@ public class CreateUserTest {
     }
 
     @Test
+    public void createFullUser() {
+        UUID uuid = userDAO.getUniqueUUID();
+        UserRequestDTO inputUser = inputUsers.get(0)
+                .setName("TestName")
+                .setSurname("TestSurname");
+
+        UserResponseDTO expectedUser = new UserResponseDTO()
+                .setUsername(inputUser.getUsername())
+                .setEmail(inputUser.getEmail())
+                .setName(inputUser.getName())
+                .setSurname(inputUser.getSurname())
+                .setId(uuid);
+
+        CreateUser interactor = new CreateUser(userDAO);
+        UserResponseDTO responseUser = interactor.execute(inputUser);
+
+        assertEquals(responseUser, expectedUser);
+    }
+
+    @Test
     public void createSeveralUsers() {
         CreateUser interactor = new CreateUser(userDAO);
 

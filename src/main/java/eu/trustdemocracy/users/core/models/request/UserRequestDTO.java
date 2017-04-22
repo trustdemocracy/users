@@ -7,6 +7,8 @@ public class UserRequestDTO {
     private String username;
     private String email;
     private String password;
+    private String name;
+    private String surname;
 
     public UUID getId() {
         return id;
@@ -41,6 +43,24 @@ public class UserRequestDTO {
 
     public UserRequestDTO setPassword(String password) {
         this.password = password;
+        return this;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public UserRequestDTO setName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public String getSurname() {
+        return surname;
+    }
+
+    public UserRequestDTO setSurname(String surname) {
+        this.surname = surname;
         return this;
     }
 

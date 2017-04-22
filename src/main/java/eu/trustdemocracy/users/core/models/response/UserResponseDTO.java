@@ -5,8 +5,9 @@ import java.util.UUID;
 public class UserResponseDTO {
     private UUID id;
     private String username;
-
     private String email;
+    private String name;
+    private String surname;
 
     public UUID getId() {
         return id;
@@ -32,6 +33,24 @@ public class UserResponseDTO {
 
     public UserResponseDTO setEmail(String email) {
         this.email = email;
+        return this;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public UserResponseDTO setName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public String getSurname() {
+        return surname;
+    }
+
+    public UserResponseDTO setSurname(String surname) {
+        this.surname = surname;
         return this;
     }
 
