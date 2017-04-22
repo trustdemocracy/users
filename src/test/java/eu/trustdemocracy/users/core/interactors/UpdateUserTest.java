@@ -56,6 +56,29 @@ public class UpdateUserTest {
   }
 
   @Test
+  public void updateSeveralUsers() {
+    for (UserResponseDTO responseUser : responseUsers) {
+      UserRequestDTO inputUser = new UserRequestDTO()
+          .setId(responseUser.getId())
+          .setUsername(responseUser.getUsername())
+          .setEmail(responseUser.getEmail())
+          .setName(null)
+          .setSurname("TestSurname");
+
+      UserResponseDTO expectedUser = new UserResponseDTO()
+          .setUsername(inputUser.getUsername())
+          .setEmail(inputUser.getEmail())
+          .setSurname(inputUser.getSurname())
+          .setId(inputUser.getId());
+
+      UpdateUser interactor = new UpdateUser(userDAO);
+      responseUser = interactor.execute(inputUser);
+
+      assertEquals(expectedUser, responseUser);
+    }
+  }
+
+  @Test
   public void updateUsername() {
     UserResponseDTO responseUser = responseUsers.get(0);
     UserRequestDTO inputUser = new UserRequestDTO()
