@@ -2,8 +2,11 @@ package eu.trustdemocracy.users.core.interactors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import eu.trustdemocracy.users.core.entities.User;
 import eu.trustdemocracy.users.core.entities.UserVisibility;
+import eu.trustdemocracy.users.core.entities.utils.CryptoUtils;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
 import eu.trustdemocracy.users.gateways.UserDAO;
@@ -127,6 +130,20 @@ public class UpdateUserTest {
         .setId(responseUser.getId())
         .setVisibility(UserVisibility.PRIVATE);
     assertEquals(UserVisibility.PRIVATE, new UpdateUser(userDAO).execute(inputUser).getVisibility());
+  }
+
+  @Test
+  public void updatePassword() {
+    UserResponseDTO responseUser = responseUsers.values().iterator().next();
+
+    UserRequestDTO inputUser = new UserRequestDTO()
+        .setId(responseUser.getId())
+        .setPassword("newPassword");
+    new UpdateUser(userDAO).execute(inputUser);
+
+    User userInDB = userDAO.findById(responseUser.getId());
+
+    assertTrue(CryptoUtils.validate(userInDB.getPassword(), "newPassword"));
   }
 
 }
