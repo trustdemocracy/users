@@ -12,7 +12,8 @@ public final class UserMapper {
         .setUsername(userRequestDTO.getUsername())
         .setEmail(userRequestDTO.getEmail())
         .setName(userRequestDTO.getName())
-        .setSurname(userRequestDTO.getSurname());
+        .setSurname(userRequestDTO.getSurname())
+        .setVisibility(userRequestDTO.getVisibility());
 
     if (userRequestDTO.getPassword() != null) {
       user.setPassword(userRequestDTO.getPassword());
@@ -27,6 +28,7 @@ public final class UserMapper {
         .setUsername(user.getUsername())
         .setEmail(user.getEmail())
         .setName(user.getName())
-        .setSurname(user.getSurname());
+        .setSurname(user.getSurname())
+        .setVisibility(user.getVisibility());
   }
 }

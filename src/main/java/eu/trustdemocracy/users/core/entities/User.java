@@ -11,6 +11,7 @@ public class User {
   private String password;
   private String name;
   private String surname;
+  private UserVisibility visibility;
 
   public UUID getId() {
     return id;
@@ -66,6 +67,15 @@ public class User {
 
   public User setSurname(String surname) {
     this.surname = surname;
+    return this;
+  }
+
+  public UserVisibility getVisibility() {
+    return visibility;
+  }
+
+  public User setVisibility(UserVisibility visibility) {
+    this.visibility = visibility;
     return this;
   }
 }
