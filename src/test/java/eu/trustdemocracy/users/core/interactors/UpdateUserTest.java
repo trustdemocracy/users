@@ -14,38 +14,47 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class UpdateUserTest {
 
-    private static List<UserRequestDTO> inputUsers;
+    private static List<UserResponseDTO> responseUsers;
     private UserDAO userDAO;
 
     @BeforeEach
     public void init() {
         userDAO = new FakeUserDAO();
-        inputUsers = new ArrayList<>();
+        responseUsers = new ArrayList<>();
+
+        CreateUser interactor = new CreateUser(userDAO);
         for (int i = 0; i < 10; i++) {
-            inputUsers.add(new UserRequestDTO()
+            UserRequestDTO inputUser = new UserRequestDTO()
                     .setUsername("user" + i)
                     .setEmail("user" + i + "@user.com")
-                    .setPassword("test" + i));
+                    .setPassword("test" + i)
+                    .setName("Name" + i);
+
+            responseUsers.add(interactor.execute(inputUser));
         }
+
+
     }
 
     @Test
     public void updateSingleUser() {
-        UserRequestDTO inputUser = inputUsers.get(0).setSurname("TestSurname");
-        UserResponseDTO responseUser = new CreateUser(userDAO).execute(inputUser);
-        assertEquals(null, responseUser.getName());
-
+        UserResponseDTO responseUser = responseUsers.get(0);
+        UserRequestDTO inputUser = new UserRequestDTO()
+                .setId(responseUser.getId())
+                .setUsername(responseUser.getUsername())
+                .setEmail(responseUser.getEmail())
+                .setName(responseUser.getName());
         UserResponseDTO expectedUser = new UserResponseDTO()
                 .setUsername(inputUser.getUsername())
                 .setEmail(inputUser.getEmail())
-                .setName("TestName")
-                .setId(responseUser.getId());
+                .setSurname("TestSurname")
+                .setId(inputUser.getId());
 
         UpdateUser interactor = new UpdateUser(userDAO);
         responseUser = interactor.execute(inputUser
                 .setId(responseUser.getId())
-                .setName("TestName")
-                .setSurname(null));
+                .setName(null)
+                .setSurname("TestSurname"));
 
         assertEquals(expectedUser, responseUser);
     }

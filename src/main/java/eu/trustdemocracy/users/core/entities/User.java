@@ -44,7 +44,10 @@ public class User {
     }
 
     public User setPassword(String password) {
-        this.password = CryptoUtils.hash(password);
+        if (password != null) {
+            password = CryptoUtils.hash(password);
+        }
+        this.password = password;
         return this;
     }
 
