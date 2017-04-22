@@ -40,19 +40,33 @@ public class UpdateUserTest {
         .setId(responseUser.getId())
         .setUsername(responseUser.getUsername())
         .setEmail(responseUser.getEmail())
-        .setName(responseUser.getName());
+        .setName(null)
+        .setSurname("TestSurname");
+
     UserResponseDTO expectedUser = new UserResponseDTO()
         .setUsername(inputUser.getUsername())
         .setEmail(inputUser.getEmail())
-        .setSurname("TestSurname")
+        .setSurname(inputUser.getSurname())
         .setId(inputUser.getId());
 
     UpdateUser interactor = new UpdateUser(userDAO);
-    responseUser = interactor.execute(inputUser
-        .setId(responseUser.getId())
-        .setName(null)
-        .setSurname("TestSurname"));
+    responseUser = interactor.execute(inputUser);
 
     assertEquals(expectedUser, responseUser);
   }
+
+  @Test
+  public void updateUsername() {
+    UserResponseDTO responseUser = responseUsers.get(0);
+    UserRequestDTO inputUser = new UserRequestDTO()
+        .setId(responseUser.getId())
+        .setUsername("NewUsername");
+
+    UserResponseDTO expectedUser = new UserResponseDTO()
+        .setId(responseUser.getId())
+        .setUsername(responseUser.getUsername());
+
+    assertEquals(expectedUser, new UpdateUser(userDAO).execute(inputUser));
+  }
+
 }
