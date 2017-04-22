@@ -1,6 +1,7 @@
 package eu.trustdemocracy.users.core.interactors;
 
 import eu.trustdemocracy.users.core.entities.User;
+import eu.trustdemocracy.users.core.entities.utils.UserMapper;
 import eu.trustdemocracy.users.core.interactors.exceptions.UsernameAlreadyExistsException;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
@@ -20,8 +21,8 @@ public class CreateUser {
             throw new UsernameAlreadyExistsException("The username [" + userRequestDTO.getUsername() + "] already exists");
         }
 
-        User user = userDAO.createUser(createUser(userRequestDTO));
-        return createUserResponse(user);
+        User user = userDAO.createUser(UserMapper.createEntity(userRequestDTO));
+        return UserMapper.createResponse(user);
     }
 
     private void validateUserState(UserRequestDTO user) {
@@ -36,20 +37,5 @@ public class CreateUser {
         if (user.getPassword().isEmpty()) {
             throw new IllegalStateException("The password cannot be empty");
         }
-    }
-
-    private User createUser(UserRequestDTO userRequestDTO) {
-
-        return new User()
-                .setUsername(userRequestDTO.getUsername())
-                .setEmail(userRequestDTO.getEmail())
-                .setPassword(userRequestDTO.getPassword());
-    }
-
-    private UserResponseDTO createUserResponse(User user) {
-        return new UserResponseDTO()
-                .setId(user.getId())
-                .setUsername(user.getUsername())
-                .setEmail(user.getEmail());
     }
 }
