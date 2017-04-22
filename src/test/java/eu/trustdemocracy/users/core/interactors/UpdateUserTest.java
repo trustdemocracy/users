@@ -82,7 +82,7 @@ public class UpdateUserTest {
   }
 
   @Test
-  public void updateUsername() {
+  public void noUpdateUsername() {
     UserResponseDTO responseUser = responseUsers.values().iterator().next();
     UserRequestDTO inputUser = new UserRequestDTO()
         .setId(responseUser.getId())
