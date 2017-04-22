@@ -9,13 +9,17 @@ public final class UserMapper {
         return new User()
                 .setUsername(userRequestDTO.getUsername())
                 .setEmail(userRequestDTO.getEmail())
-                .setPassword(userRequestDTO.getPassword());
+                .setPassword(userRequestDTO.getPassword())
+                .setName(userRequestDTO.getName())
+                .setSurname(userRequestDTO.getSurname());
     }
 
     public static UserResponseDTO createResponse(User user) {
         return new UserResponseDTO()
                 .setId(user.getId())
                 .setUsername(user.getUsername())
-                .setEmail(user.getEmail());
+                .setEmail(user.getEmail())
+                .setName(user.getName())
+                .setSurname(user.getSurname());
     }
 }
