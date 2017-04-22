@@ -16,7 +16,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class CreateUserTest {
-
   private static List<UserRequestDTO> inputUsers;
   private UserDAO userDAO;
 

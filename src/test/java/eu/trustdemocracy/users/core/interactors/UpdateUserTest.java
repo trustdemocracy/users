@@ -18,7 +18,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class UpdateUserTest {
-
   private static Map<UUID, UserResponseDTO> responseUsers;
   private UserDAO userDAO;
 
