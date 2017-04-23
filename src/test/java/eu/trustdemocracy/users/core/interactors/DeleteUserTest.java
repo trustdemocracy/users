@@ -44,4 +44,16 @@ public class DeleteUserTest {
 
     assertEquals(null, userDAO.findById(responseUser.getId()));
   }
+
+  @Test
+  public void deleteSeveralUsers() {
+    for (UserResponseDTO responseUser : responseUsers.values()) {
+      UserRequestDTO inputUser = new UserRequestDTO()
+          .setId(responseUser.getId());
+
+      new DeleteUser(userDAO).execute(inputUser);
+
+      assertEquals(null, userDAO.findById(responseUser.getId()));
+    }
+  }
 }
