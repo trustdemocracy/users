@@ -5,6 +5,7 @@ import eu.trustdemocracy.users.gateways.UserDAO;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import lombok.val;
 
 public class FakeUserDAO implements UserDAO {
   private Map<UUID, User> users = new HashMap<>();
@@ -40,8 +41,10 @@ public class FakeUserDAO implements UserDAO {
   }
 
   @Override
-  public void deleteById(UUID id) {
+  public User deleteById(UUID id) {
+    val user = users.get(id);
     users.remove(id);
+    return user;
   }
 
   public UUID getUniqueUUID() {

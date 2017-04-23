@@ -13,5 +13,5 @@ public interface UserDAO {
 
   User findById(UUID id);
 
-  void deleteById(UUID id);
+  User deleteById(UUID id);
 }

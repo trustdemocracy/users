@@ -59,18 +59,27 @@ public class MongoUserDAO implements UserDAO {
   }
 
   @Override
-  public void deleteById(UUID id) {
-    collection.deleteOne(eq("id", id.toString()));
+  public User deleteById(UUID id) {
+    val userDocument = collection.find(eq("id", id.toString())).first();
+    if (userDocument == null) {
+      return null;
+    }
+
+    collection.deleteOne(userDocument);
+    return buildFromDocument(userDocument);
   }
 
   private User buildFromDocument(Document userDocument) {
+    val name = userDocument.getString("name");
+    val surname = userDocument.getString("surname");
+
     return new User()
         .setId(UUID.fromString((String) userDocument.get("id")))
         .setUsername(userDocument.getString("username"))
         .setEmail(userDocument.getString("email"))
         .setHashedPassword(userDocument.getString("password"))
-        .setName(userDocument.getString("name"))
-        .setSurname(userDocument.getString("surname"))
+        .setName(name.isEmpty() ? null : name)
+        .setSurname(surname.isEmpty() ? null : surname)
         .setVisibility(UserVisibility.valueOf(userDocument.getString("visibility")));
   }
 }

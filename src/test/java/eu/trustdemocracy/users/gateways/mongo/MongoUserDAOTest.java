@@ -114,7 +114,8 @@ public class MongoUserDAOTest {
     userDAO.create(user);
     assertNotEquals(0L, collection.count(eq("id", id.toString())));
 
-    userDAO.deleteById(id);
+    val deletedUser = userDAO.deleteById(id);
+    assertEquals(user, deletedUser);
     assertEquals(0L, collection.count(eq("id", id.toString())));
   }
 
@@ -159,13 +160,16 @@ public class MongoUserDAOTest {
 
   private Block<Document> assertEqualsBlock(User user) {
     return document -> {
+      val name = document.getString("name");
+      val surname = document.getString("surname");
+
       assertEquals(user.getId(), UUID.fromString((String) document.get("id")));
       assertEquals(user.getUsername(), document.getString("username"));
       assertEquals(user.getEmail(), document.getString("email"));
       assertEquals(user.getPassword(), document.getString("password"));
       assertEquals(user.getVisibility().toString(), document.getString("visibility"));
-      assertEquals(user.getName(), document.getString("name"));
-      assertEquals(user.getSurname(), document.getString("surname"));
+      assertEquals(user.getName(), name.isEmpty() ? null : name);
+      assertEquals(user.getSurname(), surname.isEmpty() ? null : surname);
     };
   }
 }

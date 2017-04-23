@@ -5,8 +5,9 @@ import eu.trustdemocracy.users.core.entities.utils.UserMapper;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
 import eu.trustdemocracy.users.gateways.UserDAO;
+import lombok.val;
 
-public class UpdateUser {
+public class UpdateUser implements Interactor<UserRequestDTO, UserResponseDTO> {
 
   private UserDAO userDAO;
 
@@ -17,7 +18,7 @@ public class UpdateUser {
   public UserResponseDTO execute(UserRequestDTO userRequestDTO) {
     cleanUserState(userRequestDTO);
 
-    User user = UserMapper.createEntity(userRequestDTO);
+    val user = UserMapper.createEntity(userRequestDTO);
     return UserMapper.createResponse(userDAO.update(user));
   }
 

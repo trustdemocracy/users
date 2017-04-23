@@ -6,7 +6,7 @@ import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
 import eu.trustdemocracy.users.gateways.UserDAO;
 import lombok.val;
 
-public class GetUser {
+public class GetUser implements Interactor<UserRequestDTO, UserResponseDTO> {
   private UserDAO userDAO;
 
   public GetUser(UserDAO userDAO) {
