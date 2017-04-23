@@ -56,4 +56,31 @@ public class MongoUserDAOTest {
         .find(eq("id", id))
         .forEach(block);
   }
+
+  @Test
+  public void createBasicUser() {
+    val id = UUID.randomUUID();
+    val user = new User()
+        .setId(id)
+        .setUsername("test")
+        .setEmail("test@email.com")
+        .setVisibility(UserVisibility.PRIVATE)
+        .setPassword(CryptoUtils.hash("test"));
+
+    assertEquals(user, userDAO.create(user));
+
+
+    Block<Document> block = document -> {
+      assertEquals(user.getUsername(), document.getString("username"));
+      assertEquals(user.getEmail(), document.getString("email"));
+      assertEquals(user.getPassword(), document.getString("password"));
+      assertEquals(user.getVisibility().toString(), document.getString("visibility"));
+      assertEquals("", document.getString("name"));
+      assertEquals("", document.getString("surname"));
+    };
+
+    db.getCollection("users")
+        .find(eq("id", id))
+        .forEach(block);
+  }
 }
