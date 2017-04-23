@@ -9,6 +9,7 @@ import eu.trustdemocracy.users.gateways.fake.FakeUserDAO;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,23 +22,23 @@ public class DeleteUserTest {
     userDAO = new FakeUserDAO();
     responseUsers = new HashMap<>();
 
-    CreateUser interactor = new CreateUser(userDAO);
+    val interactor = new CreateUser(userDAO);
     for (int i = 0; i < 10; i++) {
-      UserRequestDTO inputUser = new UserRequestDTO()
+      val inputUser = new UserRequestDTO()
           .setUsername("user" + i)
           .setEmail("user" + i + "@user.com")
           .setPassword("test" + i)
           .setName("Name" + i);
 
-      UserResponseDTO responseUser = interactor.execute(inputUser);
+      val responseUser = interactor.execute(inputUser);
       responseUsers.put(responseUser.getId(), responseUser);
     }
   }
 
   @Test
   public void deleteSingleUser() {
-    UserResponseDTO responseUser = responseUsers.values().iterator().next();
-    UserRequestDTO inputUser = new UserRequestDTO()
+    val responseUser = responseUsers.values().iterator().next();
+    val inputUser = new UserRequestDTO()
         .setId(responseUser.getId());
 
     new DeleteUser(userDAO).execute(inputUser);
@@ -47,11 +48,13 @@ public class DeleteUserTest {
 
   @Test
   public void deleteSeveralUsers() {
-    for (UserResponseDTO responseUser : responseUsers.values()) {
-      UserRequestDTO inputUser = new UserRequestDTO()
+    val interactor = new DeleteUser(userDAO);
+
+    for (val responseUser : responseUsers.values()) {
+      val inputUser = new UserRequestDTO()
           .setId(responseUser.getId());
 
-      new DeleteUser(userDAO).execute(inputUser);
+      interactor.execute(inputUser);
 
       assertEquals(null, userDAO.findById(responseUser.getId()));
     }

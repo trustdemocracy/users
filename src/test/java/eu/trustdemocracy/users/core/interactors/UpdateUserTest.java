@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import eu.trustdemocracy.users.core.entities.User;
 import eu.trustdemocracy.users.core.entities.UserVisibility;
 import eu.trustdemocracy.users.core.entities.utils.CryptoUtils;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
@@ -14,6 +13,7 @@ import eu.trustdemocracy.users.gateways.fake.FakeUserDAO;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -26,72 +26,72 @@ public class UpdateUserTest {
     userDAO = new FakeUserDAO();
     responseUsers = new HashMap<>();
 
-    CreateUser interactor = new CreateUser(userDAO);
+    val interactor = new CreateUser(userDAO);
     for (int i = 0; i < 10; i++) {
-      UserRequestDTO inputUser = new UserRequestDTO()
+      val inputUser = new UserRequestDTO()
           .setUsername("user" + i)
           .setEmail("user" + i + "@user.com")
           .setPassword("test" + i)
           .setName("Name" + i);
 
-      UserResponseDTO responseUser = interactor.execute(inputUser);
+      val responseUser = interactor.execute(inputUser);
       responseUsers.put(responseUser.getId(), responseUser);
     }
   }
 
   @Test
   public void updateSingleUser() {
-    UserResponseDTO responseUser = responseUsers.values().iterator().next();
-    UserRequestDTO inputUser = new UserRequestDTO()
+    val responseUser = responseUsers.values().iterator().next();
+    val inputUser = new UserRequestDTO()
         .setId(responseUser.getId())
         .setUsername(responseUser.getUsername())
         .setEmail(responseUser.getEmail())
         .setName(null)
         .setSurname("TestSurname");
 
-    UserResponseDTO expectedUser = new UserResponseDTO()
+    val expectedUser = new UserResponseDTO()
         .setUsername(inputUser.getUsername())
         .setEmail(inputUser.getEmail())
         .setSurname(inputUser.getSurname())
         .setId(inputUser.getId());
 
-    UpdateUser interactor = new UpdateUser(userDAO);
-    responseUser = interactor.execute(inputUser);
+    val interactor = new UpdateUser(userDAO);
+    val resultUser = interactor.execute(inputUser);
 
-    assertEquals(expectedUser, responseUser);
+    assertEquals(expectedUser, resultUser);
   }
 
   @Test
   public void updateSeveralUsers() {
-    for (UserResponseDTO responseUser : responseUsers.values()) {
-      UserRequestDTO inputUser = new UserRequestDTO()
+    val interactor = new UpdateUser(userDAO);
+    for (val responseUser : responseUsers.values()) {
+      val inputUser = new UserRequestDTO()
           .setId(responseUser.getId())
           .setUsername(responseUser.getUsername())
           .setEmail(responseUser.getEmail())
           .setName(null)
           .setSurname("TestSurname");
 
-      UserResponseDTO expectedUser = new UserResponseDTO()
+      val expectedUser = new UserResponseDTO()
           .setUsername(inputUser.getUsername())
           .setEmail(inputUser.getEmail())
           .setSurname(inputUser.getSurname())
           .setId(inputUser.getId());
 
-      UpdateUser interactor = new UpdateUser(userDAO);
-      responseUser = interactor.execute(inputUser);
+      val resultUser = interactor.execute(inputUser);
 
-      assertEquals(expectedUser, responseUser);
+      assertEquals(expectedUser, resultUser);
     }
   }
 
   @Test
   public void noUpdateUsername() {
-    UserResponseDTO responseUser = responseUsers.values().iterator().next();
-    UserRequestDTO inputUser = new UserRequestDTO()
+    val responseUser = responseUsers.values().iterator().next();
+    val inputUser = new UserRequestDTO()
         .setId(responseUser.getId())
         .setUsername("NewUsername");
 
-    UserResponseDTO expectedUser = new UserResponseDTO()
+    val expectedUser = new UserResponseDTO()
         .setId(responseUser.getId())
         .setUsername(responseUser.getUsername());
 
@@ -105,7 +105,7 @@ public class UpdateUserTest {
       id = UUID.randomUUID();
     } while (responseUsers.containsKey(id));
 
-    UserRequestDTO inputUser = new UserRequestDTO()
+    val inputUser = new UserRequestDTO()
         .setId(id);
 
     assertThrows(IllegalStateException.class, () -> new UpdateUser(userDAO).execute(inputUser));
@@ -113,7 +113,7 @@ public class UpdateUserTest {
 
   @Test
   public void updateVisibility() {
-    UserResponseDTO responseUser = responseUsers.values().iterator().next();
+    val responseUser = responseUsers.values().iterator().next();
 
     UserRequestDTO inputUser = new UserRequestDTO()
         .setId(responseUser.getId())
@@ -133,14 +133,14 @@ public class UpdateUserTest {
 
   @Test
   public void updatePassword() {
-    UserResponseDTO responseUser = responseUsers.values().iterator().next();
+    val responseUser = responseUsers.values().iterator().next();
 
-    UserRequestDTO inputUser = new UserRequestDTO()
+    val inputUser = new UserRequestDTO()
         .setId(responseUser.getId())
         .setPassword("newPassword");
     new UpdateUser(userDAO).execute(inputUser);
 
-    User userInDB = userDAO.findById(responseUser.getId());
+    val userInDB = userDAO.findById(responseUser.getId());
 
     assertTrue(CryptoUtils.validate(userInDB.getPassword(), "newPassword"));
   }
