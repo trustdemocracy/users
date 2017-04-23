@@ -1,6 +1,6 @@
 FROM vertx/vertx3
 
-ENV VERTICLE_NAME eu.trustdemocracy.users.App
+ENV VERTICLE_NAME eu.trustdemocracy.users.endpoints.App
 ENV VERTICLE_FILE target/users-1.0-SNAPSHOT.jar
 
 
