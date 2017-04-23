@@ -7,6 +7,7 @@ import com.github.fakemongo.Fongo;
 import com.mongodb.Block;
 import com.mongodb.client.MongoDatabase;
 import eu.trustdemocracy.users.core.entities.User;
+import eu.trustdemocracy.users.core.entities.UserVisibility;
 import eu.trustdemocracy.users.core.entities.utils.CryptoUtils;
 import eu.trustdemocracy.users.gateways.UserDAO;
 import java.util.UUID;
@@ -23,7 +24,7 @@ public class MongoUserDAOTest {
   @BeforeEach
   public void init() {
     val fongo = new Fongo("test server");
-    db = fongo.getDatabase("test database");
+    db = fongo.getDatabase("test_database");
     userDAO = new MongoUserDAO(db);
   }
 
@@ -36,12 +37,20 @@ public class MongoUserDAOTest {
         .setEmail("test@email.com")
         .setName("test@email.com")
         .setSurname("testSurname")
+        .setVisibility(UserVisibility.PRIVATE)
         .setPassword(CryptoUtils.hash("test"));
 
     assertEquals(user, userDAO.createUser(user));
 
 
-    Block<Document> block = document -> assertEquals(user.getName(), document.toJson());
+    Block<Document> block = document -> {
+      assertEquals(user.getUsername(), document.getString("username"));
+      assertEquals(user.getEmail(), document.getString("email"));
+      assertEquals(user.getPassword(), document.getString("password"));
+      assertEquals(user.getVisibility().toString(), document.getString("visibility"));
+      assertEquals(user.getName(), document.getString("name"));
+      assertEquals(user.getSurname(), document.getString("surname"));
+    };
 
     db.getCollection("users")
         .find(eq("id", id))
