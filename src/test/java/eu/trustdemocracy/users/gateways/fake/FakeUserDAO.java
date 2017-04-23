@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.UUID;
 
 public class FakeUserDAO implements UserDAO {
-
   private Map<UUID, User> users = new HashMap<>();
   private UUID nextUniqueUUID;
 
@@ -47,5 +46,10 @@ public class FakeUserDAO implements UserDAO {
   @Override
   public User findById(UUID id) {
     return users.get(id);
+  }
+
+  @Override
+  public void deleteById(UUID id) {
+    users.remove(id);
   }
 }
