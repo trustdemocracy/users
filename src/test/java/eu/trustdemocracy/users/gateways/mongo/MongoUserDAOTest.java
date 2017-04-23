@@ -40,7 +40,7 @@ public class MongoUserDAOTest {
         .setVisibility(UserVisibility.PRIVATE)
         .setPassword(CryptoUtils.hash("test"));
 
-    assertEquals(user, userDAO.createUser(user));
+    assertEquals(user, userDAO.create(user));
 
 
     Block<Document> block = document -> {

@@ -25,7 +25,7 @@ public class CreateUser {
     }
 
     userRequestDTO.setVisibility(UserVisibility.PRIVATE);
-    User user = userDAO.createUser(UserMapper.createEntity(userRequestDTO));
+    User user = userDAO.create(UserMapper.createEntity(userRequestDTO));
     return UserMapper.createResponse(user);
   }
 

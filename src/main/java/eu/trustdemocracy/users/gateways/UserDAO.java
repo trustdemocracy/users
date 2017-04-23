@@ -5,7 +5,7 @@ import java.util.UUID;
 
 public interface UserDAO {
 
-  User createUser(User user);
+  User create(User user);
 
   UUID getUniqueUUID();
 

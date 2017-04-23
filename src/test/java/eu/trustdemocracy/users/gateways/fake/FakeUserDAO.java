@@ -11,7 +11,7 @@ public class FakeUserDAO implements UserDAO {
   private UUID nextUniqueUUID;
 
   @Override
-  public User createUser(User user) {
+  public User create(User user) {
     UUID uuid = getUniqueUUID();
     user.setId(uuid);
 

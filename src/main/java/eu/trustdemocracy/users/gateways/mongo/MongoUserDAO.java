@@ -18,7 +18,7 @@ public class MongoUserDAO implements UserDAO {
   }
 
   @Override
-  public User createUser(User user) {
+  public User create(User user) {
     val document = new Document("id", user.getId())
         .append("username", user.getUsername())
         .append("email", user.getEmail())
