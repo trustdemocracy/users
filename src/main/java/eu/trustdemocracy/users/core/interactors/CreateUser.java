@@ -19,7 +19,7 @@ public class CreateUser {
   public UserResponseDTO execute(UserRequestDTO userRequestDTO) {
     validateUserState(userRequestDTO);
 
-    if (userDAO.findWithUsername(userRequestDTO.getUsername()) != null) {
+    if (userDAO.findByUsername(userRequestDTO.getUsername()) != null) {
       throw new UsernameAlreadyExistsException(
           "The username [" + userRequestDTO.getUsername() + "] already exists");
     }

@@ -21,16 +21,7 @@ public class FakeUserDAO implements UserDAO {
   }
 
   @Override
-  public UUID getUniqueUUID() {
-    while (nextUniqueUUID == null || users.containsKey(nextUniqueUUID)) {
-      nextUniqueUUID = UUID.randomUUID();
-    }
-
-    return nextUniqueUUID;
-  }
-
-  @Override
-  public User findWithUsername(String username) {
+  public User findByUsername(String username) {
     return users.values().stream()
         .filter(user -> user.getUsername().equals(username))
         .findFirst()
@@ -51,5 +42,13 @@ public class FakeUserDAO implements UserDAO {
   @Override
   public void deleteById(UUID id) {
     users.remove(id);
+  }
+
+  public UUID getUniqueUUID() {
+    while (nextUniqueUUID == null || users.containsKey(nextUniqueUUID)) {
+      nextUniqueUUID = UUID.randomUUID();
+    }
+
+    return nextUniqueUUID;
   }
 }

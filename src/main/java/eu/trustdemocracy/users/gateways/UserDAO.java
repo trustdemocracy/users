@@ -7,9 +7,7 @@ public interface UserDAO {
 
   User create(User user);
 
-  UUID getUniqueUUID();
-
-  User findWithUsername(String username);
+  User findByUsername(String username);
 
   User update(User user);
 

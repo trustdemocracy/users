@@ -7,7 +7,6 @@ import eu.trustdemocracy.users.core.entities.UserVisibility;
 import eu.trustdemocracy.users.core.interactors.exceptions.UsernameAlreadyExistsException;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
-import eu.trustdemocracy.users.gateways.UserDAO;
 import eu.trustdemocracy.users.gateways.fake.FakeUserDAO;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +16,7 @@ import org.junit.jupiter.api.Test;
 
 public class CreateUserTest {
   private static List<UserRequestDTO> inputUsers;
-  private UserDAO userDAO;
+  private FakeUserDAO userDAO;
 
   @BeforeEach
   public void init() {

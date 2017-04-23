@@ -23,4 +23,9 @@ public class User {
     this.password = password;
     return this;
   }
+
+  public User setHashedPassword(String password) {
+    this.password = password;
+    return this;
+  }
 }
