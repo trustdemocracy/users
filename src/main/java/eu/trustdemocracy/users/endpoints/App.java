@@ -2,8 +2,8 @@ package eu.trustdemocracy.users.endpoints;
 
 import eu.trustdemocracy.users.endpoints.controllers.Controller;
 import eu.trustdemocracy.users.endpoints.controllers.UserController;
+import eu.trustdemocracy.users.endpoints.util.Runner;
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Vertx;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.Router;
@@ -16,25 +16,33 @@ import lombok.val;
 public class App extends AbstractVerticle {
 
   private static final Logger LOG = LoggerFactory.getLogger(App.class);
-  private static final int PORT = 8080;
+  private static final int DEFAULT_PORT = 8080;
 
   public static void main(String... args) {
-    val app = new App();
-    app.vertx = Vertx.vertx();
-    app.start();
+    Runner.runVerticle(App.class.getName());
   }
 
   @Override
   public void start() {
-    Router router = Router.router(vertx);
-    router.route().handler(BodyHandler.create());
-    registerControllers(router);
+    val port = config().getInteger("http.port", DEFAULT_PORT);
 
-    vertx.createHttpServer()
-        .requestHandler(router::accept)
-        .listen(PORT);
+    vertx.executeBlocking(future -> {
+      Router router = Router.router(vertx);
+      router.route().handler(BodyHandler.create());
+      registerControllers(router);
 
-    LOG.info("App listening on port: " + PORT);
+      vertx.createHttpServer()
+          .requestHandler(router::accept)
+          .listen(port);
+
+      future.complete();
+    }, result -> {
+      if (result.succeeded()) {
+        LOG.info("App listening on port: " + port);
+      } else {
+        LOG.error("Failed to start verticle", result.cause());
+      }
+    });
   }
 
   private void registerControllers(Router router) {
