@@ -33,9 +33,7 @@ public class MongoUserDAOTest {
 
   @Test
   public void createSingleUser() {
-    val id = UUID.randomUUID();
     val user = new User()
-        .setId(id)
         .setUsername("test")
         .setEmail("test@email.com")
         .setName("testName")
@@ -43,26 +41,23 @@ public class MongoUserDAOTest {
         .setVisibility(UserVisibility.PRIVATE)
         .setPassword(CryptoUtils.hash("test"));
 
-    assertEquals(0L, collection.count(eq("id", id.toString())));
-    assertEquals(user, userDAO.create(user));
-    assertNotEquals(0L, collection.count(eq("id", id.toString())));
+    assertEquals(0L, collection.count());
 
-    collection.find(eq("id", id.toString()))
+    createUserAndAssignId(user);
+
+    collection.find(eq("id", user.getId().toString()))
         .forEach(assertEqualsBlock(user));
   }
 
   @Test
   public void createBasicUser() {
-    val id = UUID.randomUUID();
     val user = new User()
-        .setId(id)
         .setUsername("test")
         .setEmail("test@email.com")
         .setVisibility(UserVisibility.PRIVATE)
         .setPassword(CryptoUtils.hash("test"));
 
-    assertEquals(user, userDAO.create(user));
-    assertNotEquals(0L, collection.count(eq("id", id.toString())));
+    createUserAndAssignId(user);
 
     Block<Document> block = document -> {
       assertEquals(user.getUsername(), document.getString("username"));
@@ -73,22 +68,19 @@ public class MongoUserDAOTest {
       assertEquals("", document.getString("surname"));
     };
 
-    collection.find(eq("id", id.toString()))
+    collection.find(eq("id", user.getId().toString()))
         .forEach(block);
   }
 
   @Test
   public void updateUser() {
-    val id = UUID.randomUUID();
     val user = new User()
-        .setId(id)
         .setUsername("test")
         .setEmail("test@email.com")
         .setVisibility(UserVisibility.PRIVATE)
         .setPassword(CryptoUtils.hash("test"));
 
-    userDAO.create(user);
-    assertNotEquals(0L, collection.count(eq("id", id.toString())));
+    createUserAndAssignId(user);
 
     user.setEmail("newEmail@email.com")
         .setVisibility(UserVisibility.PUBLIC)
@@ -97,65 +89,66 @@ public class MongoUserDAOTest {
         .setSurname("testSurname");
     assertEquals(user, userDAO.update(user));
 
-    collection.find(eq("id", id.toString()))
+    collection.find(eq("id", user.getId().toString()))
         .forEach(assertEqualsBlock(user));
   }
 
   @Test
   public void deleteUser() {
-    val id = UUID.randomUUID();
     val user = new User()
-        .setId(id)
         .setUsername("test")
         .setEmail("test@email.com")
         .setVisibility(UserVisibility.PRIVATE)
         .setPassword(CryptoUtils.hash("test"));
 
-    userDAO.create(user);
-    assertNotEquals(0L, collection.count(eq("id", id.toString())));
+    createUserAndAssignId(user);
 
-    val deletedUser = userDAO.deleteById(id);
+    val deletedUser = userDAO.deleteById(user.getId());
     assertEquals(user, deletedUser);
-    assertEquals(0L, collection.count(eq("id", id.toString())));
+    assertEquals(0L, collection.count(eq("id", user.getId().toString())));
   }
 
   @Test
   public void findById() {
-    val id = UUID.randomUUID();
     val user = new User()
-        .setId(id)
         .setUsername("test")
         .setEmail("test@email.com")
         .setVisibility(UserVisibility.PRIVATE)
         .setPassword(CryptoUtils.hash("test"));
 
-    userDAO.create(user);
-    assertNotEquals(0L, collection.count(eq("id", id.toString())));
-    val userFound = userDAO.findById(id);
+    createUserAndAssignId(user);
 
-    collection.find(eq("id", id.toString()))
+    val userFound = userDAO.findById(user.getId());
+
+    collection.find(eq("id", user.getId().toString()))
         .forEach(assertEqualsBlock(userFound));
   }
 
   @Test
   public void findByUsername() {
-    val id = UUID.randomUUID();
     val username = "test";
     val user = new User()
-        .setId(id)
         .setUsername(username)
         .setEmail("test@email.com")
         .setVisibility(UserVisibility.PRIVATE)
         .setPassword(CryptoUtils.hash("test"));
 
-    userDAO.create(user);
-    assertNotEquals(0L, collection.count(eq("username", username)));
+    createUserAndAssignId(user);
+
     val userFound = userDAO.findByUsername(username);
     assertNotNull(userFound);
 
     collection.find(eq("username", username))
         .forEach(assertEqualsBlock(userFound));
 
+  }
+
+  private User createUserAndAssignId(User user) {
+    val createdUser = userDAO.create(user);
+    user.setId(createdUser.getId());
+    assertEquals(user, createdUser);
+    assertNotEquals(0L, collection.count(eq("id", createdUser.getId().toString())));
+    return createdUser;
   }
 
   private Block<Document> assertEqualsBlock(User user) {

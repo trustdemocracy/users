@@ -22,6 +22,8 @@ public class MongoUserDAO implements UserDAO {
 
   @Override
   public User create(User user) {
+    user.setId(getUniqueUUID());
+
     val document = new Document("id", user.getId().toString())
         .append("username", user.getUsername())
         .append("email", user.getEmail())
@@ -29,6 +31,7 @@ public class MongoUserDAO implements UserDAO {
         .append("name", user.getName() != null ? user.getName() : "")
         .append("surname", user.getSurname() != null ? user.getSurname() : "")
         .append("visibility", user.getVisibility().toString());
+
     collection.insertOne(document);
     return user;
   }
@@ -36,6 +39,10 @@ public class MongoUserDAO implements UserDAO {
   @Override
   public User findByUsername(String username) {
     val userDocument = collection.find(eq("username", username)).first();
+    if (userDocument == null) {
+      return null;
+    }
+
     return buildFromDocument(userDocument);
   }
 
@@ -48,6 +55,7 @@ public class MongoUserDAO implements UserDAO {
         .append("name", user.getName() != null ? user.getName() : "")
         .append("surname", user.getSurname() != null ? user.getSurname() : "")
         .append("visibility", user.getVisibility().toString());
+
     collection.replaceOne(eq("id", user.getId().toString()), document);
     return user;
   }
@@ -55,6 +63,10 @@ public class MongoUserDAO implements UserDAO {
   @Override
   public User findById(UUID id) {
     val userDocument = collection.find(eq("id", id.toString())).first();
+    if (userDocument == null) {
+      return null;
+    }
+
     return buildFromDocument(userDocument);
   }
 
@@ -67,6 +79,14 @@ public class MongoUserDAO implements UserDAO {
 
     collection.deleteOne(userDocument);
     return buildFromDocument(userDocument);
+  }
+
+  private UUID getUniqueUUID() {
+    UUID id;
+    do {
+      id = UUID.randomUUID();
+    } while (findById(id) != null);
+    return id;
   }
 
   private User buildFromDocument(Document userDocument) {
