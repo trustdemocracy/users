@@ -1,4 +1,4 @@
-package eu.trustdemocracy.users.core.entities.utils;
+package eu.trustdemocracy.users.core.entities.util;
 
 import de.mkammerer.argon2.Argon2;
 import de.mkammerer.argon2.Argon2Factory;

@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import eu.trustdemocracy.users.core.entities.utils.CryptoUtils;
+import eu.trustdemocracy.users.core.entities.util.CryptoUtils;
 import org.junit.jupiter.api.Test;
 
 public class UserTest {

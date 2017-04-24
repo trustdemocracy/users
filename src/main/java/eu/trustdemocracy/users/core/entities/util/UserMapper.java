@@ -1,4 +1,4 @@
-package eu.trustdemocracy.users.core.entities.utils;
+package eu.trustdemocracy.users.core.entities.util;
 
 import eu.trustdemocracy.users.core.entities.User;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;

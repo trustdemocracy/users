@@ -1,6 +1,6 @@
 package eu.trustdemocracy.users.core.entities;
 
-import eu.trustdemocracy.users.core.entities.utils.CryptoUtils;
+import eu.trustdemocracy.users.core.entities.util.CryptoUtils;
 import java.util.UUID;
 import lombok.Data;
 import lombok.experimental.Accessors;

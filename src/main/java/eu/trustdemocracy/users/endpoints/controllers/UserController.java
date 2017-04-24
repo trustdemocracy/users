@@ -1,6 +1,6 @@
 package eu.trustdemocracy.users.endpoints.controllers;
 
-import eu.trustdemocracy.users.core.entities.utils.UserMapper;
+import eu.trustdemocracy.users.core.entities.util.UserMapper;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import io.vertx.core.json.Json;
 import io.vertx.ext.web.Router;

@@ -10,7 +10,7 @@ import com.mongodb.Block;
 import com.mongodb.client.MongoCollection;
 import eu.trustdemocracy.users.core.entities.User;
 import eu.trustdemocracy.users.core.entities.UserVisibility;
-import eu.trustdemocracy.users.core.entities.utils.CryptoUtils;
+import eu.trustdemocracy.users.core.entities.util.CryptoUtils;
 import eu.trustdemocracy.users.gateways.UserDAO;
 import java.util.UUID;
 import lombok.val;

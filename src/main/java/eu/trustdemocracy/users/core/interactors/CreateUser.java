@@ -1,7 +1,7 @@
 package eu.trustdemocracy.users.core.interactors;
 
 import eu.trustdemocracy.users.core.entities.UserVisibility;
-import eu.trustdemocracy.users.core.entities.utils.UserMapper;
+import eu.trustdemocracy.users.core.entities.util.UserMapper;
 import eu.trustdemocracy.users.core.interactors.exceptions.UsernameAlreadyExistsException;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
