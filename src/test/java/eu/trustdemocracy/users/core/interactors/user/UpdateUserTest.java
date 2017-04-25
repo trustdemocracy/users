@@ -1,4 +1,4 @@
-package eu.trustdemocracy.users.core.interactors;
+package eu.trustdemocracy.users.core.interactors.user;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.trustdemocracy.users.core.entities.UserVisibility;
 import eu.trustdemocracy.users.core.entities.util.CryptoUtils;
+import eu.trustdemocracy.users.core.interactors.user.CreateUser;
+import eu.trustdemocracy.users.core.interactors.user.UpdateUser;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
 import eu.trustdemocracy.users.gateways.UserDAO;

@@ -1,18 +1,17 @@
-package eu.trustdemocracy.users.core.interactors;
+package eu.trustdemocracy.users.core.interactors.user;
 
 import eu.trustdemocracy.users.core.entities.User;
 import eu.trustdemocracy.users.core.entities.util.UserMapper;
+import eu.trustdemocracy.users.core.interactors.UserInteractor;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
 import eu.trustdemocracy.users.gateways.UserDAO;
 import lombok.val;
 
-public class UpdateUser implements Interactor<UserRequestDTO, UserResponseDTO> {
-
-  private UserDAO userDAO;
+public class UpdateUser extends UserInteractor {
 
   public UpdateUser(UserDAO userDAO) {
-    this.userDAO = userDAO;
+    super(userDAO);
   }
 
   public UserResponseDTO execute(UserRequestDTO userRequestDTO) {

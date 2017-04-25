@@ -1,19 +1,18 @@
-package eu.trustdemocracy.users.core.interactors;
+package eu.trustdemocracy.users.core.interactors.user;
 
 import eu.trustdemocracy.users.core.entities.UserVisibility;
 import eu.trustdemocracy.users.core.entities.util.UserMapper;
+import eu.trustdemocracy.users.core.interactors.UserInteractor;
 import eu.trustdemocracy.users.core.interactors.exceptions.UsernameAlreadyExistsException;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
 import eu.trustdemocracy.users.gateways.UserDAO;
 import lombok.val;
 
-public class CreateUser implements Interactor<UserRequestDTO, UserResponseDTO> {
-
-  private UserDAO userDAO;
+public class CreateUser extends UserInteractor {
 
   public CreateUser(UserDAO userDAO) {
-    this.userDAO = userDAO;
+    super(userDAO);
   }
 
   public UserResponseDTO execute(UserRequestDTO userRequestDTO) {

@@ -1,7 +1,9 @@
-package eu.trustdemocracy.users.core.interactors;
+package eu.trustdemocracy.users.core.interactors.user;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import eu.trustdemocracy.users.core.interactors.user.CreateUser;
+import eu.trustdemocracy.users.core.interactors.user.DeleteUser;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
 import eu.trustdemocracy.users.gateways.UserDAO;
@@ -13,7 +15,7 @@ import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class GetUserTest {
+public class DeleteUserTest {
   private static Map<UUID, UserResponseDTO> responseUsers;
   private UserDAO userDAO;
 
@@ -36,12 +38,27 @@ public class GetUserTest {
   }
 
   @Test
-  public void getSingleUser() {
+  public void deleteSingleUser() {
     val responseUser = responseUsers.values().iterator().next();
     val inputUser = new UserRequestDTO()
         .setId(responseUser.getId());
 
-    assertEquals(responseUser, new GetUser(userDAO).execute(inputUser));
+    new DeleteUser(userDAO).execute(inputUser);
+
+    assertEquals(null, userDAO.findById(responseUser.getId()));
   }
 
+  @Test
+  public void deleteSeveralUsers() {
+    val interactor = new DeleteUser(userDAO);
+
+    for (val responseUser : responseUsers.values()) {
+      val inputUser = new UserRequestDTO()
+          .setId(responseUser.getId());
+
+      interactor.execute(inputUser);
+
+      assertEquals(null, userDAO.findById(responseUser.getId()));
+    }
+  }
 }

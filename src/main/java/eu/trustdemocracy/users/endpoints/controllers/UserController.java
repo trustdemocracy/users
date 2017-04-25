@@ -1,6 +1,6 @@
 package eu.trustdemocracy.users.endpoints.controllers;
 
-import eu.trustdemocracy.users.core.interactors.CreateUser;
+import eu.trustdemocracy.users.core.interactors.user.CreateUser;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.endpoints.App;
 import io.vertx.core.json.Json;
