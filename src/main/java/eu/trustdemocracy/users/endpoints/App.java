@@ -3,6 +3,8 @@ package eu.trustdemocracy.users.endpoints;
 import eu.trustdemocracy.users.endpoints.controllers.Controller;
 import eu.trustdemocracy.users.endpoints.controllers.UserController;
 import eu.trustdemocracy.users.endpoints.util.Runner;
+import eu.trustdemocracy.users.infrastructure.DefaultInteractorFactory;
+import eu.trustdemocracy.users.infrastructure.InteractorFactory;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
@@ -18,6 +20,10 @@ public class App extends AbstractVerticle {
   private static final Logger LOG = LoggerFactory.getLogger(App.class);
   private static final int DEFAULT_PORT = 8080;
 
+  private static InteractorFactory interactorFactory = DefaultInteractorFactory.getInstance();
+
+  private Router router;
+
   public static void main(String... args) {
     Runner.runVerticle(App.class.getName());
   }
@@ -27,9 +33,9 @@ public class App extends AbstractVerticle {
     val port = config().getInteger("http.port", DEFAULT_PORT);
 
     vertx.executeBlocking(future -> {
-      Router router = Router.router(vertx);
+      router = Router.router(vertx);
       router.route().handler(BodyHandler.create());
-      registerControllers(router);
+      registerControllers();
 
       vertx.createHttpServer()
           .requestHandler(router::accept)
@@ -45,19 +51,34 @@ public class App extends AbstractVerticle {
     });
   }
 
-  private void registerControllers(Router router) {
+  private void registerControllers() {
     val controllers = Stream.of(
         UserController.class
     ).collect(Collectors.toCollection(HashSet<Class<? extends Controller>>::new));
 
     for (val controller : controllers) {
       try {
-        val constructor = controller.getConstructor(Router.class);
-        constructor.newInstance(router);
+        val constructor = controller.getConstructor(App.class);
+        constructor.newInstance(this);
       } catch (Exception e) {
         LOG.error("Failing to attach controller [" + controller.getName() + "]", e);
       }
     }
+  }
+
+  public Router getRouter() {
+    return router;
+  }
+
+  public InteractorFactory getInteractorFactory() {
+    return interactorFactory;
+  }
+
+  public static void setInteractorFactory(InteractorFactory interactorFactory) {
+    if (interactorFactory == null) {
+      throw new NullPointerException("InteractorFactory cannot be null");
+    }
+    App.interactorFactory = interactorFactory;
   }
 
 }

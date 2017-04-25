@@ -34,7 +34,7 @@ public class UserControllerTest {
     socket.close();
 
     val options = new DeploymentOptions().setConfig(new JsonObject().put("http.port", port));
-
+    
     vertx.deployVerticle(App.class.getName(), options, context.asyncAssertSuccess());
   }
 

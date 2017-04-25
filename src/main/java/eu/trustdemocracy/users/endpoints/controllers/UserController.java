@@ -2,22 +2,22 @@ package eu.trustdemocracy.users.endpoints.controllers;
 
 import eu.trustdemocracy.users.core.entities.util.UserMapper;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
+import eu.trustdemocracy.users.endpoints.App;
 import io.vertx.core.json.Json;
-import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import java.util.UUID;
 import lombok.val;
 
 public class UserController extends Controller {
 
-  public UserController(Router router) {
-    super(router);
+  public UserController(App app) {
+    super(app);
   }
 
   @Override
   public void buildRoutes() {
-    router.get("/").handler(this::handleProposals);
-    router.post("/users").handler(this::createUser);
+    getRouter().get("/").handler(this::handleProposals);
+    getRouter().post("/users").handler(this::createUser);
   }
 
   private void handleProposals(RoutingContext routingContext) {
