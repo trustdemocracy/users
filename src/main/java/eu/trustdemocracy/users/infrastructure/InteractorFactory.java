@@ -7,6 +7,5 @@ import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
 public interface InteractorFactory {
 
   Interactor<UserRequestDTO, UserResponseDTO> createUserInteractor(
-      Class<? extends Interactor<UserRequestDTO, UserResponseDTO>> concreteClass)
-      throws ReflectiveOperationException;
+      Class<? extends Interactor<UserRequestDTO, UserResponseDTO>> concreteClass);
 }

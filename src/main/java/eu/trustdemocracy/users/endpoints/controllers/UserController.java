@@ -1,11 +1,10 @@
 package eu.trustdemocracy.users.endpoints.controllers;
 
-import eu.trustdemocracy.users.core.entities.util.UserMapper;
+import eu.trustdemocracy.users.core.interactors.CreateUser;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.endpoints.App;
 import io.vertx.core.json.Json;
 import io.vertx.ext.web.RoutingContext;
-import java.util.UUID;
 import lombok.val;
 
 public class UserController extends Controller {
@@ -26,11 +25,12 @@ public class UserController extends Controller {
 
   private void createUser(RoutingContext routingContext) {
     val requestUser = Json.decodeValue(routingContext.getBodyAsString(), UserRequestDTO.class);
-    val user = UserMapper.createEntity(requestUser).setId(UUID.randomUUID());
+    val interactor = getInteractorFactory().createUserInteractor(CreateUser.class);
+    val user = interactor.execute(requestUser);
 
     routingContext.response()
         .putHeader("content-type", "application/json")
         .setStatusCode(201)
-        .end(Json.encodePrettily(UserMapper.createResponse(user)));
+        .end(Json.encodePrettily(user));
   }
 }

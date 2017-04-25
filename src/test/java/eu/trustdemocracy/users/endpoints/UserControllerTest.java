@@ -3,6 +3,7 @@ package eu.trustdemocracy.users.endpoints;
 
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
+import eu.trustdemocracy.users.infrastructure.FakeInteractorFactory;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.Json;
@@ -34,7 +35,8 @@ public class UserControllerTest {
     socket.close();
 
     val options = new DeploymentOptions().setConfig(new JsonObject().put("http.port", port));
-    
+
+    App.setInteractorFactory(new FakeInteractorFactory());
     vertx.deployVerticle(App.class.getName(), options, context.asyncAssertSuccess());
   }
 
