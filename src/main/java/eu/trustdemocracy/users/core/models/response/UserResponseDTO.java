@@ -1,0 +1,17 @@
+package eu.trustdemocracy.users.core.models.response;
+
+import eu.trustdemocracy.users.core.entities.UserVisibility;
+import java.util.UUID;
+import lombok.Data;
+import lombok.experimental.Accessors;
+
+@Data
+@Accessors(chain = true)
+public class UserResponseDTO {
+  private UUID id;
+  private String username;
+  private String email;
+  private String name;
+  private String surname;
+  private UserVisibility visibility;
+}
