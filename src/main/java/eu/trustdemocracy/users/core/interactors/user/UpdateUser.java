@@ -28,6 +28,26 @@ public class UpdateUser extends UserInteractor {
           "Trying to update unexisting user with id [" + userRequestDTO.getId() + "]");
     }
 
+    fillEmptyAttributes(user, userRequestDTO);
+
     userRequestDTO.setUsername(user.getUsername());
+  }
+
+  private void fillEmptyAttributes(User user, UserRequestDTO userRequestDTO) {
+    if (userRequestDTO.getEmail() == null || userRequestDTO.getEmail().isEmpty()) {
+      userRequestDTO.setEmail(user.getEmail());
+    }
+
+    if (userRequestDTO.getName() == null) {
+      userRequestDTO.setName(user.getName());
+    }
+
+    if (userRequestDTO.getSurname() == null) {
+      userRequestDTO.setSurname(user.getSurname());
+    }
+
+    if (userRequestDTO.getVisibility() == null) {
+      userRequestDTO.setVisibility(user.getVisibility());
+    }
   }
 }

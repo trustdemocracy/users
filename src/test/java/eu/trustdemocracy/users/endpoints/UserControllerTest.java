@@ -139,6 +139,62 @@ public class UserControllerTest {
   }
 
   @Test
+  public void createUpdateAndFindUser(TestContext context) {
+    val async = context.async();
+
+    val userRequest = new UserRequestDTO()
+        .setUsername("test")
+        .setEmail("test@test.com")
+        .setPassword("password")
+        .setName("TestName")
+        .setSurname("TestSurname");
+
+    val single = client.post(port, HOST, "/users")
+        .rxSendJson(userRequest);
+
+    single.subscribe(response -> {
+      val responseUser = Json.decodeValue(response.body().toString(), UserResponseDTO.class);
+
+      userRequest.setId(responseUser.getId())
+          .setEmail("newEmail")
+          .setPassword("newPass")
+          .setName("NewName")
+          .setSurname("NewName");
+
+      client.put(port, HOST, "/users/" + userRequest.getId())
+          .rxSendJson(userRequest)
+          .subscribe(putResponse -> {
+            context.assertEquals(putResponse.statusCode(), 200);
+
+            client.get(port, HOST, "/users/" + responseUser.getId())
+                .rxSend()
+                .subscribe(getResponse -> {
+
+                  val newResponseUser = Json
+                      .decodeValue(getResponse.body().toString(), UserResponseDTO.class);
+                  context.assertEquals(userRequest.getId(), newResponseUser.getId());
+                  context
+                      .assertEquals(userRequest.getUsername(), newResponseUser.getUsername());
+                  context.assertEquals(userRequest.getEmail(), newResponseUser.getEmail());
+                  context.assertEquals(userRequest.getName(), newResponseUser.getName());
+                  context.assertEquals(userRequest.getSurname(), newResponseUser.getSurname());
+
+                  async.complete();
+                }, error -> {
+                  context.fail(error);
+                  async.complete();
+                });
+          }, error -> {
+            context.fail(error);
+            async.complete();
+          });
+    }, error -> {
+      context.fail(error);
+      async.complete();
+    });
+  }
+
+  @Test
   public void createDeleteAndFindUser(TestContext context) {
     val async = context.async();
 

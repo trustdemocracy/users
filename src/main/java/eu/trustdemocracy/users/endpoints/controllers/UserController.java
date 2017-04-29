@@ -3,6 +3,7 @@ package eu.trustdemocracy.users.endpoints.controllers;
 import eu.trustdemocracy.users.core.interactors.user.CreateUser;
 import eu.trustdemocracy.users.core.interactors.user.DeleteUser;
 import eu.trustdemocracy.users.core.interactors.user.GetUser;
+import eu.trustdemocracy.users.core.interactors.user.UpdateUser;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.endpoints.App;
 import io.vertx.core.json.Json;
@@ -21,6 +22,7 @@ public class UserController extends Controller {
     getRouter().get("/").handler(this::handleProposals);
     getRouter().post("/users").handler(this::createUser);
     getRouter().get("/users/:id").handler(this::findUser);
+    getRouter().put("/users/:id").handler(this::updateUser);
     getRouter().delete("/users/:id").handler(this::deleteUser);
   }
 
@@ -43,6 +45,17 @@ public class UserController extends Controller {
     val id = UUID.fromString(routingContext.pathParam("id"));
     val requestUser = new UserRequestDTO().setId(id);
     val interactor = getInteractorFactory().createUserInteractor(GetUser.class);
+    val user = interactor.execute(requestUser);
+
+    routingContext.response()
+        .putHeader("content-type", "application/json")
+        .setStatusCode(200)
+        .end(Json.encodePrettily(user));
+  }
+
+  private void updateUser(RoutingContext routingContext) {
+    val requestUser = Json.decodeValue(routingContext.getBodyAsString(), UserRequestDTO.class);
+    val interactor = getInteractorFactory().createUserInteractor(UpdateUser.class);
     val user = interactor.execute(requestUser);
 
     routingContext.response()
