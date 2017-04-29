@@ -19,7 +19,7 @@ public final class UserMapper {
           .setSurname(userRequestDTO.getSurname())
           .setVisibility(userRequestDTO.getVisibility());
 
-      if (userRequestDTO.getPassword() != null || !userRequestDTO.getPassword().isEmpty()) {
+      if (userRequestDTO.getPassword() != null && !userRequestDTO.getPassword().isEmpty()) {
         user.setPassword(userRequestDTO.getPassword());
       }
     }

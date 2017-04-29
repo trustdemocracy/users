@@ -6,8 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.trustdemocracy.users.core.entities.UserVisibility;
 import eu.trustdemocracy.users.core.entities.util.CryptoUtils;
-import eu.trustdemocracy.users.core.interactors.user.CreateUser;
-import eu.trustdemocracy.users.core.interactors.user.UpdateUser;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
 import eu.trustdemocracy.users.gateways.UserDAO;
@@ -54,8 +52,10 @@ public class UpdateUserTest {
     val expectedUser = new UserResponseDTO()
         .setUsername(inputUser.getUsername())
         .setEmail(inputUser.getEmail())
+        .setName(responseUser.getName())
         .setSurname(inputUser.getSurname())
-        .setId(inputUser.getId());
+        .setId(inputUser.getId())
+        .setVisibility(responseUser.getVisibility());
 
     val interactor = new UpdateUser(userDAO);
     val resultUser = interactor.execute(inputUser);
@@ -71,14 +71,16 @@ public class UpdateUserTest {
           .setId(responseUser.getId())
           .setUsername(responseUser.getUsername())
           .setEmail(responseUser.getEmail())
-          .setName(null)
+          .setName("")
           .setSurname("TestSurname");
 
       val expectedUser = new UserResponseDTO()
           .setUsername(inputUser.getUsername())
           .setEmail(inputUser.getEmail())
+          .setName(inputUser.getName())
           .setSurname(inputUser.getSurname())
-          .setId(inputUser.getId());
+          .setId(inputUser.getId())
+          .setVisibility(responseUser.getVisibility());
 
       val resultUser = interactor.execute(inputUser);
 
@@ -95,7 +97,11 @@ public class UpdateUserTest {
 
     val expectedUser = new UserResponseDTO()
         .setId(responseUser.getId())
-        .setUsername(responseUser.getUsername());
+        .setUsername(responseUser.getUsername())
+        .setEmail(responseUser.getEmail())
+        .setName(responseUser.getName())
+        .setSurname(responseUser.getSurname())
+        .setVisibility(responseUser.getVisibility());
 
     assertEquals(expectedUser, new UpdateUser(userDAO).execute(inputUser));
   }
