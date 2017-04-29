@@ -26,6 +26,18 @@
     </dependency>
 
     <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-web-client</artifactId>
+      <version>3.4.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-rx-java</artifactId>
+      <version>3.4.1</version>
+    </dependency>
+
+    <dependency>
       <groupId>de.mkammerer</groupId>
       <artifactId>argon2-jvm</artifactId>
       <version>2.2</version>

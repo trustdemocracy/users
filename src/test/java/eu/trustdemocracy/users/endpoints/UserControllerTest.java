@@ -5,11 +5,12 @@ import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
 import eu.trustdemocracy.users.infrastructure.FakeInteractorFactory;
 import io.vertx.core.DeploymentOptions;
-import io.vertx.core.Vertx;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import io.vertx.rxjava.core.Vertx;
+import io.vertx.rxjava.ext.web.client.WebClient;
 import java.io.IOException;
 import java.net.ServerSocket;
 import lombok.val;
@@ -25,10 +26,12 @@ public class UserControllerTest {
 
   private Vertx vertx;
   private Integer port;
+  private WebClient client;
 
   @Before
   public void setUp(TestContext context) throws IOException {
     vertx = Vertx.vertx();
+    client = WebClient.create(vertx);
 
     val socket = new ServerSocket(0);
     port = socket.getLocalPort();
@@ -49,12 +52,12 @@ public class UserControllerTest {
   public void testMyApplication(TestContext context) {
     val async = context.async();
 
-    vertx.createHttpClient().getNow(port, HOST, "/", response -> {
-      response.handler(body -> {
-        context.assertTrue(body.toString().contains("status"));
-        async.complete();
-      });
-    });
+    client.get(port, HOST, "/")
+        .rxSend()
+        .subscribe(response -> {
+          context.assertTrue(response.body().toString().contains("status"));
+          async.complete();
+        });
   }
 
   @Test
@@ -68,33 +71,71 @@ public class UserControllerTest {
         .setName("TestName")
         .setSurname("TestSurname");
 
-    val jsonUser = Json.encodePrettily(userRequest);
-    val length = Integer.toString(jsonUser.length());
+    val single = client.post(port, HOST, "/users")
+        .rxSendJson(userRequest);
 
+    single.subscribe(response -> {
+      context.assertEquals(response.statusCode(), 201);
+      context.assertTrue(response.headers().get("content-type").contains("application/json"));
 
-    vertx.createHttpClient().post(port, HOST, "/users")
-        .putHeader("content-type", "application/json")
-        .putHeader("content-length", length)
-        .handler(response -> {
-          context.assertEquals(response.statusCode(), 201);
-          context.assertTrue(response.headers().get("content-type").contains("application/json"));
+      val responseUser = Json.decodeValue(response.body().toString(), UserResponseDTO.class);
+      context.assertEquals(userRequest.getUsername(), responseUser.getUsername());
+      context.assertEquals(userRequest.getEmail(), responseUser.getEmail());
+      context.assertEquals(userRequest.getName(), responseUser.getName());
+      context.assertEquals(userRequest.getSurname(), responseUser.getSurname());
+      context.assertNotNull(responseUser.getId());
 
-          response.bodyHandler(body -> {
-            try {
-              val responseUser = Json.decodeValue(body.toString(), UserResponseDTO.class);
-              context.assertEquals(responseUser.getUsername(), userRequest.getUsername());
-              context.assertEquals(responseUser.getEmail(), userRequest.getEmail());
-              context.assertEquals(responseUser.getName(), userRequest.getName());
-              context.assertEquals(responseUser.getSurname(), userRequest.getSurname());
-              context.assertNotNull(responseUser.getId());
-            } catch (Exception e) {
-              context.fail(e);
-            } finally {
-              async.complete();
-            }
-          });
-        })
-        .write(jsonUser)
-        .end();
+      async.complete();
+    }, error -> {
+      context.fail(error);
+      async.complete();
+    });
   }
+
+  @Test
+  public void createAndFindUser(TestContext context) {
+    val async = context.async();
+
+    val userRequest = new UserRequestDTO()
+        .setUsername("test")
+        .setEmail("test@test.com")
+        .setPassword("password")
+        .setName("TestName")
+        .setSurname("TestSurname");
+
+    val single = client.post(port, HOST, "/users")
+        .rxSendJson(userRequest);
+
+    single.subscribe(response -> {
+      val responseUser = Json.decodeValue(response.body().toString(), UserResponseDTO.class);
+
+      client.get(port, HOST, "/users/" + responseUser.getId())
+          .rxSend()
+
+          .subscribe(getResponse -> {
+            context.assertEquals(getResponse.statusCode(), 200);
+            context
+                .assertTrue(getResponse.headers().get("content-type").contains("application/json"));
+
+            val newResponseUser = Json
+                .decodeValue(getResponse.body().toString(), UserResponseDTO.class);
+            context.assertEquals(responseUser.getId(), newResponseUser.getId());
+            context
+                .assertEquals(responseUser.getUsername(), newResponseUser.getUsername());
+            context.assertEquals(responseUser.getEmail(), newResponseUser.getEmail());
+            context.assertEquals(responseUser.getName(), newResponseUser.getName());
+            context.assertEquals(responseUser.getSurname(), newResponseUser.getSurname());
+
+            async.complete();
+          }, error -> {
+            context.fail(error);
+            async.complete();
+          });
+
+    }, error -> {
+      context.fail(error);
+      async.complete();
+    });
+  }
+
 }

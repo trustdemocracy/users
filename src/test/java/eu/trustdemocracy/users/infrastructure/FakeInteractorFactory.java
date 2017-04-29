@@ -10,8 +10,7 @@ import eu.trustdemocracy.users.gateways.mongo.MongoUserDAO;
 import lombok.val;
 
 public class FakeInteractorFactory implements InteractorFactory {
-
-  private static UserDAO userDAO;
+  private UserDAO userDAO;
 
   @Override
   public Interactor<UserRequestDTO, UserResponseDTO> createUserInteractor(

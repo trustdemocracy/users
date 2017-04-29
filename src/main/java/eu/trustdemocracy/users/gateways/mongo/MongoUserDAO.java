@@ -7,11 +7,14 @@ import com.mongodb.client.MongoDatabase;
 import eu.trustdemocracy.users.core.entities.User;
 import eu.trustdemocracy.users.core.entities.UserVisibility;
 import eu.trustdemocracy.users.gateways.UserDAO;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import java.util.UUID;
 import lombok.val;
 import org.bson.Document;
 
 public class MongoUserDAO implements UserDAO {
+  private static final Logger LOG = LoggerFactory.getLogger(MongoUserDAO.class);
 
   private static final String USERS_COLLECTION = "users";
   private MongoCollection<Document> collection;
