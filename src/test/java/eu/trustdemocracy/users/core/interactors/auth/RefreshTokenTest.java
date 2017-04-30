@@ -1,6 +1,7 @@
 package eu.trustdemocracy.users.core.interactors.auth;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import eu.trustdemocracy.users.core.interactors.user.CreateUser;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
@@ -16,6 +17,7 @@ import org.jose4j.jwa.AlgorithmConstraints.ConstraintType;
 import org.jose4j.jwk.RsaJsonWebKey;
 import org.jose4j.jwk.RsaJwkGenerator;
 import org.jose4j.jws.AlgorithmIdentifiers;
+import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
@@ -77,6 +79,31 @@ public class RefreshTokenTest {
     assertEquals(claims.get("name"), responseUser.getName());
     assertEquals(claims.get("surname"), responseUser.getSurname());
     assertEquals(claims.get("visibility"), responseUser.getVisibility().toString());
+  }
+
+  @Test
+  public void refreshInvalidToken() throws JoseException, InvalidJwtException {
+    val invalidKey = RsaJwkGenerator.generateJwk(2048).getRsaPrivateKey();
+    val issuedToken = responseUsers.keySet().iterator().next();
+
+    val jwtConsumer = new JwtConsumerBuilder()
+        .setRequireExpirationTime()
+        .setAllowedClockSkewInSeconds(30)
+        .setRequireSubject()
+        .setVerificationKey(rsaJsonWebKey.getKey())
+        .setJwsAlgorithmConstraints(new AlgorithmConstraints(ConstraintType.WHITELIST,
+            AlgorithmIdentifiers.RSA_USING_SHA256))
+        .build();
+
+    JwtClaims jwtClaims = jwtConsumer.processToClaims(issuedToken);
+
+    JsonWebSignature jws = new JsonWebSignature();
+    jws.setPayload(jwtClaims.toJson());
+    jws.setKey(invalidKey);
+    jws.setAlgorithmHeaderValue(AlgorithmIdentifiers.RSA_USING_SHA256);
+
+    assertThrows(RuntimeException.class, () ->
+        new RefreshToken(userDAO).execute(jws.getCompactSerialization()));
   }
 
 }
