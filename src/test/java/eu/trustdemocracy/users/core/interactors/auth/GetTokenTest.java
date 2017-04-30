@@ -1,7 +1,6 @@
 package eu.trustdemocracy.users.core.interactors.auth;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import eu.trustdemocracy.users.core.interactors.user.CreateUser;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
@@ -9,7 +8,6 @@ import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
 import eu.trustdemocracy.users.gateways.UserDAO;
 import eu.trustdemocracy.users.gateways.fake.FakeUserDAO;
 import eu.trustdemocracy.users.infrastructure.JWTKeyFactory;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -19,7 +17,6 @@ import org.jose4j.jwa.AlgorithmConstraints.ConstraintType;
 import org.jose4j.jwk.RsaJsonWebKey;
 import org.jose4j.jwk.RsaJwkGenerator;
 import org.jose4j.jws.AlgorithmIdentifiers;
-import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
@@ -30,6 +27,7 @@ import org.junit.jupiter.api.Test;
 public class GetTokenTest {
 
   private static Map<UUID, UserResponseDTO> responseUsers;
+  private static Map<String, UserRequestDTO> inputUsers;
   private UserDAO userDAO;
   private RsaJsonWebKey rsaJsonWebKey;
 
@@ -40,6 +38,7 @@ public class GetTokenTest {
 
     userDAO = new FakeUserDAO();
     responseUsers = new HashMap<>();
+    inputUsers = new HashMap<>();
 
     val interactor = new CreateUser(userDAO);
     for (int i = 0; i < 10; i++) {
@@ -49,22 +48,19 @@ public class GetTokenTest {
           .setPassword("test" + i)
           .setName("Name" + i);
 
+      inputUsers.put(inputUser.getUsername(), inputUser);
+
       val responseUser = interactor.execute(inputUser);
       responseUsers.put(responseUser.getId(), responseUser);
     }
   }
 
   @Test
-  public void getSingleToken() {
+  public void getSingleToken() throws JoseException, InvalidJwtException {
     val responseUser = responseUsers.values().iterator().next();
-    val inputUser = new UserRequestDTO()
-        .setUsername(responseUser.getUsername())
-        .setPassword("test1");
+    val inputUser = inputUsers.get(responseUser.getUsername());
 
     String token = new GetToken(userDAO).execute(inputUser);
-
-    val jws = new JsonWebSignature();
-    jws.setEncodedPayload(token);
 
     val jwtConsumer = new JwtConsumerBuilder()
         .setRequireExpirationTime()
@@ -75,19 +71,15 @@ public class GetTokenTest {
             AlgorithmIdentifiers.RSA_USING_SHA256))
         .build();
 
-    try {
-      JwtClaims jwtClaims = jwtConsumer.processToClaims(jws.getCompactSerialization());
+    JwtClaims jwtClaims = jwtConsumer.processToClaims(token);
 
-      val claims = jwtClaims.getClaimsMap();
-      assertEquals(claims.get("sub"), responseUser.getId());
-      assertEquals(claims.get("username"), responseUser.getUsername());
-      assertEquals(claims.get("email"), responseUser.getEmail());
-      assertEquals(claims.get("name"), responseUser.getName());
-      assertEquals(claims.get("surname"), responseUser.getSurname());
-      assertEquals(claims.get("visibility"), responseUser.getVisibility().toString());
-    } catch (InvalidJwtException | JoseException e) {
-      fail(Arrays.toString(e.getStackTrace()));
-    }
+    val claims = jwtClaims.getClaimsMap();
+    assertEquals(claims.get("sub"), responseUser.getId().toString());
+    assertEquals(claims.get("username"), responseUser.getUsername());
+    assertEquals(claims.get("email"), responseUser.getEmail());
+    assertEquals(claims.get("name"), responseUser.getName());
+    assertEquals(claims.get("surname"), responseUser.getSurname());
+    assertEquals(claims.get("visibility"), responseUser.getVisibility().toString());
   }
 
 }
