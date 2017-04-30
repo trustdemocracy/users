@@ -53,6 +53,16 @@ public class DAOFactory {
         .getResourceAsStream(DATABASE_PROPERTIES_FILE);
     properties.load(inputStream);
     inputStream.close();
+
+    loadSystemProperties(properties);
+
     return properties;
+  }
+
+  private static void loadSystemProperties(Properties properties) {
+    val dbHost = System.getenv("db_host");
+    if (dbHost != null) {
+      properties.put(PROPERTIES_KEY_SERVER, dbHost);
+    }
   }
 }

@@ -6,6 +6,7 @@ import eu.trustdemocracy.users.endpoints.controllers.UserController;
 import eu.trustdemocracy.users.endpoints.util.Runner;
 import eu.trustdemocracy.users.infrastructure.DefaultInteractorFactory;
 import eu.trustdemocracy.users.infrastructure.InteractorFactory;
+import eu.trustdemocracy.users.infrastructure.JWTKeyFactory;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
@@ -15,6 +16,8 @@ import java.util.HashSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.val;
+import org.jose4j.jwk.RsaJwkGenerator;
+import org.jose4j.lang.JoseException;
 
 public class App extends AbstractVerticle {
 
@@ -34,6 +37,7 @@ public class App extends AbstractVerticle {
     val port = config().getInteger("http.port", DEFAULT_PORT);
 
     vertx.executeBlocking(future -> {
+      setKeys();
       router = Router.router(vertx);
       router.route().handler(BodyHandler.create());
       registerControllers();
@@ -81,6 +85,16 @@ public class App extends AbstractVerticle {
       throw new NullPointerException("InteractorFactory cannot be null");
     }
     App.interactorFactory = interactorFactory;
+  }
+
+  private void setKeys() {
+    try {
+      val rsaJsonWebKey = RsaJwkGenerator.generateJwk(2048);
+      JWTKeyFactory.setPrivateKey(rsaJsonWebKey.getPrivateKey());
+      JWTKeyFactory.setPublicKey(rsaJsonWebKey.getPublicKey());
+    } catch (JoseException e) {
+      throw new RuntimeException(e);
+    }
   }
 
 }
