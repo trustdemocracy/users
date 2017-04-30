@@ -1,6 +1,7 @@
 package eu.trustdemocracy.users.endpoints;
 
 
+import eu.trustdemocracy.users.core.interactors.auth.GetToken;
 import eu.trustdemocracy.users.core.interactors.user.CreateUser;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.infrastructure.FakeInteractorFactory;
@@ -103,6 +104,63 @@ public class AuthControllerTest {
         val claims = jwtClaims.getClaimsMap();
         context.assertEquals(claims.get("sub"), responseUser.getId().toString());
         context.assertEquals(claims.get("username"), responseUser.getUsername());
+        context.assertEquals(claims.get("email"), responseUser.getEmail());
+        context.assertEquals(claims.get("name"), responseUser.getName());
+        context.assertEquals(claims.get("surname"), responseUser.getSurname());
+        context.assertEquals(claims.get("visibility"), responseUser.getVisibility().toString());
+      } catch (InvalidJwtException e) {
+        context.fail(e);
+      } finally {
+        async.complete();
+      }
+    }, error -> {
+      context.fail(error);
+      async.complete();
+    });
+  }
+
+  @Test
+  public void refreshToken(TestContext context) {
+    val async = context.async();
+
+    val inputUser = new UserRequestDTO()
+        .setUsername("test")
+        .setEmail("test@test.com")
+        .setPassword("password")
+        .setName("TestName")
+        .setSurname("TestSurname");
+    val userInteractor = interactorFactory.createUserInteractor(CreateUser.class);
+    val responseUser = userInteractor.execute(inputUser);
+
+
+    val authInteractor = interactorFactory.createAuthInteractor(GetToken.class);
+    val jsonToken = new JsonObject().put("token", authInteractor.execute(inputUser));
+
+    val single = client.post(port, HOST, "/token/refresh")
+        .rxSendJson(jsonToken);
+
+    single.subscribe(response -> {
+      context.assertEquals(response.statusCode(), 200);
+      context.assertTrue(response.headers().get("content-type").contains("application/json"));
+
+      val token = response.body().toJsonObject().getString("token");
+
+      context.assertNotEquals(jsonToken.getString("token"), token);
+
+      val jwtConsumer = new JwtConsumerBuilder()
+          .setRequireExpirationTime()
+          .setAllowedClockSkewInSeconds(30)
+          .setRequireSubject()
+          .setVerificationKey(rsaJsonWebKey.getKey())
+          .setJwsAlgorithmConstraints(new AlgorithmConstraints(ConstraintType.WHITELIST,
+              AlgorithmIdentifiers.RSA_USING_SHA256))
+          .build();
+
+      try {
+        val jwtClaims = jwtConsumer.processToClaims(token);
+        val claims = jwtClaims.getClaimsMap();
+        context.assertEquals(claims.get("username"), responseUser.getUsername());
+        context.assertEquals(claims.get("sub"), responseUser.getId().toString());
         context.assertEquals(claims.get("email"), responseUser.getEmail());
         context.assertEquals(claims.get("name"), responseUser.getName());
         context.assertEquals(claims.get("surname"), responseUser.getSurname());
