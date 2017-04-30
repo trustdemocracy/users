@@ -1,5 +1,6 @@
 package eu.trustdemocracy.users.endpoints;
 
+import eu.trustdemocracy.users.endpoints.controllers.AuthController;
 import eu.trustdemocracy.users.endpoints.controllers.Controller;
 import eu.trustdemocracy.users.endpoints.controllers.UserController;
 import eu.trustdemocracy.users.endpoints.util.Runner;
@@ -53,7 +54,8 @@ public class App extends AbstractVerticle {
 
   private void registerControllers() {
     val controllers = Stream.of(
-        UserController.class
+        UserController.class,
+        AuthController.class
     ).collect(Collectors.toCollection(HashSet<Class<? extends Controller>>::new));
 
     for (val controller : controllers) {

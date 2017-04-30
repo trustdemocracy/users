@@ -19,15 +19,10 @@ public class UserController extends Controller {
 
   @Override
   public void buildRoutes() {
-    getRouter().get("/").handler(this::handleProposals);
     getRouter().post("/users").handler(this::createUser);
     getRouter().get("/users/:id").handler(this::findUser);
     getRouter().put("/users/:id").handler(this::updateUser);
     getRouter().delete("/users/:id").handler(this::deleteUser);
-  }
-
-  private void handleProposals(RoutingContext routingContext) {
-    routingContext.response().putHeader("content-type", "application/json").end("{'status': 'ok'}");
   }
 
   private void createUser(RoutingContext routingContext) {

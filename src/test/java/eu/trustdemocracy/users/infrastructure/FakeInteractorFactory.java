@@ -3,6 +3,8 @@ package eu.trustdemocracy.users.infrastructure;
 import com.github.fakemongo.Fongo;
 import eu.trustdemocracy.users.core.interactors.Interactor;
 import eu.trustdemocracy.users.core.interactors.UserInteractor;
+import eu.trustdemocracy.users.core.interactors.auth.GetToken;
+import eu.trustdemocracy.users.core.interactors.auth.RefreshToken;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
 import eu.trustdemocracy.users.gateways.UserDAO;
@@ -22,6 +24,16 @@ public class FakeInteractorFactory implements InteractorFactory {
     } catch (ReflectiveOperationException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  @Override
+  public GetToken createGetTokenInteractor() {
+    return new GetToken(getFakeDAO());
+  }
+
+  @Override
+  public RefreshToken createRefreshTokenInteractor() {
+    return new RefreshToken(getFakeDAO());
   }
 
   private UserDAO getFakeDAO() {

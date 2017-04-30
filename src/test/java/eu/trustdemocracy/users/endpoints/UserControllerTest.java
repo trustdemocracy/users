@@ -49,18 +49,6 @@ public class UserControllerTest {
   }
 
   @Test
-  public void testMyApplication(TestContext context) {
-    val async = context.async();
-
-    client.get(port, HOST, "/")
-        .rxSend()
-        .subscribe(response -> {
-          context.assertTrue(response.body().toString().contains("status"));
-          async.complete();
-        });
-  }
-
-  @Test
   public void createUser(TestContext context) {
     val async = context.async();
 
