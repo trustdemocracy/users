@@ -33,6 +33,7 @@ public class RefreshTokenTest {
   public void init() throws JoseException {
     rsaJsonWebKey = RsaJwkGenerator.generateJwk(2048);
     JWTKeyFactory.setPrivateKey(rsaJsonWebKey.getPrivateKey());
+    JWTKeyFactory.setPublicKey(rsaJsonWebKey.getPublicKey());
 
     userDAO = new FakeUserDAO();
     responseUsers = new HashMap<>();
