@@ -44,6 +44,7 @@ public class AuthControllerTest {
   public void setUp(TestContext context) throws IOException, JoseException {
     rsaJsonWebKey = RsaJwkGenerator.generateJwk(2048);
     JWTKeyFactory.setPrivateKey(rsaJsonWebKey.getPrivateKey());
+    JWTKeyFactory.setPublicKey(rsaJsonWebKey.getPublicKey());
 
     vertx = Vertx.vertx();
     client = WebClient.create(vertx);

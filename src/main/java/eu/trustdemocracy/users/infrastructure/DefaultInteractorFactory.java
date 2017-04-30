@@ -3,6 +3,7 @@ package eu.trustdemocracy.users.infrastructure;
 import eu.trustdemocracy.users.core.interactors.AuthInteractor;
 import eu.trustdemocracy.users.core.interactors.Interactor;
 import eu.trustdemocracy.users.core.interactors.UserInteractor;
+import eu.trustdemocracy.users.core.interactors.auth.RefreshToken;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
 import eu.trustdemocracy.users.gateways.UserDAO;
@@ -44,5 +45,10 @@ public class DefaultInteractorFactory implements InteractorFactory {
     } catch (ReflectiveOperationException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  @Override
+  public RefreshToken createRefreshTokenInteractor() {
+    return new RefreshToken(DAOFactory.getUserDAO());
   }
 }
