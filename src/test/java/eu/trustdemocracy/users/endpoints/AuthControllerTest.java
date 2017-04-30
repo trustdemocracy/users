@@ -1,7 +1,6 @@
 package eu.trustdemocracy.users.endpoints;
 
 
-import eu.trustdemocracy.users.core.interactors.auth.GetToken;
 import eu.trustdemocracy.users.core.interactors.user.CreateUser;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.infrastructure.FakeInteractorFactory;
@@ -134,7 +133,7 @@ public class AuthControllerTest {
     val responseUser = userInteractor.execute(inputUser);
 
 
-    val authInteractor = interactorFactory.createAuthInteractor(GetToken.class);
+    val authInteractor = interactorFactory.createGetTokenInteractor();
     val jsonToken = new JsonObject().put("token", authInteractor.execute(inputUser));
 
     val single = client.post(port, HOST, "/token/refresh")

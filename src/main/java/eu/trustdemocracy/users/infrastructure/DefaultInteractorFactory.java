@@ -1,8 +1,8 @@
 package eu.trustdemocracy.users.infrastructure;
 
-import eu.trustdemocracy.users.core.interactors.AuthInteractor;
 import eu.trustdemocracy.users.core.interactors.Interactor;
 import eu.trustdemocracy.users.core.interactors.UserInteractor;
+import eu.trustdemocracy.users.core.interactors.auth.GetToken;
 import eu.trustdemocracy.users.core.interactors.auth.RefreshToken;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
@@ -36,15 +36,8 @@ public class DefaultInteractorFactory implements InteractorFactory {
   }
 
   @Override
-  public Interactor<UserRequestDTO, String> createAuthInteractor(
-      Class<? extends AuthInteractor> concreteClass) {
-    try {
-      val constructor = concreteClass.getConstructor(UserDAO.class);
-      val userDAO = DAOFactory.getUserDAO();
-      return constructor.newInstance(userDAO);
-    } catch (ReflectiveOperationException e) {
-      throw new RuntimeException(e);
-    }
+  public GetToken createGetTokenInteractor() {
+    return new GetToken(DAOFactory.getUserDAO());
   }
 
   @Override

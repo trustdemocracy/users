@@ -1,6 +1,5 @@
 package eu.trustdemocracy.users.endpoints.controllers;
 
-import eu.trustdemocracy.users.core.interactors.auth.GetToken;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.endpoints.App;
 import io.vertx.core.json.Json;
@@ -22,7 +21,7 @@ public class AuthController extends Controller {
 
   private void getToken(RoutingContext routingContext) {
     val requestUser = Json.decodeValue(routingContext.getBodyAsString(), UserRequestDTO.class);
-    val interactor = getInteractorFactory().createAuthInteractor(GetToken.class);
+    val interactor = getInteractorFactory().createGetTokenInteractor();
     val token = interactor.execute(requestUser);
     val json = new JsonObject().put("token", token);
 
