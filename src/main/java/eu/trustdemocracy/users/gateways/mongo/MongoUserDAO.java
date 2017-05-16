@@ -84,6 +84,16 @@ public class MongoUserDAO implements UserDAO {
     return buildFromDocument(userDocument);
   }
 
+  @Override
+  public void storeRefreshToken(UUID userId, String refreshToken) {
+
+  }
+
+  @Override
+  public boolean findRefreshToken(UUID userId, String refreshToken) {
+    return false;
+  }
+
   private UUID getUniqueUUID() {
     UUID id;
     do {

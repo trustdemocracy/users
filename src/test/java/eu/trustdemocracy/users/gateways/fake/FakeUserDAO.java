@@ -9,6 +9,7 @@ import lombok.val;
 
 public class FakeUserDAO implements UserDAO {
   private Map<UUID, User> users = new HashMap<>();
+  private Map<UUID, String> refreshTokens = new HashMap<>();
   private UUID nextUniqueUUID;
 
   @Override
@@ -45,6 +46,16 @@ public class FakeUserDAO implements UserDAO {
     val user = users.get(id);
     users.remove(id);
     return user;
+  }
+
+  @Override
+  public void storeRefreshToken(UUID userId, String refreshToken) {
+    refreshTokens.put(userId, refreshToken);
+  }
+
+  @Override
+  public boolean findRefreshToken(UUID userId, String refreshToken) {
+    return refreshTokens.remove(userId, refreshToken);
   }
 
   public UUID getUniqueUUID() {

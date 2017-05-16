@@ -37,6 +37,8 @@ public class GetToken implements Interactor<UserRequestDTO, GetTokenResponseDTO>
 
     val refreshToken = CryptoUtils.randomToken();
 
+    userDAO.storeRefreshToken(user.getId(), refreshToken);
+
     return TokenMapper.createResponse(user, refreshToken);
   }
 

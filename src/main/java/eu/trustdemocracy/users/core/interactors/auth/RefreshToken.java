@@ -7,6 +7,7 @@ import eu.trustdemocracy.users.core.models.request.RefreshTokenRequestDTO;
 import eu.trustdemocracy.users.core.models.response.GetTokenResponseDTO;
 import eu.trustdemocracy.users.gateways.UserDAO;
 import eu.trustdemocracy.users.infrastructure.JWTKeyFactory;
+import java.util.UUID;
 import lombok.val;
 import org.jose4j.jwa.AlgorithmConstraints;
 import org.jose4j.jwa.AlgorithmConstraints.ConstraintType;
@@ -36,13 +37,21 @@ public class RefreshToken implements Interactor<RefreshTokenRequestDTO, GetToken
     try {
       val jwtClaims = jwtConsumer.processToClaims(requestDTO.getAccessToken());
       val claims = jwtClaims.getClaimsMap();
+      val id = UUID.fromString(String.valueOf(claims.get("sub")));
+      val username = String.valueOf(claims.get("username"));
 
-      val user = userDAO.findByUsername(String.valueOf(claims.get("username")));
+      val found = userDAO.findRefreshToken(id, requestDTO.getRefreshToken());
+      if (!found) {
+        throw new RuntimeException(
+            "Invalid id or refresh token for user [" + username + "]");
+      }
+
+      val user = userDAO.findByUsername(username);
 
       val refreshToken = CryptoUtils.randomToken();
 
       return TokenMapper.createResponse(user, refreshToken);
-    } catch (InvalidJwtException e) {
+    } catch (InvalidJwtException | IllegalArgumentException e) {
       throw new RuntimeException(e);
     }
   }
