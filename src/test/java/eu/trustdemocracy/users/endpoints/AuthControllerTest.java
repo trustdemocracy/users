@@ -120,6 +120,32 @@ public class AuthControllerTest {
   }
 
   @Test
+  public void getTokenFromNonExistingUser(TestContext context) {
+    val async = context.async();
+
+    val jsonUser = new JsonObject()
+        .put("username", "test")
+        .put("password", "password");
+
+    val single = client.post(port, HOST, "/token")
+        .rxSendJson(jsonUser);
+
+    single.subscribe(response -> {
+      context.assertEquals(response.statusCode(), 401);
+      context.assertTrue(response.headers().get("content-type").contains("application/json"));
+
+      val errorMessage = response.body().toJsonObject().getString("message");
+
+      context.assertEquals(errorMessage, "Bad credentials");
+
+      async.complete();
+    }, error -> {
+      context.fail(error);
+      async.complete();
+    });
+  }
+
+  @Test
   public void refreshToken(TestContext context) {
     val async = context.async();
 
@@ -131,7 +157,6 @@ public class AuthControllerTest {
         .setSurname("TestSurname");
     val userInteractor = interactorFactory.createUserInteractor(CreateUser.class);
     val responseUser = userInteractor.execute(inputUser);
-
 
     val authInteractor = interactorFactory.createGetTokenInteractor();
     val jsonToken = new JsonObject().put("token", authInteractor.execute(inputUser));
