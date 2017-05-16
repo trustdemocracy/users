@@ -23,7 +23,7 @@ public class GetToken implements Interactor<UserRequestDTO, String> {
    *
    * @param userRequestDTO the DTO containing the username and password
    * @return the JWT token containing and signing the user information
-   * @exception CredentialsNotFoundException if the username doesn't exist or the password is wrong
+   * @throws CredentialsNotFoundException if the username doesn't exist or the password is wrong
    */
   @Override
   public String execute(UserRequestDTO userRequestDTO) {
@@ -37,6 +37,14 @@ public class GetToken implements Interactor<UserRequestDTO, String> {
     return UserMapper.createToken(user);
   }
 
+  /**
+   * Returns a user by its username and a valid password
+   *
+   * @param username username of the user to be found
+   * @param password password tied to that user
+   * @return user in case of valid credentials and null whether the username doesn't exist or the
+   * password is wrong
+   */
   private User getUser(String username, String password) {
     val user = userDAO.findByUsername(username);
     if (user != null && CryptoUtils.validate(user.getPassword(), password)) {
