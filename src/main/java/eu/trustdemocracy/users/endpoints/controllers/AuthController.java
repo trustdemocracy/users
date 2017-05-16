@@ -26,9 +26,9 @@ public class AuthController extends Controller {
     val interactor = getInteractorFactory().createGetTokenInteractor();
 
     try {
-      val token = interactor.execute(requestUser);
+      val tokenResponse = interactor.execute(requestUser);
       val json = new JsonObject()
-          .put("token", token);
+          .put("accessToken", tokenResponse.getJwtToken());
 
       routingContext.response()
           .putHeader("content-type", "application/json")
@@ -48,8 +48,9 @@ public class AuthController extends Controller {
   private void refreshToken(RoutingContext routingContext) {
     val inputToken = routingContext.getBodyAsJson().getString("token");
     val interactor = getInteractorFactory().createRefreshTokenInteractor();
-    val token = interactor.execute(inputToken);
-    val json = new JsonObject().put("token", token);
+    val tokenResponse = interactor.execute(inputToken);
+    val json = new JsonObject()
+        .put("accessToken", tokenResponse.getJwtToken());
 
     routingContext.response()
         .putHeader("content-type", "application/json")

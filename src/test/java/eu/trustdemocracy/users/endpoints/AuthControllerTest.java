@@ -88,7 +88,7 @@ public class AuthControllerTest {
       context.assertEquals(response.statusCode(), 200);
       context.assertTrue(response.headers().get("content-type").contains("application/json"));
 
-      val token = response.body().toJsonObject().getString("token");
+      val token = response.body().toJsonObject().getString("accessToken");
 
       val jwtConsumer = new JwtConsumerBuilder()
           .setRequireExpirationTime()
@@ -159,7 +159,7 @@ public class AuthControllerTest {
     val responseUser = userInteractor.execute(inputUser);
 
     val authInteractor = interactorFactory.createGetTokenInteractor();
-    val jsonToken = new JsonObject().put("token", authInteractor.execute(inputUser));
+    val jsonToken = new JsonObject().put("token", authInteractor.execute(inputUser).getJwtToken());
 
     val single = client.post(port, HOST, "/token/refresh")
         .rxSendJson(jsonToken);
@@ -168,7 +168,7 @@ public class AuthControllerTest {
       context.assertEquals(response.statusCode(), 200);
       context.assertTrue(response.headers().get("content-type").contains("application/json"));
 
-      val token = response.body().toJsonObject().getString("token");
+      val token = response.body().toJsonObject().getString("accessToken");
 
       context.assertNotEquals(jsonToken.getString("token"), token);
 
