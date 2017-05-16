@@ -27,7 +27,6 @@ public class RefreshToken implements Interactor<RefreshTokenRequestDTO, GetToken
   @Override
   public GetTokenResponseDTO execute(RefreshTokenRequestDTO requestDTO) {
     val jwtConsumer = new JwtConsumerBuilder()
-        .setRequireExpirationTime()
         .setAllowedClockSkewInSeconds(30)
         .setRequireSubject()
         .setVerificationKey(JWTKeyFactory.getPublicKey())
