@@ -1,6 +1,7 @@
 package eu.trustdemocracy.users.endpoints.controllers;
 
 import eu.trustdemocracy.users.core.interactors.exceptions.CredentialsNotFoundException;
+import eu.trustdemocracy.users.core.models.request.RefreshTokenRequestDTO;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.endpoints.APIMessages;
 import eu.trustdemocracy.users.endpoints.App;
@@ -46,9 +47,10 @@ public class AuthController extends Controller {
   }
 
   private void refreshToken(RoutingContext routingContext) {
-    val inputToken = routingContext.getBodyAsJson().getString("token");
+    val requestDTO = Json
+        .decodeValue(routingContext.getBodyAsString(), RefreshTokenRequestDTO.class);
     val interactor = getInteractorFactory().createRefreshTokenInteractor();
-    val tokenResponse = interactor.execute(inputToken);
+    val tokenResponse = interactor.execute(requestDTO);
     val json = new JsonObject()
         .put("accessToken", tokenResponse.getJwtToken());
 

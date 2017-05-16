@@ -95,7 +95,8 @@ public class GetTokenTest {
         .setUsername("nonexistinguser")
         .setPassword("test");
 
-    assertThrows(CredentialsNotFoundException.class, () -> new GetToken(userDAO).execute(inputUser));
+    assertThrows(CredentialsNotFoundException.class,
+        () -> new GetToken(userDAO).execute(inputUser));
   }
 
 }

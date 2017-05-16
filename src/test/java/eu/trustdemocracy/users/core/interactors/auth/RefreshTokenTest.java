@@ -4,7 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import eu.trustdemocracy.users.core.entities.util.CryptoUtils;
 import eu.trustdemocracy.users.core.interactors.user.CreateUser;
+import eu.trustdemocracy.users.core.models.request.RefreshTokenRequestDTO;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.GetTokenResponseDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
@@ -19,7 +21,6 @@ import org.jose4j.jwa.AlgorithmConstraints.ConstraintType;
 import org.jose4j.jwk.RsaJsonWebKey;
 import org.jose4j.jwk.RsaJwkGenerator;
 import org.jose4j.jws.AlgorithmIdentifiers;
-import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
@@ -61,7 +62,11 @@ public class RefreshTokenTest {
     val issuedToken = responseUsers.keySet().iterator().next();
     val responseUser = responseUsers.get(issuedToken);
 
-    GetTokenResponseDTO token = new RefreshToken(userDAO).execute(issuedToken.getJwtToken());
+    val requestDTO = new RefreshTokenRequestDTO()
+        .setAccessToken(issuedToken.getJwtToken())
+        .setRefreshToken(issuedToken.getRefreshToken());
+
+    GetTokenResponseDTO token = new RefreshToken(userDAO).execute(requestDTO);
 
     assertNotNull(token.getRefreshToken());
 
@@ -87,27 +92,14 @@ public class RefreshTokenTest {
 
   @Test
   public void refreshInvalidToken() throws JoseException, InvalidJwtException {
-    val invalidKey = RsaJwkGenerator.generateJwk(2048).getRsaPrivateKey();
     val issuedToken = responseUsers.keySet().iterator().next();
+    val invalidToken = CryptoUtils.randomToken();
 
-    val jwtConsumer = new JwtConsumerBuilder()
-        .setRequireExpirationTime()
-        .setAllowedClockSkewInSeconds(30)
-        .setRequireSubject()
-        .setVerificationKey(rsaJsonWebKey.getKey())
-        .setJwsAlgorithmConstraints(new AlgorithmConstraints(ConstraintType.WHITELIST,
-            AlgorithmIdentifiers.RSA_USING_SHA256))
-        .build();
+    val requestDTO = new RefreshTokenRequestDTO()
+        .setAccessToken(issuedToken.getJwtToken())
+        .setRefreshToken(invalidToken);
 
-    JwtClaims jwtClaims = jwtConsumer.processToClaims(issuedToken.getJwtToken());
-
-    JsonWebSignature jws = new JsonWebSignature();
-    jws.setPayload(jwtClaims.toJson());
-    jws.setKey(invalidKey);
-    jws.setAlgorithmHeaderValue(AlgorithmIdentifiers.RSA_USING_SHA256);
-
-    assertThrows(RuntimeException.class, () ->
-        new RefreshToken(userDAO).execute(jws.getCompactSerialization()));
+    assertThrows(RuntimeException.class, () -> new RefreshToken(userDAO).execute(requestDTO));
   }
 
 }

@@ -3,6 +3,7 @@ package eu.trustdemocracy.users.core.interactors.auth;
 import eu.trustdemocracy.users.core.entities.util.CryptoUtils;
 import eu.trustdemocracy.users.core.entities.util.TokenMapper;
 import eu.trustdemocracy.users.core.interactors.Interactor;
+import eu.trustdemocracy.users.core.models.request.RefreshTokenRequestDTO;
 import eu.trustdemocracy.users.core.models.response.GetTokenResponseDTO;
 import eu.trustdemocracy.users.gateways.UserDAO;
 import eu.trustdemocracy.users.infrastructure.JWTKeyFactory;
@@ -13,7 +14,7 @@ import org.jose4j.jws.AlgorithmIdentifiers;
 import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 
-public class RefreshToken implements Interactor<String, GetTokenResponseDTO> {
+public class RefreshToken implements Interactor<RefreshTokenRequestDTO, GetTokenResponseDTO> {
 
   private UserDAO userDAO;
 
@@ -22,7 +23,7 @@ public class RefreshToken implements Interactor<String, GetTokenResponseDTO> {
   }
 
   @Override
-  public GetTokenResponseDTO execute(String token) {
+  public GetTokenResponseDTO execute(RefreshTokenRequestDTO requestDTO) {
     val jwtConsumer = new JwtConsumerBuilder()
         .setRequireExpirationTime()
         .setAllowedClockSkewInSeconds(30)
@@ -33,7 +34,7 @@ public class RefreshToken implements Interactor<String, GetTokenResponseDTO> {
         .build();
 
     try {
-      val jwtClaims = jwtConsumer.processToClaims(token);
+      val jwtClaims = jwtConsumer.processToClaims(requestDTO.getAccessToken());
       val claims = jwtClaims.getClaimsMap();
 
       val user = userDAO.findByUsername(String.valueOf(claims.get("username")));
