@@ -8,6 +8,7 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class UserRequestDTO {
+
   private UUID id;
   private String username;
   private String email;

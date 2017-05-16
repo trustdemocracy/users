@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import eu.trustdemocracy.users.core.interactors.user.CreateUser;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
+import eu.trustdemocracy.users.core.models.response.GetTokenResponseDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
 import eu.trustdemocracy.users.gateways.UserDAO;
 import eu.trustdemocracy.users.gateways.fake.FakeUserDAO;
@@ -27,7 +28,7 @@ import org.junit.jupiter.api.Test;
 
 public class RefreshTokenTest {
 
-  private static Map<String, UserResponseDTO> responseUsers;
+  private static Map<GetTokenResponseDTO, UserResponseDTO> responseUsers;
   private UserDAO userDAO;
   private RsaJsonWebKey rsaJsonWebKey;
 
@@ -49,8 +50,8 @@ public class RefreshTokenTest {
           .setName("Name" + i);
 
       val responseUser = interactor.execute(inputUser);
-      String token = new GetToken(userDAO).execute(inputUser);
-      responseUsers.put(token, responseUser);
+      GetTokenResponseDTO tokenDTO = new GetToken(userDAO).execute(inputUser);
+      responseUsers.put(tokenDTO, responseUser);
     }
   }
 
@@ -59,7 +60,7 @@ public class RefreshTokenTest {
     val issuedToken = responseUsers.keySet().iterator().next();
     val responseUser = responseUsers.get(issuedToken);
 
-    String token = new RefreshToken(userDAO).execute(issuedToken);
+    GetTokenResponseDTO token = new RefreshToken(userDAO).execute(issuedToken.getJwtToken());
 
     val jwtConsumer = new JwtConsumerBuilder()
         .setRequireExpirationTime()
@@ -70,7 +71,7 @@ public class RefreshTokenTest {
             AlgorithmIdentifiers.RSA_USING_SHA256))
         .build();
 
-    JwtClaims jwtClaims = jwtConsumer.processToClaims(token);
+    JwtClaims jwtClaims = jwtConsumer.processToClaims(token.getJwtToken());
 
     val claims = jwtClaims.getClaimsMap();
     assertEquals(claims.get("sub"), responseUser.getId().toString());
@@ -95,7 +96,7 @@ public class RefreshTokenTest {
             AlgorithmIdentifiers.RSA_USING_SHA256))
         .build();
 
-    JwtClaims jwtClaims = jwtConsumer.processToClaims(issuedToken);
+    JwtClaims jwtClaims = jwtConsumer.processToClaims(issuedToken.getJwtToken());
 
     JsonWebSignature jws = new JsonWebSignature();
     jws.setPayload(jwtClaims.toJson());

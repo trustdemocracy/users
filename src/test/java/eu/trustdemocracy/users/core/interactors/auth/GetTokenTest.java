@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import eu.trustdemocracy.users.core.interactors.exceptions.CredentialsNotFoundException;
 import eu.trustdemocracy.users.core.interactors.user.CreateUser;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
+import eu.trustdemocracy.users.core.models.response.GetTokenResponseDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
 import eu.trustdemocracy.users.gateways.UserDAO;
 import eu.trustdemocracy.users.gateways.fake.FakeUserDAO;
@@ -62,7 +63,7 @@ public class GetTokenTest {
     val responseUser = responseUsers.values().iterator().next();
     val inputUser = inputUsers.get(responseUser.getUsername());
 
-    String token = new GetToken(userDAO).execute(inputUser);
+    GetTokenResponseDTO token = new GetToken(userDAO).execute(inputUser);
 
     val jwtConsumer = new JwtConsumerBuilder()
         .setRequireExpirationTime()
@@ -73,7 +74,7 @@ public class GetTokenTest {
             AlgorithmIdentifiers.RSA_USING_SHA256))
         .build();
 
-    JwtClaims jwtClaims = jwtConsumer.processToClaims(token);
+    JwtClaims jwtClaims = jwtConsumer.processToClaims(token.getJwtToken());
 
     val claims = jwtClaims.getClaimsMap();
     assertEquals(claims.get("sub"), responseUser.getId().toString());

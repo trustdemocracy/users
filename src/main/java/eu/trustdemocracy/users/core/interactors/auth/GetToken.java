@@ -2,14 +2,15 @@ package eu.trustdemocracy.users.core.interactors.auth;
 
 import eu.trustdemocracy.users.core.entities.User;
 import eu.trustdemocracy.users.core.entities.util.CryptoUtils;
-import eu.trustdemocracy.users.core.entities.util.UserMapper;
+import eu.trustdemocracy.users.core.entities.util.TokenMapper;
 import eu.trustdemocracy.users.core.interactors.Interactor;
 import eu.trustdemocracy.users.core.interactors.exceptions.CredentialsNotFoundException;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
+import eu.trustdemocracy.users.core.models.response.GetTokenResponseDTO;
 import eu.trustdemocracy.users.gateways.UserDAO;
 import lombok.val;
 
-public class GetToken implements Interactor<UserRequestDTO, String> {
+public class GetToken implements Interactor<UserRequestDTO, GetTokenResponseDTO> {
 
   private UserDAO userDAO;
 
@@ -26,7 +27,7 @@ public class GetToken implements Interactor<UserRequestDTO, String> {
    * @throws CredentialsNotFoundException if the username doesn't exist or the password is wrong
    */
   @Override
-  public String execute(UserRequestDTO userRequestDTO) {
+  public GetTokenResponseDTO execute(UserRequestDTO userRequestDTO) {
     val username = userRequestDTO.getUsername();
     val user = getUser(username, userRequestDTO.getPassword());
     if (user == null) {
@@ -34,7 +35,7 @@ public class GetToken implements Interactor<UserRequestDTO, String> {
           "Either password is wrong or username [" + username + "] doesn't exist");
     }
 
-    return UserMapper.createToken(user);
+    return TokenMapper.createToken(user);
   }
 
   /**
