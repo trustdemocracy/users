@@ -16,13 +16,16 @@ import eu.trustdemocracy.users.gateways.fake.FakeUserDAO;
 import eu.trustdemocracy.users.infrastructure.JWTKeyFactory;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import lombok.val;
 import org.jose4j.jwa.AlgorithmConstraints;
 import org.jose4j.jwa.AlgorithmConstraints.ConstraintType;
 import org.jose4j.jwk.RsaJsonWebKey;
 import org.jose4j.jwk.RsaJwkGenerator;
 import org.jose4j.jws.AlgorithmIdentifiers;
+import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jwt.JwtClaims;
+import org.jose4j.jwt.NumericDate;
 import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 import org.jose4j.lang.JoseException;
@@ -91,6 +94,42 @@ public class RefreshTokenTest {
     assertEquals(claims.get("visibility"), responseUser.getVisibility().toString());
   }
 
+
+  @Test
+  public void refreshOutdatedToken() throws JoseException, InvalidJwtException {
+    val issuedToken = responseUsers.keySet().iterator().next();
+    val responseUser = responseUsers.get(issuedToken);
+
+    val outdatedToken = createOutdatedJwt(responseUser.getId(), responseUser.getUsername());
+
+    val requestDTO = new RefreshTokenRequestDTO()
+        .setAccessToken(outdatedToken)
+        .setRefreshToken(issuedToken.getRefreshToken());
+
+    GetTokenResponseDTO token = new RefreshToken(userDAO).execute(requestDTO);
+
+    assertNotNull(token.getRefreshToken());
+
+    val jwtConsumer = new JwtConsumerBuilder()
+        .setRequireExpirationTime()
+        .setAllowedClockSkewInSeconds(30)
+        .setRequireSubject()
+        .setVerificationKey(rsaJsonWebKey.getKey())
+        .setJwsAlgorithmConstraints(new AlgorithmConstraints(ConstraintType.WHITELIST,
+            AlgorithmIdentifiers.RSA_USING_SHA256))
+        .build();
+
+    JwtClaims jwtClaims = jwtConsumer.processToClaims(token.getJwtToken());
+
+    val claims = jwtClaims.getClaimsMap();
+    assertEquals(claims.get("sub"), responseUser.getId().toString());
+    assertEquals(claims.get("username"), responseUser.getUsername());
+    assertEquals(claims.get("email"), responseUser.getEmail());
+    assertEquals(claims.get("name"), responseUser.getName());
+    assertEquals(claims.get("surname"), responseUser.getSurname());
+    assertEquals(claims.get("visibility"), responseUser.getVisibility().toString());
+  }
+
   @Test
   public void refreshInvalidToken() throws JoseException, InvalidJwtException {
     val issuedToken = responseUsers.keySet().iterator().next();
@@ -102,6 +141,31 @@ public class RefreshTokenTest {
 
     assertThrows(CredentialsNotFoundException.class,
         () -> new RefreshToken(userDAO).execute(requestDTO));
+  }
+
+  private String createOutdatedJwt(UUID id, String username) {
+    try {
+      val pastDate = NumericDate.now();
+      Thread.sleep(100);
+
+      val claims = new JwtClaims();
+      claims.setExpirationTime(pastDate);
+      claims.setGeneratedJwtId();
+      claims.setIssuedAtToNow();
+      claims.setNotBeforeMinutesInThePast(2);
+
+      claims.setSubject(id.toString());
+      claims.setClaim("username", username);
+
+      JsonWebSignature jws = new JsonWebSignature();
+      jws.setPayload(claims.toJson());
+      jws.setKey(JWTKeyFactory.getPrivateKey());
+      jws.setAlgorithmHeaderValue(AlgorithmIdentifiers.RSA_USING_SHA256);
+
+      return jws.getCompactSerialization();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
 }
