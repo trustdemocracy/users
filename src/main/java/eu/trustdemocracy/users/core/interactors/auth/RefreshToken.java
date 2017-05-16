@@ -3,6 +3,7 @@ package eu.trustdemocracy.users.core.interactors.auth;
 import eu.trustdemocracy.users.core.entities.util.CryptoUtils;
 import eu.trustdemocracy.users.core.entities.util.TokenMapper;
 import eu.trustdemocracy.users.core.interactors.Interactor;
+import eu.trustdemocracy.users.core.interactors.exceptions.CredentialsNotFoundException;
 import eu.trustdemocracy.users.core.models.request.RefreshTokenRequestDTO;
 import eu.trustdemocracy.users.core.models.response.GetTokenResponseDTO;
 import eu.trustdemocracy.users.gateways.UserDAO;
@@ -42,7 +43,7 @@ public class RefreshToken implements Interactor<RefreshTokenRequestDTO, GetToken
 
       val found = userDAO.findRefreshToken(id, requestDTO.getRefreshToken());
       if (!found) {
-        throw new RuntimeException(
+        throw new CredentialsNotFoundException(
             "Invalid id or refresh token for user [" + username + "]");
       }
 
@@ -52,7 +53,7 @@ public class RefreshToken implements Interactor<RefreshTokenRequestDTO, GetToken
 
       return TokenMapper.createResponse(user, refreshToken);
     } catch (InvalidJwtException | IllegalArgumentException e) {
-      throw new RuntimeException(e);
+      throw new CredentialsNotFoundException("Failed to process jwt token");
     }
   }
 }

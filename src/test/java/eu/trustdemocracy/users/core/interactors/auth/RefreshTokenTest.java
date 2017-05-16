@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import eu.trustdemocracy.users.core.entities.util.CryptoUtils;
+import eu.trustdemocracy.users.core.interactors.exceptions.CredentialsNotFoundException;
 import eu.trustdemocracy.users.core.interactors.user.CreateUser;
 import eu.trustdemocracy.users.core.models.request.RefreshTokenRequestDTO;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
@@ -99,7 +100,8 @@ public class RefreshTokenTest {
         .setAccessToken(issuedToken.getJwtToken())
         .setRefreshToken(invalidToken);
 
-    assertThrows(RuntimeException.class, () -> new RefreshToken(userDAO).execute(requestDTO));
+    assertThrows(CredentialsNotFoundException.class,
+        () -> new RefreshToken(userDAO).execute(requestDTO));
   }
 
 }
