@@ -1,6 +1,7 @@
 package eu.trustdemocracy.users.core.interactors.auth;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import eu.trustdemocracy.users.core.interactors.user.CreateUser;
@@ -61,6 +62,8 @@ public class RefreshTokenTest {
     val responseUser = responseUsers.get(issuedToken);
 
     GetTokenResponseDTO token = new RefreshToken(userDAO).execute(issuedToken.getJwtToken());
+
+    assertNotNull(token.getRefreshToken());
 
     val jwtConsumer = new JwtConsumerBuilder()
         .setRequireExpirationTime()

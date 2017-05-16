@@ -1,6 +1,7 @@
 package eu.trustdemocracy.users.core.interactors.auth;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import eu.trustdemocracy.users.core.interactors.exceptions.CredentialsNotFoundException;
@@ -64,6 +65,8 @@ public class GetTokenTest {
     val inputUser = inputUsers.get(responseUser.getUsername());
 
     GetTokenResponseDTO token = new GetToken(userDAO).execute(inputUser);
+
+    assertNotNull(token.getRefreshToken());
 
     val jwtConsumer = new JwtConsumerBuilder()
         .setRequireExpirationTime()
