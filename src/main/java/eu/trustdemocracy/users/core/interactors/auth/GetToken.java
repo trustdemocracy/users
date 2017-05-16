@@ -35,7 +35,9 @@ public class GetToken implements Interactor<UserRequestDTO, GetTokenResponseDTO>
           "Either password is wrong or username [" + username + "] doesn't exist");
     }
 
-    return TokenMapper.createToken(user);
+    val refreshToken = CryptoUtils.randomToken();
+
+    return TokenMapper.createResponse(user, refreshToken);
   }
 
   /**

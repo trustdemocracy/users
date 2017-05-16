@@ -15,7 +15,7 @@ public class TokenMapper {
 
   private static final Logger LOG = LoggerFactory.getLogger(TokenMapper.class);
 
-  public static GetTokenResponseDTO createToken(User user) {
+  public static GetTokenResponseDTO createResponse(User user, String refreshToken) {
     val claims = new JwtClaims();
     claims.setExpirationTimeMinutesInTheFuture(10);
     claims.setGeneratedJwtId();
@@ -37,7 +37,8 @@ public class TokenMapper {
     try {
       val token = jws.getCompactSerialization();
       return new GetTokenResponseDTO()
-          .setJwtToken(token);
+          .setJwtToken(token)
+          .setRefreshToken(refreshToken);
     } catch (JoseException e) {
       LOG.error("Failed to get serialized jwt", e);
       return null;

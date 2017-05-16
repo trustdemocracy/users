@@ -1,5 +1,6 @@
 package eu.trustdemocracy.users.core.interactors.auth;
 
+import eu.trustdemocracy.users.core.entities.util.CryptoUtils;
 import eu.trustdemocracy.users.core.entities.util.TokenMapper;
 import eu.trustdemocracy.users.core.interactors.Interactor;
 import eu.trustdemocracy.users.core.models.response.GetTokenResponseDTO;
@@ -37,7 +38,9 @@ public class RefreshToken implements Interactor<String, GetTokenResponseDTO> {
 
       val user = userDAO.findByUsername(String.valueOf(claims.get("username")));
 
-      return TokenMapper.createToken(user);
+      val refreshToken = CryptoUtils.randomToken();
+
+      return TokenMapper.createResponse(user, refreshToken);
     } catch (InvalidJwtException e) {
       throw new RuntimeException(e);
     }
