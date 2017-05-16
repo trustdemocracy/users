@@ -1,7 +1,9 @@
 package eu.trustdemocracy.users.core.interactors.auth;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import eu.trustdemocracy.users.core.interactors.exceptions.CredentialsNotFoundException;
 import eu.trustdemocracy.users.core.interactors.user.CreateUser;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
@@ -80,6 +82,16 @@ public class GetTokenTest {
     assertEquals(claims.get("name"), responseUser.getName());
     assertEquals(claims.get("surname"), responseUser.getSurname());
     assertEquals(claims.get("visibility"), responseUser.getVisibility().toString());
+  }
+
+
+  @Test
+  public void getTokenForNonExistingUser() throws JoseException, InvalidJwtException {
+    val inputUser = new UserRequestDTO()
+        .setUsername("nonexistinguser")
+        .setPassword("test");
+
+    assertThrows(CredentialsNotFoundException.class, () -> new GetToken(userDAO).execute(inputUser));
   }
 
 }
