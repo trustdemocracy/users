@@ -136,7 +136,7 @@ public class AuthControllerTest {
 
       val errorMessage = response.body().toJsonObject().getString("message");
 
-      context.assertEquals(errorMessage, "Bad credentials");
+      context.assertEquals(errorMessage, APIMessages.BAD_CREDENTIALS);
 
       async.complete();
     }, error -> {

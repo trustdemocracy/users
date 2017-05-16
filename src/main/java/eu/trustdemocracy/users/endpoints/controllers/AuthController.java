@@ -1,6 +1,8 @@
 package eu.trustdemocracy.users.endpoints.controllers;
 
+import eu.trustdemocracy.users.core.interactors.exceptions.CredentialsNotFoundException;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
+import eu.trustdemocracy.users.endpoints.APIMessages;
 import eu.trustdemocracy.users.endpoints.App;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
@@ -22,13 +24,25 @@ public class AuthController extends Controller {
   private void getToken(RoutingContext routingContext) {
     val requestUser = Json.decodeValue(routingContext.getBodyAsString(), UserRequestDTO.class);
     val interactor = getInteractorFactory().createGetTokenInteractor();
-    val token = interactor.execute(requestUser);
-    val json = new JsonObject().put("token", token);
 
-    routingContext.response()
-        .putHeader("content-type", "application/json")
-        .setStatusCode(200)
-        .end(Json.encodePrettily(json));
+    try {
+      val token = interactor.execute(requestUser);
+      val json = new JsonObject()
+          .put("token", token);
+
+      routingContext.response()
+          .putHeader("content-type", "application/json")
+          .setStatusCode(200)
+          .end(Json.encodePrettily(json));
+    } catch (CredentialsNotFoundException e) {
+      val json = new JsonObject()
+          .put("message", APIMessages.BAD_CREDENTIALS);
+
+      routingContext.response()
+          .putHeader("content-type", "application/json")
+          .setStatusCode(401)
+          .end(Json.encodePrettily(json));
+    }
   }
 
   private void refreshToken(RoutingContext routingContext) {
