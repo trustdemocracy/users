@@ -1,11 +1,17 @@
 package eu.trustdemocracy.users.core.interactors.auth;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import eu.trustdemocracy.users.core.interactors.exceptions.CredentialsNotFoundException;
 import eu.trustdemocracy.users.core.interactors.user.CreateUser;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
+import eu.trustdemocracy.users.core.models.response.GetTokenResponseDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
+import eu.trustdemocracy.users.gateways.TokenDAO;
 import eu.trustdemocracy.users.gateways.UserDAO;
+import eu.trustdemocracy.users.gateways.fake.FakeTokenDAO;
 import eu.trustdemocracy.users.gateways.fake.FakeUserDAO;
 import eu.trustdemocracy.users.infrastructure.JWTKeyFactory;
 import java.util.HashMap;
@@ -29,6 +35,7 @@ public class GetTokenTest {
   private static Map<UUID, UserResponseDTO> responseUsers;
   private static Map<String, UserRequestDTO> inputUsers;
   private UserDAO userDAO;
+  private TokenDAO tokenDAO;
   private RsaJsonWebKey rsaJsonWebKey;
 
   @BeforeEach
@@ -37,6 +44,7 @@ public class GetTokenTest {
     JWTKeyFactory.setPrivateKey(rsaJsonWebKey.getPrivateKey());
 
     userDAO = new FakeUserDAO();
+    tokenDAO = new FakeTokenDAO();
     responseUsers = new HashMap<>();
     inputUsers = new HashMap<>();
 
@@ -60,7 +68,9 @@ public class GetTokenTest {
     val responseUser = responseUsers.values().iterator().next();
     val inputUser = inputUsers.get(responseUser.getUsername());
 
-    String token = new GetToken(userDAO).execute(inputUser);
+    GetTokenResponseDTO token = new GetToken(userDAO, tokenDAO).execute(inputUser);
+
+    assertNotNull(token.getRefreshToken());
 
     val jwtConsumer = new JwtConsumerBuilder()
         .setRequireExpirationTime()
@@ -71,7 +81,7 @@ public class GetTokenTest {
             AlgorithmIdentifiers.RSA_USING_SHA256))
         .build();
 
-    JwtClaims jwtClaims = jwtConsumer.processToClaims(token);
+    JwtClaims jwtClaims = jwtConsumer.processToClaims(token.getAccessToken());
 
     val claims = jwtClaims.getClaimsMap();
     assertEquals(claims.get("sub"), responseUser.getId().toString());
@@ -80,6 +90,17 @@ public class GetTokenTest {
     assertEquals(claims.get("name"), responseUser.getName());
     assertEquals(claims.get("surname"), responseUser.getSurname());
     assertEquals(claims.get("visibility"), responseUser.getVisibility().toString());
+  }
+
+
+  @Test
+  public void getTokenForNonExistingUser() throws JoseException, InvalidJwtException {
+    val inputUser = new UserRequestDTO()
+        .setUsername("nonexistinguser")
+        .setPassword("test");
+
+    assertThrows(CredentialsNotFoundException.class,
+        () -> new GetToken(userDAO, tokenDAO).execute(inputUser));
   }
 
 }

@@ -1,12 +1,16 @@
 package eu.trustdemocracy.users.endpoints.controllers;
 
+import eu.trustdemocracy.users.core.interactors.exceptions.InvalidTokenException;
+import eu.trustdemocracy.users.core.interactors.exceptions.UsernameAlreadyExistsException;
 import eu.trustdemocracy.users.core.interactors.user.CreateUser;
 import eu.trustdemocracy.users.core.interactors.user.DeleteUser;
 import eu.trustdemocracy.users.core.interactors.user.GetUser;
 import eu.trustdemocracy.users.core.interactors.user.UpdateUser;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
+import eu.trustdemocracy.users.endpoints.APIMessages;
 import eu.trustdemocracy.users.endpoints.App;
 import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import java.util.UUID;
 import lombok.val;
@@ -26,48 +30,81 @@ public class UserController extends Controller {
   }
 
   private void createUser(RoutingContext routingContext) {
-    val requestUser = Json.decodeValue(routingContext.getBodyAsString(), UserRequestDTO.class);
-    val interactor = getInteractorFactory().createUserInteractor(CreateUser.class);
-    val user = interactor.execute(requestUser);
+    UserRequestDTO requestUser;
+    try {
+      if (routingContext.getBodyAsJson().isEmpty()) {
+        throw new Exception();
+      }
 
-    routingContext.response()
-        .putHeader("content-type", "application/json")
-        .setStatusCode(201)
-        .end(Json.encodePrettily(user));
+      requestUser = Json.decodeValue(routingContext.getBodyAsString(), UserRequestDTO.class);
+    } catch (Exception e) {
+      serveBadRequest(routingContext);
+      return;
+    }
+
+    val interactor = getInteractorFactory().createUserInteractor(CreateUser.class);
+
+    try {
+      val user = interactor.execute(requestUser);
+      serveJsonResponse(routingContext, 201, Json.encodePrettily(user));
+    } catch (UsernameAlreadyExistsException e) {
+      val json = new JsonObject()
+          .put("message", APIMessages.EXISTING_USERNAME);
+      serveJsonResponse(routingContext, 400, Json.encodePrettily(json));
+    }
   }
 
   private void findUser(RoutingContext routingContext) {
-    val id = UUID.fromString(routingContext.pathParam("id"));
+    UUID id;
+    try {
+      id = UUID.fromString(routingContext.pathParam("id"));
+    } catch (Exception e) {
+      serveBadRequest(routingContext);
+      return;
+    }
+
     val requestUser = new UserRequestDTO().setId(id);
     val interactor = getInteractorFactory().createUserInteractor(GetUser.class);
     val user = interactor.execute(requestUser);
 
-    routingContext.response()
-        .putHeader("content-type", "application/json")
-        .setStatusCode(200)
-        .end(Json.encodePrettily(user));
+    serveJsonResponse(routingContext, 200, Json.encodePrettily(user));
   }
 
   private void updateUser(RoutingContext routingContext) {
-    val requestUser = Json.decodeValue(routingContext.getBodyAsString(), UserRequestDTO.class);
-    val interactor = getInteractorFactory().createUserInteractor(UpdateUser.class);
-    val user = interactor.execute(requestUser);
+    val accessToken = getAuthorizationToken(routingContext.request());
+    UserRequestDTO requestUser;
+    try {
+      if (routingContext.getBodyAsJson().isEmpty()) {
+        throw new Exception();
+      }
 
-    routingContext.response()
-        .putHeader("content-type", "application/json")
-        .setStatusCode(200)
-        .end(Json.encodePrettily(user));
+      requestUser = Json.decodeValue(routingContext.getBodyAsString(), UserRequestDTO.class);
+    } catch (Exception e) {
+      serveBadRequest(routingContext);
+      return;
+    }
+    requestUser.setAccessToken(accessToken);
+    val interactor = getInteractorFactory().createUserInteractor(UpdateUser.class);
+
+    try {
+      val user = interactor.execute(requestUser);
+      serveJsonResponse(routingContext, 200, Json.encodePrettily(user));
+    } catch (InvalidTokenException e) {
+      serveBadCredentials(routingContext);
+    }
   }
 
   private void deleteUser(RoutingContext routingContext) {
-    val id = UUID.fromString(routingContext.pathParam("id"));
-    val requestUser = new UserRequestDTO().setId(id);
+    val accessToken = getAuthorizationToken(routingContext.request());
+    val requestUser = new UserRequestDTO()
+        .setAccessToken(accessToken);
     val interactor = getInteractorFactory().createUserInteractor(DeleteUser.class);
-    val user = interactor.execute(requestUser);
 
-    routingContext.response()
-        .putHeader("content-type", "application/json")
-        .setStatusCode(200)
-        .end(Json.encodePrettily(user));
+    try {
+      val user = interactor.execute(requestUser);
+      serveJsonResponse(routingContext, 200, Json.encodePrettily(user));
+    } catch (InvalidTokenException e) {
+      serveBadCredentials(routingContext);
+    }
   }
 }

@@ -15,22 +15,26 @@ public class UpdateUser extends UserInteractor {
   }
 
   public UserResponseDTO execute(UserRequestDTO userRequestDTO) {
+    val inputUser = UserMapper.createEntity(userRequestDTO.getAccessToken());
+    userRequestDTO.setId(inputUser.getId());
+    userRequestDTO.setUsername(inputUser.getUsername());
+
     cleanUserState(userRequestDTO);
 
     val user = UserMapper.createEntity(userRequestDTO);
     return UserMapper.createResponse(userDAO.update(user));
   }
 
-  private void cleanUserState(UserRequestDTO userRequestDTO) {
-    User user = userDAO.findById(userRequestDTO.getId());
+  private void cleanUserState(UserRequestDTO inputUser) {
+    User user = userDAO.findById(inputUser.getId());
     if (user == null) {
       throw new IllegalStateException(
-          "Trying to update unexisting user with id [" + userRequestDTO.getId() + "]");
+          "Trying to update unexisting user with id [" + inputUser.getId() + "]");
     }
 
-    fillEmptyAttributes(user, userRequestDTO);
+    fillEmptyAttributes(user, inputUser);
 
-    userRequestDTO.setUsername(user.getUsername());
+    inputUser.setUsername(user.getUsername());
   }
 
   private void fillEmptyAttributes(User user, UserRequestDTO userRequestDTO) {

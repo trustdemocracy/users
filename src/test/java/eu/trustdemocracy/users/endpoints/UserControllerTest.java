@@ -3,50 +3,17 @@ package eu.trustdemocracy.users.endpoints;
 
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
-import eu.trustdemocracy.users.infrastructure.FakeInteractorFactory;
-import io.vertx.core.DeploymentOptions;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import io.vertx.rxjava.core.Vertx;
-import io.vertx.rxjava.ext.web.client.WebClient;
-import java.io.IOException;
-import java.net.ServerSocket;
+import java.util.UUID;
 import lombok.val;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(VertxUnitRunner.class)
-public class UserControllerTest {
-
-  private static final String HOST = "localhost";
-
-  private Vertx vertx;
-  private Integer port;
-  private WebClient client;
-
-  @Before
-  public void setUp(TestContext context) throws IOException {
-    vertx = Vertx.vertx();
-    client = WebClient.create(vertx);
-
-    val socket = new ServerSocket(0);
-    port = socket.getLocalPort();
-    socket.close();
-
-    val options = new DeploymentOptions().setConfig(new JsonObject().put("http.port", port));
-
-    App.setInteractorFactory(new FakeInteractorFactory());
-    vertx.deployVerticle(App.class.getName(), options, context.asyncAssertSuccess());
-  }
-
-  @After
-  public void tearDown(TestContext context) {
-    vertx.close(context.asyncAssertSuccess());
-  }
+public class UserControllerTest extends ControllerTest {
 
   @Test
   public void createUser(TestContext context) {
@@ -74,6 +41,37 @@ public class UserControllerTest {
       context.assertNotNull(responseUser.getId());
 
       async.complete();
+    }, error -> {
+      context.fail(error);
+      async.complete();
+    });
+  }
+
+  @Test
+  public void createExistingUser(TestContext context) {
+    val async = context.async();
+
+    val userRequest = new UserRequestDTO()
+        .setUsername("test")
+        .setEmail("test@test.com")
+        .setPassword("password")
+        .setName("TestName")
+        .setSurname("TestSurname");
+
+    val single = client.post(port, HOST, "/users")
+        .rxSendJson(userRequest);
+
+    single.subscribe(response -> {
+      context.assertEquals(response.statusCode(), 201);
+
+      single.subscribe(repeteadedResponse -> {
+        context.assertEquals(repeteadedResponse.statusCode(), 400);
+
+        val errorMessage = repeteadedResponse.body().toJsonObject().getString("message");
+        context.assertEquals(errorMessage, APIMessages.EXISTING_USERNAME);
+
+        async.complete();
+      });
     }, error -> {
       context.fail(error);
       async.complete();
@@ -143,6 +141,9 @@ public class UserControllerTest {
     single.subscribe(response -> {
       val responseUser = Json.decodeValue(response.body().toString(), UserResponseDTO.class);
 
+      val authInteractor = interactorFactory.createGetTokenInteractor();
+      val getTokenResponse = authInteractor.execute(userRequest);
+
       userRequest.setId(responseUser.getId())
           .setEmail("newEmail")
           .setPassword("newPass")
@@ -150,6 +151,7 @@ public class UserControllerTest {
           .setSurname("NewName");
 
       client.put(port, HOST, "/users/" + userRequest.getId())
+          .putHeader("Authorization", "Bearer " + getTokenResponse.getAccessToken())
           .rxSendJson(userRequest)
           .subscribe(putResponse -> {
             context.assertEquals(putResponse.statusCode(), 200);
@@ -183,6 +185,39 @@ public class UserControllerTest {
   }
 
   @Test
+  public void createAndUpdateNotAuthorized(TestContext context) {
+    val async = context.async();
+
+    val userRequest = new UserRequestDTO()
+        .setUsername("test")
+        .setEmail("test@test.com")
+        .setPassword("password")
+        .setName("TestName")
+        .setSurname("TestSurname");
+
+    val single = client.post(port, HOST, "/users")
+        .rxSendJson(userRequest);
+
+    single.subscribe(response -> {
+      val responseUser = Json.decodeValue(response.body().toString(), UserResponseDTO.class);
+
+      userRequest.setId(responseUser.getId())
+          .setEmail("newEmail")
+          .setPassword("newPass")
+          .setName("NewName")
+          .setSurname("NewName");
+
+      val updateSingle = client.put(port, HOST, "/users/" + userRequest.getId())
+          .rxSendJson(userRequest);
+
+      assertBadCredentials(context, async, updateSingle);
+    }, error -> {
+      context.fail(error);
+      async.complete();
+    });
+  }
+
+  @Test
   public void createDeleteAndFindUser(TestContext context) {
     val async = context.async();
 
@@ -198,7 +233,12 @@ public class UserControllerTest {
 
     single.subscribe(response -> {
       val responseUser = Json.decodeValue(response.body().toString(), UserResponseDTO.class);
+
+      val authInteractor = interactorFactory.createGetTokenInteractor();
+      val getTokenResponse = authInteractor.execute(userRequest);
+
       client.delete(port, HOST, "/users/" + responseUser.getId())
+          .putHeader("Authorization", "Bearer " + getTokenResponse.getAccessToken())
           .rxSend()
           .subscribe(deleteResponse -> {
             context.assertEquals(deleteResponse.statusCode(), 200);
@@ -228,6 +268,64 @@ public class UserControllerTest {
       context.fail(error);
       async.complete();
     });
+  }
+
+  @Test
+  public void createAndDeleteNotAuthorized(TestContext context) {
+    val async = context.async();
+
+    val userRequest = new UserRequestDTO()
+        .setUsername("test")
+        .setEmail("test@test.com")
+        .setPassword("password")
+        .setName("TestName")
+        .setSurname("TestSurname");
+
+    val single = client.post(port, HOST, "/users")
+        .rxSendJson(userRequest);
+
+    single.subscribe(response -> {
+      val responseUser = Json.decodeValue(response.body().toString(), UserResponseDTO.class);
+      val deletionSingle = client.delete(port, HOST, "/users/" + responseUser.getId())
+          .rxSend();
+      assertBadCredentials(context, async, deletionSingle);
+    }, error -> {
+      context.fail(error);
+      async.complete();
+    });
+  }
+
+  @Test
+  public void createUserBadRequest(TestContext context) {
+    val async = context.async();
+
+    val single = client.post(port, HOST, "/users")
+        .putHeader("Authorization", getRandomToken())
+        .rxSendJson(new JsonObject());
+
+    assertBadRequest(context, async, single);
+  }
+
+  @Test
+  public void findUserBadRequest(TestContext context) {
+    val async = context.async();
+
+    val single = client.get(port, HOST, "/users/notAnId")
+        .putHeader("Authorization", getRandomToken())
+        .rxSend();
+
+    assertBadRequest(context, async, single);
+  }
+
+  @Test
+  public void updateUserBadRequest(TestContext context) {
+    val async = context.async();
+
+    val single = client.put(port, HOST, "/users/" + UUID.randomUUID())
+        .putHeader("Authorization", getRandomToken())
+        .rxSendJson(new JsonObject());
+
+    assertBadRequest(context, async, single);
   }
 
 }

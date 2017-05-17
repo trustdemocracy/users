@@ -1,20 +1,21 @@
 package eu.trustdemocracy.users.core.entities.util;
 
 import eu.trustdemocracy.users.core.entities.User;
+import eu.trustdemocracy.users.core.entities.UserVisibility;
+import eu.trustdemocracy.users.core.interactors.exceptions.InvalidTokenException;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
 import eu.trustdemocracy.users.infrastructure.JWTKeyFactory;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
+import java.util.Map;
+import java.util.UUID;
 import lombok.val;
+import org.jose4j.jwa.AlgorithmConstraints;
+import org.jose4j.jwa.AlgorithmConstraints.ConstraintType;
 import org.jose4j.jws.AlgorithmIdentifiers;
-import org.jose4j.jws.JsonWebSignature;
-import org.jose4j.jwt.JwtClaims;
-import org.jose4j.lang.JoseException;
+import org.jose4j.jwt.consumer.InvalidJwtException;
+import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 
 public final class UserMapper {
-
-  private static final Logger LOG = LoggerFactory.getLogger(UserMapper.class);
 
   public static User createEntity(UserRequestDTO userRequestDTO) {
     val user = new User();
@@ -36,6 +37,28 @@ public final class UserMapper {
     return user;
   }
 
+  public static User createEntity(String token) {
+    val claims = getClaimsMap(token);
+
+    val name = String.valueOf(claims.get("name"));
+    val surname = String.valueOf(claims.get("surname"));
+
+    val user = new User()
+        .setId(UUID.fromString(String.valueOf(claims.get("sub"))))
+        .setUsername(String.valueOf(claims.get("username")))
+        .setEmail(String.valueOf(claims.get("email")))
+        .setVisibility(UserVisibility.valueOf(String.valueOf(claims.get("visibility"))));
+
+    if (!name.equals("null")) {
+      user.setName(name);
+    }
+    if (!surname.equals("null")) {
+      user.setSurname(name);
+    }
+
+    return user;
+  }
+
   public static UserResponseDTO createResponse(User user) {
     val userResponse = new UserResponseDTO();
 
@@ -52,30 +75,23 @@ public final class UserMapper {
     return userResponse;
   }
 
-  public static String createToken(User user) {
-    val claims = new JwtClaims();
-    claims.setExpirationTimeMinutesInTheFuture(10);
-    claims.setGeneratedJwtId();
-    claims.setIssuedAtToNow();
-    claims.setNotBeforeMinutesInThePast(2);
 
-    claims.setSubject(user.getId().toString());
-    claims.setClaim("username", user.getUsername());
-    claims.setClaim("email", user.getEmail());
-    claims.setClaim("name", user.getName());
-    claims.setClaim("surname", user.getSurname());
-    claims.setClaim("visibility", user.getVisibility());
-
-    JsonWebSignature jws = new JsonWebSignature();
-    jws.setPayload(claims.toJson());
-    jws.setKey(JWTKeyFactory.getPrivateKey());
-    jws.setAlgorithmHeaderValue(AlgorithmIdentifiers.RSA_USING_SHA256);
+  private static Map<String, Object> getClaimsMap(String token) {
+    val jwtConsumer = new JwtConsumerBuilder()
+        .setRequireExpirationTime()
+        .setAllowedClockSkewInSeconds(30)
+        .setRequireSubject()
+        .setVerificationKey(JWTKeyFactory.getPublicKey())
+        .setJwsAlgorithmConstraints(new AlgorithmConstraints(ConstraintType.WHITELIST,
+            AlgorithmIdentifiers.RSA_USING_SHA256))
+        .build();
 
     try {
-      return jws.getCompactSerialization();
-    } catch (JoseException e) {
-      LOG.error("Failed to get jwt", e);
-      return null;
+      val jwtClaims = jwtConsumer.processToClaims(token);
+      return jwtClaims.getClaimsMap();
+    } catch (InvalidJwtException e) {
+      throw new InvalidTokenException(
+          "The access token provided is not valid. Access token: [" + token + "]");
     }
   }
 }

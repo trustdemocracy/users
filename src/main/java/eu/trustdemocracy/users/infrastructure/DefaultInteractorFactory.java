@@ -37,11 +37,11 @@ public class DefaultInteractorFactory implements InteractorFactory {
 
   @Override
   public GetToken createGetTokenInteractor() {
-    return new GetToken(DAOFactory.getUserDAO());
+    return new GetToken(DAOFactory.getUserDAO(), DAOFactory.getTokenDAO());
   }
 
   @Override
   public RefreshToken createRefreshTokenInteractor() {
-    return new RefreshToken(DAOFactory.getUserDAO());
+    return new RefreshToken(DAOFactory.getUserDAO(), DAOFactory.getTokenDAO());
   }
 }

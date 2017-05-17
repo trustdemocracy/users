@@ -6,27 +6,33 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.trustdemocracy.users.core.entities.UserVisibility;
 import eu.trustdemocracy.users.core.entities.util.CryptoUtils;
+import eu.trustdemocracy.users.core.interactors.auth.GetToken;
+import eu.trustdemocracy.users.core.interactors.exceptions.InvalidTokenException;
+import eu.trustdemocracy.users.core.interactors.utils.TokenUtils;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
 import eu.trustdemocracy.users.gateways.UserDAO;
+import eu.trustdemocracy.users.gateways.fake.FakeTokenDAO;
 import eu.trustdemocracy.users.gateways.fake.FakeUserDAO;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class UpdateUserTest {
-  private static Map<UUID, UserResponseDTO> responseUsers;
+  private static Map<String, UserResponseDTO> responseUsers;
   private UserDAO userDAO;
 
   @BeforeEach
   public void init() {
+    TokenUtils.generateKeys();
+
     userDAO = new FakeUserDAO();
     responseUsers = new HashMap<>();
 
     val interactor = new CreateUser(userDAO);
+    val getToken = new GetToken(userDAO, new FakeTokenDAO());
     for (int i = 0; i < 10; i++) {
       val inputUser = new UserRequestDTO()
           .setUsername("user" + i)
@@ -35,12 +41,13 @@ public class UpdateUserTest {
           .setName("Name" + i);
 
       val responseUser = interactor.execute(inputUser);
-      responseUsers.put(responseUser.getId(), responseUser);
+      val accessToken = getToken.execute(inputUser);
+      responseUsers.put(accessToken.getAccessToken(), responseUser);
     }
   }
 
   @Test
-  public void updateSingleUser() {
+  public void updateNotAuthorizedUser() {
     val responseUser = responseUsers.values().iterator().next();
     val inputUser = new UserRequestDTO()
         .setId(responseUser.getId())
@@ -49,12 +56,25 @@ public class UpdateUserTest {
         .setName(null)
         .setSurname("TestSurname");
 
+    assertThrows(InvalidTokenException.class, () -> new UpdateUser(userDAO).execute(inputUser));
+  }
+
+  @Test
+  public void updateSingleUser() {
+    val accessToken = responseUsers.keySet().iterator().next();
+    val responseUser = responseUsers.get(accessToken);
+    val inputUser = new UserRequestDTO()
+        .setAccessToken(accessToken)
+        .setEmail(responseUser.getEmail())
+        .setName(null)
+        .setSurname("TestSurname");
+
     val expectedUser = new UserResponseDTO()
-        .setUsername(inputUser.getUsername())
+        .setId(responseUser.getId())
+        .setUsername(responseUser.getUsername())
         .setEmail(inputUser.getEmail())
         .setName(responseUser.getName())
         .setSurname(inputUser.getSurname())
-        .setId(inputUser.getId())
         .setVisibility(responseUser.getVisibility());
 
     val interactor = new UpdateUser(userDAO);
@@ -66,20 +86,20 @@ public class UpdateUserTest {
   @Test
   public void updateSeveralUsers() {
     val interactor = new UpdateUser(userDAO);
-    for (val responseUser : responseUsers.values()) {
+    for (val accessToken : responseUsers.keySet()) {
+      val responseUser = responseUsers.get(accessToken);
       val inputUser = new UserRequestDTO()
-          .setId(responseUser.getId())
-          .setUsername(responseUser.getUsername())
+          .setAccessToken(accessToken)
           .setEmail(responseUser.getEmail())
           .setName("")
           .setSurname("TestSurname");
 
       val expectedUser = new UserResponseDTO()
-          .setUsername(inputUser.getUsername())
+          .setId(responseUser.getId())
+          .setUsername(responseUser.getUsername())
           .setEmail(inputUser.getEmail())
           .setName(inputUser.getName())
           .setSurname(inputUser.getSurname())
-          .setId(inputUser.getId())
           .setVisibility(responseUser.getVisibility());
 
       val resultUser = interactor.execute(inputUser);
@@ -90,8 +110,10 @@ public class UpdateUserTest {
 
   @Test
   public void noUpdateUsername() {
-    val responseUser = responseUsers.values().iterator().next();
+    val accessToken = responseUsers.keySet().iterator().next();
+    val responseUser = responseUsers.get(accessToken);
     val inputUser = new UserRequestDTO()
+        .setAccessToken(accessToken)
         .setId(responseUser.getId())
         .setUsername("NewUsername");
 
@@ -107,44 +129,32 @@ public class UpdateUserTest {
   }
 
   @Test
-  public void updateUnexistingUser() {
-    UUID id;
-    do {
-      id = UUID.randomUUID();
-    } while (responseUsers.containsKey(id));
-
-    val inputUser = new UserRequestDTO()
-        .setId(id);
-
-    assertThrows(IllegalStateException.class, () -> new UpdateUser(userDAO).execute(inputUser));
-  }
-
-  @Test
   public void updateVisibility() {
-    val responseUser = responseUsers.values().iterator().next();
+    val accessToken = responseUsers.keySet().iterator().next();
 
     UserRequestDTO inputUser = new UserRequestDTO()
-        .setId(responseUser.getId())
+        .setAccessToken(accessToken)
         .setVisibility(UserVisibility.PUBLIC);
     assertEquals(UserVisibility.PUBLIC, new UpdateUser(userDAO).execute(inputUser).getVisibility());
 
     inputUser = new UserRequestDTO()
-        .setId(responseUser.getId())
+        .setAccessToken(accessToken)
         .setVisibility(UserVisibility.NORMAL);
     assertEquals(UserVisibility.NORMAL, new UpdateUser(userDAO).execute(inputUser).getVisibility());
 
     inputUser = new UserRequestDTO()
-        .setId(responseUser.getId())
+        .setAccessToken(accessToken)
         .setVisibility(UserVisibility.PRIVATE);
     assertEquals(UserVisibility.PRIVATE, new UpdateUser(userDAO).execute(inputUser).getVisibility());
   }
 
   @Test
   public void updatePassword() {
-    val responseUser = responseUsers.values().iterator().next();
+    val accessToken = responseUsers.keySet().iterator().next();
+    val responseUser = responseUsers.get(accessToken);
 
     val inputUser = new UserRequestDTO()
-        .setId(responseUser.getId())
+        .setAccessToken(accessToken)
         .setPassword("newPassword");
     new UpdateUser(userDAO).execute(inputUser);
 

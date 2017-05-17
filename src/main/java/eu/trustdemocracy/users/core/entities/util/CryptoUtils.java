@@ -2,6 +2,8 @@ package eu.trustdemocracy.users.core.entities.util;
 
 import de.mkammerer.argon2.Argon2;
 import de.mkammerer.argon2.Argon2Factory;
+import java.math.BigInteger;
+import java.security.SecureRandom;
 
 public final class CryptoUtils {
 
@@ -24,5 +26,10 @@ public final class CryptoUtils {
     argon2.wipeArray(charPassword);
 
     return areEqual;
+  }
+
+  public static String randomToken() {
+    SecureRandom random =  new SecureRandom();
+    return new BigInteger(130, random).toString(32);
   }
 }
