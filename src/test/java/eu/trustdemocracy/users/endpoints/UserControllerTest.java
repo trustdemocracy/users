@@ -1,9 +1,11 @@
 package eu.trustdemocracy.users.endpoints;
 
 
+import eu.trustdemocracy.users.core.interactors.user.CreateUser;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
 import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import lombok.val;
@@ -151,7 +153,6 @@ public class UserControllerTest extends ControllerTest {
     });
   }
 
-
   @Test
   public void createAndUpdateNotAuthorized(TestContext context) {
     val async = context.async();
@@ -261,6 +262,34 @@ public class UserControllerTest extends ControllerTest {
       context.fail(error);
       async.complete();
     });
+  }
+
+
+  @Test
+  public void createUserBadRequest(TestContext context) {
+    val async = context.async();
+
+    val single = client.post(port, HOST, "/users")
+            .putHeader("Authorization", getRandomToken())
+            .rxSendJson(new JsonObject());
+
+    assertBadRequest(context, async, single);
+  }
+
+  private String getRandomToken() {
+    val userRequest = new UserRequestDTO()
+        .setUsername("test")
+        .setEmail("test@test.com")
+        .setPassword("password")
+        .setName("TestName")
+        .setSurname("TestSurname");
+
+    val createUser = interactorFactory.createUserInteractor(CreateUser.class);
+    createUser.execute(userRequest);
+    val authInteractor = interactorFactory.createGetTokenInteractor();
+    val getTokenResponse = authInteractor.execute(userRequest);
+
+    return "Bearer " + getTokenResponse.getAccessToken();
   }
 
 }

@@ -20,6 +20,7 @@ import org.junit.Before;
 import rx.Single;
 
 public class ControllerTest {
+
   protected static final String HOST = "localhost";
 
   protected Vertx vertx;
@@ -54,6 +55,24 @@ public class ControllerTest {
       Single<HttpResponse<Buffer>> single) {
     single.subscribe(response -> {
       context.assertEquals(response.statusCode(), 401);
+      context.assertTrue(response.headers().get("content-type").contains("application/json"));
+
+      val errorMessage = response.body().toJsonObject().getString("message");
+
+      context.assertEquals(errorMessage, APIMessages.BAD_CREDENTIALS);
+
+      async.complete();
+    }, error -> {
+      context.fail(error);
+      async.complete();
+    });
+  }
+
+
+  protected void assertBadRequest(TestContext context, Async async,
+      Single<HttpResponse<Buffer>> single) {
+    single.subscribe(response -> {
+      context.assertEquals(response.statusCode(), 400);
       context.assertTrue(response.headers().get("content-type").contains("application/json"));
 
       val errorMessage = response.body().toJsonObject().getString("message");
