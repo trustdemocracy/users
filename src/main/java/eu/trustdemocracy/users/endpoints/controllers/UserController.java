@@ -1,13 +1,16 @@
 package eu.trustdemocracy.users.endpoints.controllers;
 
 import eu.trustdemocracy.users.core.interactors.exceptions.InvalidTokenException;
+import eu.trustdemocracy.users.core.interactors.exceptions.UsernameAlreadyExistsException;
 import eu.trustdemocracy.users.core.interactors.user.CreateUser;
 import eu.trustdemocracy.users.core.interactors.user.DeleteUser;
 import eu.trustdemocracy.users.core.interactors.user.GetUser;
 import eu.trustdemocracy.users.core.interactors.user.UpdateUser;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
+import eu.trustdemocracy.users.endpoints.APIMessages;
 import eu.trustdemocracy.users.endpoints.App;
 import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import java.util.UUID;
 import lombok.val;
@@ -40,9 +43,15 @@ public class UserController extends Controller {
     }
 
     val interactor = getInteractorFactory().createUserInteractor(CreateUser.class);
-    val user = interactor.execute(requestUser);
 
-    serveJsonResponse(routingContext, 201, Json.encodePrettily(user));
+    try {
+      val user = interactor.execute(requestUser);
+      serveJsonResponse(routingContext, 201, Json.encodePrettily(user));
+    } catch (UsernameAlreadyExistsException e) {
+      val json = new JsonObject()
+          .put("message", APIMessages.EXISTING_USERNAME);
+      serveJsonResponse(routingContext, 400, Json.encodePrettily(json));
+    }
   }
 
   private void findUser(RoutingContext routingContext) {

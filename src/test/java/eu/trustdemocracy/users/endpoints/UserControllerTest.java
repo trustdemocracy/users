@@ -48,6 +48,37 @@ public class UserControllerTest extends ControllerTest {
   }
 
   @Test
+  public void createExistingUser(TestContext context) {
+    val async = context.async();
+
+    val userRequest = new UserRequestDTO()
+        .setUsername("test")
+        .setEmail("test@test.com")
+        .setPassword("password")
+        .setName("TestName")
+        .setSurname("TestSurname");
+
+    val single = client.post(port, HOST, "/users")
+        .rxSendJson(userRequest);
+
+    single.subscribe(response -> {
+      context.assertEquals(response.statusCode(), 201);
+
+      single.subscribe(repeteadedResponse -> {
+        context.assertEquals(repeteadedResponse.statusCode(), 400);
+
+        val errorMessage = repeteadedResponse.body().toJsonObject().getString("message");
+        context.assertEquals(errorMessage, APIMessages.EXISTING_USERNAME);
+
+        async.complete();
+      });
+    }, error -> {
+      context.fail(error);
+      async.complete();
+    });
+  }
+
+  @Test
   public void createAndFindUser(TestContext context) {
     val async = context.async();
 
@@ -269,8 +300,8 @@ public class UserControllerTest extends ControllerTest {
     val async = context.async();
 
     val single = client.post(port, HOST, "/users")
-            .putHeader("Authorization", getRandomToken())
-            .rxSendJson(new JsonObject());
+        .putHeader("Authorization", getRandomToken())
+        .rxSendJson(new JsonObject());
 
     assertBadRequest(context, async, single);
   }
