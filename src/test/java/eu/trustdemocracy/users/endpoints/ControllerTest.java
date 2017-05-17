@@ -1,6 +1,8 @@
 package eu.trustdemocracy.users.endpoints;
 
+import eu.trustdemocracy.users.core.interactors.user.CreateUser;
 import eu.trustdemocracy.users.core.interactors.utils.TokenUtils;
+import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.infrastructure.FakeInteractorFactory;
 import eu.trustdemocracy.users.infrastructure.InteractorFactory;
 import io.vertx.core.DeploymentOptions;
@@ -84,6 +86,22 @@ public class ControllerTest {
       context.fail(error);
       async.complete();
     });
+  }
+
+  protected String getRandomToken() {
+    val userRequest = new UserRequestDTO()
+        .setUsername("test")
+        .setEmail("test@test.com")
+        .setPassword("password")
+        .setName("TestName")
+        .setSurname("TestSurname");
+
+    val createUser = interactorFactory.createUserInteractor(CreateUser.class);
+    createUser.execute(userRequest);
+    val authInteractor = interactorFactory.createGetTokenInteractor();
+    val getTokenResponse = authInteractor.execute(userRequest);
+
+    return "Bearer " + getTokenResponse.getAccessToken();
   }
 
 }

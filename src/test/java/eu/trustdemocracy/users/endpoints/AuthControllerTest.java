@@ -186,4 +186,26 @@ public class AuthControllerTest extends ControllerTest {
 
     assertBadCredentials(context, async, single);
   }
+
+
+  @Test
+  public void getTokenBadRequest(TestContext context) {
+    val async = context.async();
+
+    val single = client.post(port, HOST, "/token")
+        .rxSendJson(new JsonObject());
+
+    assertBadRequest(context, async, single);
+  }
+
+  @Test
+  public void refreshTokenBadRequest(TestContext context) {
+    val async = context.async();
+
+    val single = client.post(port, HOST, "/token/refresh")
+        .putHeader("Authorization", getRandomToken())
+        .rxSendJson(new JsonObject());
+
+    assertBadRequest(context, async, single);
+  }
 }

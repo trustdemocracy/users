@@ -1,7 +1,6 @@
 package eu.trustdemocracy.users.endpoints;
 
 
-import eu.trustdemocracy.users.core.interactors.user.CreateUser;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
 import io.vertx.core.json.Json;
@@ -296,22 +295,6 @@ public class UserControllerTest extends ControllerTest {
         .rxSendJson(new JsonObject());
 
     assertBadRequest(context, async, single);
-  }
-
-  private String getRandomToken() {
-    val userRequest = new UserRequestDTO()
-        .setUsername("test")
-        .setEmail("test@test.com")
-        .setPassword("password")
-        .setName("TestName")
-        .setSurname("TestSurname");
-
-    val createUser = interactorFactory.createUserInteractor(CreateUser.class);
-    createUser.execute(userRequest);
-    val authInteractor = interactorFactory.createGetTokenInteractor();
-    val getTokenResponse = authInteractor.execute(userRequest);
-
-    return "Bearer " + getTokenResponse.getAccessToken();
   }
 
 }

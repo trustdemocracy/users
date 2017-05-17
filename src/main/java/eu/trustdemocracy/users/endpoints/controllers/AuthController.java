@@ -21,7 +21,18 @@ public class AuthController extends Controller {
   }
 
   private void getToken(RoutingContext routingContext) {
-    val requestUser = Json.decodeValue(routingContext.getBodyAsString(), UserRequestDTO.class);
+    UserRequestDTO requestUser;
+    try {
+      if (routingContext.getBodyAsJson().isEmpty()) {
+        throw new Exception();
+      }
+
+      requestUser = Json.decodeValue(routingContext.getBodyAsString(), UserRequestDTO.class);
+    } catch (Exception e) {
+      serveBadRequest(routingContext);
+      return;
+    }
+
     val interactor = getInteractorFactory().createGetTokenInteractor();
 
     try {
@@ -34,14 +45,26 @@ public class AuthController extends Controller {
 
   private void refreshToken(RoutingContext routingContext) {
     val accessToken = getAuthorizationToken(routingContext.request());
-    val requestDTO = Json
-        .decodeValue(routingContext.getBodyAsString(), RefreshTokenRequestDTO.class);
+
+    RefreshTokenRequestDTO requestDTO;
+    try {
+      if (routingContext.getBodyAsJson().isEmpty()) {
+        throw new Exception();
+      }
+
+      requestDTO = Json.decodeValue(routingContext.getBodyAsString(), RefreshTokenRequestDTO.class);
+    } catch (Exception e) {
+      serveBadRequest(routingContext);
+      return;
+    }
+
     requestDTO.setAccessToken(accessToken);
 
     val interactor = getInteractorFactory().createRefreshTokenInteractor();
 
     try {
-      val tokenResponse = interactor.execute(requestDTO);;
+      val tokenResponse = interactor.execute(requestDTO);
+      ;
       serveJsonResponse(routingContext, 200, Json.encodePrettily(tokenResponse));
     } catch (CredentialsNotFoundException e) {
       serveBadCredentials(routingContext);
