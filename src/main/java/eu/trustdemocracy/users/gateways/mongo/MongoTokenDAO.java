@@ -1,5 +1,8 @@
 package eu.trustdemocracy.users.gateways.mongo;
 
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
+
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import eu.trustdemocracy.users.gateways.TokenDAO;
@@ -26,6 +29,13 @@ public class MongoTokenDAO implements TokenDAO {
 
   @Override
   public boolean findRefreshToken(UUID userId, String refreshToken) {
-    return false;
+    val condition = and(
+        eq("id", userId.toString()),
+        eq("refreshToken", refreshToken)
+    );
+
+    val deleteResult = collection.deleteMany(condition);
+
+    return deleteResult.getDeletedCount() > 0;
   }
 }
