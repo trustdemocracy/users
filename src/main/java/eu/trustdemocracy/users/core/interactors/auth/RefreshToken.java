@@ -6,6 +6,7 @@ import eu.trustdemocracy.users.core.interactors.Interactor;
 import eu.trustdemocracy.users.core.interactors.exceptions.CredentialsNotFoundException;
 import eu.trustdemocracy.users.core.models.request.RefreshTokenRequestDTO;
 import eu.trustdemocracy.users.core.models.response.GetTokenResponseDTO;
+import eu.trustdemocracy.users.gateways.TokenDAO;
 import eu.trustdemocracy.users.gateways.UserDAO;
 import eu.trustdemocracy.users.infrastructure.JWTKeyFactory;
 import java.util.UUID;
@@ -19,9 +20,11 @@ import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 public class RefreshToken implements Interactor<RefreshTokenRequestDTO, GetTokenResponseDTO> {
 
   private UserDAO userDAO;
+  private TokenDAO tokenDAO;
 
-  public RefreshToken(UserDAO userDAO) {
+  public RefreshToken(UserDAO userDAO, TokenDAO tokenDAO) {
     this.userDAO = userDAO;
+    this.tokenDAO = tokenDAO;
   }
 
   @Override
@@ -40,7 +43,7 @@ public class RefreshToken implements Interactor<RefreshTokenRequestDTO, GetToken
       val id = UUID.fromString(String.valueOf(claims.get("sub")));
       val username = String.valueOf(claims.get("username"));
 
-      val found = userDAO.findRefreshToken(id, requestDTO.getRefreshToken());
+      val found = tokenDAO.findRefreshToken(id, requestDTO.getRefreshToken());
       if (!found) {
         throw new CredentialsNotFoundException(
             "Invalid id or refresh token for user [" + username + "]");

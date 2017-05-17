@@ -9,7 +9,9 @@ import eu.trustdemocracy.users.core.interactors.user.CreateUser;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.GetTokenResponseDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
+import eu.trustdemocracy.users.gateways.TokenDAO;
 import eu.trustdemocracy.users.gateways.UserDAO;
+import eu.trustdemocracy.users.gateways.fake.FakeTokenDAO;
 import eu.trustdemocracy.users.gateways.fake.FakeUserDAO;
 import eu.trustdemocracy.users.infrastructure.JWTKeyFactory;
 import java.util.HashMap;
@@ -33,6 +35,7 @@ public class GetTokenTest {
   private static Map<UUID, UserResponseDTO> responseUsers;
   private static Map<String, UserRequestDTO> inputUsers;
   private UserDAO userDAO;
+  private TokenDAO tokenDAO;
   private RsaJsonWebKey rsaJsonWebKey;
 
   @BeforeEach
@@ -41,6 +44,7 @@ public class GetTokenTest {
     JWTKeyFactory.setPrivateKey(rsaJsonWebKey.getPrivateKey());
 
     userDAO = new FakeUserDAO();
+    tokenDAO = new FakeTokenDAO();
     responseUsers = new HashMap<>();
     inputUsers = new HashMap<>();
 
@@ -64,7 +68,7 @@ public class GetTokenTest {
     val responseUser = responseUsers.values().iterator().next();
     val inputUser = inputUsers.get(responseUser.getUsername());
 
-    GetTokenResponseDTO token = new GetToken(userDAO).execute(inputUser);
+    GetTokenResponseDTO token = new GetToken(userDAO, tokenDAO).execute(inputUser);
 
     assertNotNull(token.getRefreshToken());
 
@@ -96,7 +100,7 @@ public class GetTokenTest {
         .setPassword("test");
 
     assertThrows(CredentialsNotFoundException.class,
-        () -> new GetToken(userDAO).execute(inputUser));
+        () -> new GetToken(userDAO, tokenDAO).execute(inputUser));
   }
 
 }

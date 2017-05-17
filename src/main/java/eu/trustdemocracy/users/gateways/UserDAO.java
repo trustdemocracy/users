@@ -14,8 +14,4 @@ public interface UserDAO {
   User findById(UUID id);
 
   User deleteById(UUID id);
-
-  void storeRefreshToken(UUID userId, String refreshToken);
-
-  boolean findRefreshToken(UUID userId, String refreshToken);
 }

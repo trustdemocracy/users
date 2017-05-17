@@ -7,15 +7,18 @@ import eu.trustdemocracy.users.core.interactors.Interactor;
 import eu.trustdemocracy.users.core.interactors.exceptions.CredentialsNotFoundException;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.GetTokenResponseDTO;
+import eu.trustdemocracy.users.gateways.TokenDAO;
 import eu.trustdemocracy.users.gateways.UserDAO;
 import lombok.val;
 
 public class GetToken implements Interactor<UserRequestDTO, GetTokenResponseDTO> {
 
   private UserDAO userDAO;
+  private TokenDAO tokenDAO;
 
-  public GetToken(UserDAO userDAO) {
+  public GetToken(UserDAO userDAO, TokenDAO tokenDAO) {
     this.userDAO = userDAO;
+    this.tokenDAO = tokenDAO;
   }
 
   /**
@@ -37,7 +40,7 @@ public class GetToken implements Interactor<UserRequestDTO, GetTokenResponseDTO>
 
     val refreshToken = CryptoUtils.randomToken();
 
-    userDAO.storeRefreshToken(user.getId(), refreshToken);
+    tokenDAO.storeRefreshToken(user.getId(), refreshToken);
 
     return TokenMapper.createResponse(user, refreshToken);
   }

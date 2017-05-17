@@ -1,7 +1,10 @@
 package eu.trustdemocracy.users.infrastructure;
 
 import com.mongodb.MongoClient;
+import com.mongodb.client.MongoDatabase;
+import eu.trustdemocracy.users.gateways.TokenDAO;
 import eu.trustdemocracy.users.gateways.UserDAO;
+import eu.trustdemocracy.users.gateways.mongo.MongoTokenDAO;
 import eu.trustdemocracy.users.gateways.mongo.MongoUserDAO;
 import java.util.Properties;
 import lombok.val;
@@ -13,10 +16,18 @@ public class DAOFactory {
   private static final String PROPERTIES_KEY_PORT = "port";
   private static final String PROPERTIES_KEY_DATABASE = "database";
 
-  private static UserDAO userDAO;
+  private static MongoDatabase db;
 
   public static UserDAO getUserDAO() {
-    if (userDAO == null) {
+    return new MongoUserDAO(getDatabase());
+  }
+
+  public static TokenDAO getTokenDAO() {
+    return new MongoTokenDAO(getDatabase());
+  }
+
+  private static MongoDatabase getDatabase() {
+    if (db == null) {
       Properties properties;
       try {
         properties = getProperties();
@@ -31,12 +42,12 @@ public class DAOFactory {
 
       val server = properties.getProperty(PROPERTIES_KEY_SERVER);
       val port = Integer.valueOf(properties.getProperty(PROPERTIES_KEY_PORT));
-      val db = properties.getProperty(PROPERTIES_KEY_DATABASE);
+      val dbKey = properties.getProperty(PROPERTIES_KEY_DATABASE);
 
       val mongoClient = new MongoClient(server, port);
-      userDAO = new MongoUserDAO(mongoClient.getDatabase(db));
+      db = mongoClient.getDatabase(dbKey);
     }
-    return userDAO;
+    return db;
   }
 
 
