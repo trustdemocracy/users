@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.trustdemocracy.users.core.entities.UserVisibility;
 import eu.trustdemocracy.users.core.entities.util.CryptoUtils;
+import eu.trustdemocracy.users.core.interactors.exceptions.InvalidTokenException;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
 import eu.trustdemocracy.users.gateways.UserDAO;
@@ -37,6 +38,19 @@ public class UpdateUserTest {
       val responseUser = interactor.execute(inputUser);
       responseUsers.put(responseUser.getId(), responseUser);
     }
+  }
+
+  @Test
+  public void updateNotAuthorizedUser() {
+    val responseUser = responseUsers.values().iterator().next();
+    val inputUser = new UserRequestDTO()
+        .setId(responseUser.getId())
+        .setUsername(responseUser.getUsername())
+        .setEmail(responseUser.getEmail())
+        .setName(null)
+        .setSurname("TestSurname");
+
+    assertThrows(InvalidTokenException.class, () -> new UpdateUser(userDAO).execute(inputUser));
   }
 
   @Test
