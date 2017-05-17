@@ -54,7 +54,7 @@ public class MongoTokenDAOTest {
   }
 
   @Test
-  public void findRefreshToken() {
+  public void findAndDeleteRefreshToken() {
     val id = UUID.randomUUID();
     val token = CryptoUtils.randomToken();
 
@@ -62,13 +62,13 @@ public class MongoTokenDAOTest {
     tokenDAO.storeRefreshToken(id, token);
     assertEquals(1L, collection.count());
 
-    assertTrue(tokenDAO.findRefreshToken(id, token));
+    assertTrue(tokenDAO.findAndDeleteRefreshToken(id, token));
     assertEquals(0L, collection.count());
   }
 
 
   @Test
-  public void findInvalidRefreshToken() {
+  public void findAndDeleteInvalidRefreshToken() {
     val id = UUID.randomUUID();
     val token = CryptoUtils.randomToken();
     val invalidToken = CryptoUtils.randomToken();
@@ -77,7 +77,7 @@ public class MongoTokenDAOTest {
     tokenDAO.storeRefreshToken(id, token);
     assertEquals(1L, collection.count());
 
-    assertFalse(tokenDAO.findRefreshToken(id, invalidToken));
+    assertFalse(tokenDAO.findAndDeleteRefreshToken(id, invalidToken));
     assertEquals(1L, collection.count());
   }
 

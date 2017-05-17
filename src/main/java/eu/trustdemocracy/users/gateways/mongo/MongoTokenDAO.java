@@ -28,7 +28,7 @@ public class MongoTokenDAO implements TokenDAO {
   }
 
   @Override
-  public boolean findRefreshToken(UUID userId, String refreshToken) {
+  public boolean findAndDeleteRefreshToken(UUID userId, String refreshToken) {
     val condition = and(
         eq("id", userId.toString()),
         eq("refreshToken", refreshToken)

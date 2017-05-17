@@ -43,7 +43,7 @@ public class RefreshToken implements Interactor<RefreshTokenRequestDTO, GetToken
       val id = UUID.fromString(String.valueOf(claims.get("sub")));
       val username = String.valueOf(claims.get("username"));
 
-      val found = tokenDAO.findRefreshToken(id, requestDTO.getRefreshToken());
+      val found = tokenDAO.findAndDeleteRefreshToken(id, requestDTO.getRefreshToken());
       if (!found) {
         throw new CredentialsNotFoundException(
             "Invalid id or refresh token for user [" + username + "]");

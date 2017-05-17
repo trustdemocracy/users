@@ -15,7 +15,7 @@ public class FakeTokenDAO implements TokenDAO {
   }
 
   @Override
-  public boolean findRefreshToken(UUID userId, String refreshToken) {
+  public boolean findAndDeleteRefreshToken(UUID userId, String refreshToken) {
     return refreshTokens.remove(userId, refreshToken);
   }
 }
