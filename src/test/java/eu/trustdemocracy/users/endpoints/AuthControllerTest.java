@@ -182,6 +182,9 @@ public class AuthControllerTest {
       val tokenResponse = Json
           .decodeValue(response.body().toString(), GetTokenResponseDTO.class);
 
+      context.assertNotNull(tokenResponse.getAccessToken());
+      context.assertNotNull(tokenResponse.getRefreshToken());
+
       context.assertNotEquals(tokenRequest.getAccessToken(), tokenResponse.getAccessToken());
       context.assertNotEquals(tokenRequest.getRefreshToken(), tokenResponse.getAccessToken());
 

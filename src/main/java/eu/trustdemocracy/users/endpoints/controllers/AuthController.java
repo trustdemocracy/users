@@ -49,12 +49,10 @@ public class AuthController extends Controller {
         .decodeValue(routingContext.getBodyAsString(), RefreshTokenRequestDTO.class);
     val interactor = getInteractorFactory().createRefreshTokenInteractor();
     val tokenResponse = interactor.execute(requestDTO);
-    val json = new JsonObject()
-        .put("accessToken", tokenResponse.getAccessToken());
 
     routingContext.response()
         .putHeader("content-type", "application/json")
         .setStatusCode(200)
-        .end(Json.encodePrettily(json));
+        .end(Json.encodePrettily(tokenResponse));
   }
 }
