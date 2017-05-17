@@ -3,7 +3,9 @@ package eu.trustdemocracy.users.gateways.mongo;
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.github.fakemongo.Fongo;
 import com.mongodb.client.MongoCollection;
@@ -49,6 +51,34 @@ public class MongoTokenDAOTest {
 
     assertEquals(id, UUID.fromString(document.getString("id")));
     assertEquals(token, document.getString("refreshToken"));
+  }
+
+  @Test
+  public void findRefreshToken() {
+    val id = UUID.randomUUID();
+    val token = CryptoUtils.randomToken();
+
+    assertEquals(0L, collection.count());
+    tokenDAO.storeRefreshToken(id, token);
+    assertEquals(1L, collection.count());
+
+    assertTrue(tokenDAO.findRefreshToken(id, token));
+    assertEquals(0L, collection.count());
+  }
+
+
+  @Test
+  public void findInvalidRefreshToken() {
+    val id = UUID.randomUUID();
+    val token = CryptoUtils.randomToken();
+    val invalidToken = CryptoUtils.randomToken();
+
+    assertEquals(0L, collection.count());
+    tokenDAO.storeRefreshToken(id, token);
+    assertEquals(1L, collection.count());
+
+    assertFalse(tokenDAO.findRefreshToken(id, invalidToken));
+    assertEquals(1L, collection.count());
   }
 
 }
