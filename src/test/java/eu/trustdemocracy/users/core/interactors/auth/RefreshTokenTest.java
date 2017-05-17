@@ -116,6 +116,49 @@ public class RefreshTokenTest {
   }
 
   @Test
+  public void refreshNewToken() throws InvalidJwtException {
+    val issuedToken = responseUsers.keySet().iterator().next();
+    val responseUser = responseUsers.get(issuedToken);
+
+    val requestDTO = new RefreshTokenRequestDTO()
+        .setAccessToken(issuedToken.getJwtToken())
+        .setRefreshToken(issuedToken.getRefreshToken());
+
+    GetTokenResponseDTO token = new RefreshToken(userDAO, tokenDAO).execute(requestDTO);
+
+    assertNotNull(token.getJwtToken());
+    assertNotNull(token.getRefreshToken());
+
+
+    val newRequestDTO = new RefreshTokenRequestDTO()
+        .setAccessToken(token.getJwtToken())
+        .setRefreshToken(token.getRefreshToken());
+
+    GetTokenResponseDTO newToken = new RefreshToken(userDAO, tokenDAO).execute(newRequestDTO);
+
+    assertNotNull(newToken.getRefreshToken());
+
+    val jwtConsumer = new JwtConsumerBuilder()
+        .setRequireExpirationTime()
+        .setAllowedClockSkewInSeconds(30)
+        .setRequireSubject()
+        .setVerificationKey(rsaJsonWebKey.getKey())
+        .setJwsAlgorithmConstraints(new AlgorithmConstraints(ConstraintType.WHITELIST,
+            AlgorithmIdentifiers.RSA_USING_SHA256))
+        .build();
+
+    JwtClaims jwtClaims = jwtConsumer.processToClaims(newToken.getJwtToken());
+
+    val claims = jwtClaims.getClaimsMap();
+    assertEquals(claims.get("sub"), responseUser.getId().toString());
+    assertEquals(claims.get("username"), responseUser.getUsername());
+    assertEquals(claims.get("email"), responseUser.getEmail());
+    assertEquals(claims.get("name"), responseUser.getName());
+    assertEquals(claims.get("surname"), responseUser.getSurname());
+    assertEquals(claims.get("visibility"), responseUser.getVisibility().toString());
+  }
+
+  @Test
   public void refreshOutdatedToken() throws JoseException, InvalidJwtException {
     val issuedToken = responseUsers.keySet().iterator().next();
     val responseUser = responseUsers.get(issuedToken);
