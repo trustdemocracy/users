@@ -77,7 +77,7 @@ public class ControllerTest {
 
       val errorMessage = response.body().toJsonObject().getString("message");
 
-      context.assertEquals(errorMessage, APIMessages.BAD_CREDENTIALS);
+      context.assertEquals(errorMessage, APIMessages.BAD_REQUEST);
 
       async.complete();
     }, error -> {

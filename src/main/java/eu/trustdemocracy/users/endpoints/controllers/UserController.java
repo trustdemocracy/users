@@ -27,7 +27,18 @@ public class UserController extends Controller {
   }
 
   private void createUser(RoutingContext routingContext) {
-    val requestUser = Json.decodeValue(routingContext.getBodyAsString(), UserRequestDTO.class);
+    UserRequestDTO requestUser;
+    try {
+      if (routingContext.getBodyAsJson().isEmpty()) {
+        throw new Exception();
+      }
+
+      requestUser = Json.decodeValue(routingContext.getBodyAsString(), UserRequestDTO.class);
+    } catch (Exception e) {
+      serveBadRequest(routingContext);
+      return;
+    }
+
     val interactor = getInteractorFactory().createUserInteractor(CreateUser.class);
     val user = interactor.execute(requestUser);
 
