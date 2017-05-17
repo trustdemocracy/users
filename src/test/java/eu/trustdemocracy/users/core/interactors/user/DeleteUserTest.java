@@ -18,6 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class DeleteUserTest {
+
   private static Map<String, UserResponseDTO> responseUsers;
   private UserDAO userDAO;
 
@@ -54,9 +55,10 @@ public class DeleteUserTest {
 
   @Test
   public void deleteSingleUser() {
-    val responseUser = responseUsers.values().iterator().next();
+    val accessToken = responseUsers.keySet().iterator().next();
+    val responseUser = responseUsers.get(accessToken);
     val inputUser = new UserRequestDTO()
-        .setId(responseUser.getId());
+        .setAccessToken(accessToken);
 
     new DeleteUser(userDAO).execute(inputUser);
 
@@ -67,9 +69,10 @@ public class DeleteUserTest {
   public void deleteSeveralUsers() {
     val interactor = new DeleteUser(userDAO);
 
-    for (val responseUser : responseUsers.values()) {
+    for (val accessToken : responseUsers.keySet()) {
+      val responseUser = responseUsers.get(accessToken);
       val inputUser = new UserRequestDTO()
-          .setId(responseUser.getId());
+          .setAccessToken(accessToken);
 
       interactor.execute(inputUser);
 
