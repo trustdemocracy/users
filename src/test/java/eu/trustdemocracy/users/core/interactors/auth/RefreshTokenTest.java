@@ -98,6 +98,22 @@ public class RefreshTokenTest {
     assertEquals(claims.get("visibility"), responseUser.getVisibility().toString());
   }
 
+  @Test
+  public void refreshSameTokenTwice() {
+    val issuedToken = responseUsers.keySet().iterator().next();
+
+    val requestDTO = new RefreshTokenRequestDTO()
+        .setAccessToken(issuedToken.getJwtToken())
+        .setRefreshToken(issuedToken.getRefreshToken());
+
+    GetTokenResponseDTO token = new RefreshToken(userDAO, tokenDAO).execute(requestDTO);
+
+    assertNotNull(token.getJwtToken());
+    assertNotNull(token.getRefreshToken());
+
+    assertThrows(CredentialsNotFoundException.class,
+        () -> new RefreshToken(userDAO, tokenDAO).execute(requestDTO));
+  }
 
   @Test
   public void refreshOutdatedToken() throws JoseException, InvalidJwtException {
@@ -135,7 +151,7 @@ public class RefreshTokenTest {
   }
 
   @Test
-  public void refreshInvalidToken() throws JoseException, InvalidJwtException {
+  public void refreshInvalidToken() {
     val issuedToken = responseUsers.keySet().iterator().next();
     val invalidToken = CryptoUtils.randomToken();
 
