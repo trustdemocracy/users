@@ -13,7 +13,9 @@ public class DeleteUser extends UserInteractor {
     super(userDAO);
   }
 
-  public UserResponseDTO execute(UserRequestDTO inputUser) {
+  public UserResponseDTO execute(UserRequestDTO requestDTO) {
+    val inputUser = UserMapper.createEntity(requestDTO.getAccessToken());
+
     val user = userDAO.deleteById(inputUser.getId());
     return UserMapper.createResponse(user);
   }

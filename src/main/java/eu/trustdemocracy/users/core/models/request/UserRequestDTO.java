@@ -9,6 +9,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class UserRequestDTO {
 
+  private String accessToken;
   private UUID id;
   private String username;
   private String email;

@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import eu.trustdemocracy.users.core.interactors.auth.GetToken;
 import eu.trustdemocracy.users.core.interactors.exceptions.InvalidTokenException;
+import eu.trustdemocracy.users.core.interactors.utils.TokenUtils;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
 import eu.trustdemocracy.users.gateways.UserDAO;
@@ -22,6 +23,8 @@ public class DeleteUserTest {
 
   @BeforeEach
   public void init() {
+    TokenUtils.generateKeys();
+
     userDAO = new FakeUserDAO();
     responseUsers = new HashMap<>();
 
