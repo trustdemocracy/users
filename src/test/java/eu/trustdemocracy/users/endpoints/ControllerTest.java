@@ -31,7 +31,7 @@ public class ControllerTest {
   protected InteractorFactory interactorFactory;
 
   @Before
-  public void setUp(TestContext context) throws IOException, JoseException {
+  public void setUp(TestContext context) throws IOException, JoseException, InterruptedException {
     TokenUtils.generateKeys();
 
     vertx = Vertx.vertx();
@@ -46,6 +46,8 @@ public class ControllerTest {
     interactorFactory = new FakeInteractorFactory();
     App.setInteractorFactory(interactorFactory);
     vertx.deployVerticle(App.class.getName(), options, context.asyncAssertSuccess());
+
+    Thread.sleep(200);
   }
 
   @After
