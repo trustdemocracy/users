@@ -28,13 +28,11 @@ public class AuthController extends Controller {
 
     try {
       val tokenResponse = interactor.execute(requestUser);
-      val json = new JsonObject()
-          .put("accessToken", tokenResponse.getJwtToken());
 
       routingContext.response()
           .putHeader("content-type", "application/json")
           .setStatusCode(200)
-          .end(Json.encodePrettily(json));
+          .end(Json.encodePrettily(tokenResponse));
     } catch (CredentialsNotFoundException e) {
       val json = new JsonObject()
           .put("message", APIMessages.BAD_CREDENTIALS);
@@ -52,7 +50,7 @@ public class AuthController extends Controller {
     val interactor = getInteractorFactory().createRefreshTokenInteractor();
     val tokenResponse = interactor.execute(requestDTO);
     val json = new JsonObject()
-        .put("accessToken", tokenResponse.getJwtToken());
+        .put("accessToken", tokenResponse.getAccessToken());
 
     routingContext.response()
         .putHeader("content-type", "application/json")

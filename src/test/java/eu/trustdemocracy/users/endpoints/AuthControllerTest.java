@@ -2,11 +2,14 @@ package eu.trustdemocracy.users.endpoints;
 
 
 import eu.trustdemocracy.users.core.interactors.user.CreateUser;
+import eu.trustdemocracy.users.core.models.request.RefreshTokenRequestDTO;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
+import eu.trustdemocracy.users.core.models.response.GetTokenResponseDTO;
 import eu.trustdemocracy.users.infrastructure.FakeInteractorFactory;
 import eu.trustdemocracy.users.infrastructure.InteractorFactory;
 import eu.trustdemocracy.users.infrastructure.JWTKeyFactory;
 import io.vertx.core.DeploymentOptions;
+import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
@@ -88,7 +91,11 @@ public class AuthControllerTest {
       context.assertEquals(response.statusCode(), 200);
       context.assertTrue(response.headers().get("content-type").contains("application/json"));
 
-      val token = response.body().toJsonObject().getString("accessToken");
+      val tokenResponse = Json
+          .decodeValue(response.body().toString(), GetTokenResponseDTO.class);
+
+      context.assertNotNull(tokenResponse.getAccessToken());
+      context.assertNotNull(tokenResponse.getRefreshToken());
 
       val jwtConsumer = new JwtConsumerBuilder()
           .setRequireExpirationTime()
@@ -100,7 +107,7 @@ public class AuthControllerTest {
           .build();
 
       try {
-        val jwtClaims = jwtConsumer.processToClaims(token);
+        val jwtClaims = jwtConsumer.processToClaims(tokenResponse.getAccessToken());
         val claims = jwtClaims.getClaimsMap();
         context.assertEquals(claims.get("sub"), responseUser.getId().toString());
         context.assertEquals(claims.get("username"), responseUser.getUsername());
@@ -159,18 +166,25 @@ public class AuthControllerTest {
     val responseUser = userInteractor.execute(inputUser);
 
     val authInteractor = interactorFactory.createGetTokenInteractor();
-    val jsonToken = new JsonObject().put("token", authInteractor.execute(inputUser).getJwtToken());
+    val getTokenResponse = authInteractor.execute(inputUser);
+
+    val tokenRequest = new RefreshTokenRequestDTO()
+        .setAccessToken(getTokenResponse.getAccessToken())
+        .setRefreshToken(getTokenResponse.getRefreshToken());
 
     val single = client.post(port, HOST, "/token/refresh")
-        .rxSendJson(jsonToken);
+        .rxSendJson(tokenRequest);
 
     single.subscribe(response -> {
       context.assertEquals(response.statusCode(), 200);
       context.assertTrue(response.headers().get("content-type").contains("application/json"));
 
-      val token = response.body().toJsonObject().getString("accessToken");
+      val tokenResponse = Json
+          .decodeValue(response.body().toString(), GetTokenResponseDTO.class);
 
-      context.assertNotEquals(jsonToken.getString("token"), token);
+      context.assertNotEquals(tokenRequest.getAccessToken(), tokenResponse.getAccessToken());
+      context.assertNotEquals(tokenRequest.getRefreshToken(), tokenResponse.getAccessToken());
+
 
       val jwtConsumer = new JwtConsumerBuilder()
           .setRequireExpirationTime()
@@ -182,7 +196,7 @@ public class AuthControllerTest {
           .build();
 
       try {
-        val jwtClaims = jwtConsumer.processToClaims(token);
+        val jwtClaims = jwtConsumer.processToClaims(tokenResponse.getAccessToken());
         val claims = jwtClaims.getClaimsMap();
         context.assertEquals(claims.get("username"), responseUser.getUsername());
         context.assertEquals(claims.get("sub"), responseUser.getId().toString());

@@ -7,6 +7,6 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class GetTokenResponseDTO {
 
-  private String jwtToken;
+  private String accessToken;
   private String refreshToken;
 }

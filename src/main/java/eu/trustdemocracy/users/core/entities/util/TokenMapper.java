@@ -37,7 +37,7 @@ public class TokenMapper {
     try {
       val token = jws.getCompactSerialization();
       return new GetTokenResponseDTO()
-          .setJwtToken(token)
+          .setAccessToken(token)
           .setRefreshToken(refreshToken);
     } catch (JoseException e) {
       LOG.error("Failed to get serialized jwt", e);

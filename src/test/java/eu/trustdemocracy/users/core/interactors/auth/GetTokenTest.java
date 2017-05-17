@@ -81,7 +81,7 @@ public class GetTokenTest {
             AlgorithmIdentifiers.RSA_USING_SHA256))
         .build();
 
-    JwtClaims jwtClaims = jwtConsumer.processToClaims(token.getJwtToken());
+    JwtClaims jwtClaims = jwtConsumer.processToClaims(token.getAccessToken());
 
     val claims = jwtClaims.getClaimsMap();
     assertEquals(claims.get("sub"), responseUser.getId().toString());

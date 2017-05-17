@@ -71,7 +71,7 @@ public class RefreshTokenTest {
     val responseUser = responseUsers.get(issuedToken);
 
     val requestDTO = new RefreshTokenRequestDTO()
-        .setAccessToken(issuedToken.getJwtToken())
+        .setAccessToken(issuedToken.getAccessToken())
         .setRefreshToken(issuedToken.getRefreshToken());
 
     GetTokenResponseDTO token = new RefreshToken(userDAO, tokenDAO).execute(requestDTO);
@@ -87,7 +87,7 @@ public class RefreshTokenTest {
             AlgorithmIdentifiers.RSA_USING_SHA256))
         .build();
 
-    JwtClaims jwtClaims = jwtConsumer.processToClaims(token.getJwtToken());
+    JwtClaims jwtClaims = jwtConsumer.processToClaims(token.getAccessToken());
 
     val claims = jwtClaims.getClaimsMap();
     assertEquals(claims.get("sub"), responseUser.getId().toString());
@@ -103,12 +103,12 @@ public class RefreshTokenTest {
     val issuedToken = responseUsers.keySet().iterator().next();
 
     val requestDTO = new RefreshTokenRequestDTO()
-        .setAccessToken(issuedToken.getJwtToken())
+        .setAccessToken(issuedToken.getAccessToken())
         .setRefreshToken(issuedToken.getRefreshToken());
 
     GetTokenResponseDTO token = new RefreshToken(userDAO, tokenDAO).execute(requestDTO);
 
-    assertNotNull(token.getJwtToken());
+    assertNotNull(token.getAccessToken());
     assertNotNull(token.getRefreshToken());
 
     assertThrows(CredentialsNotFoundException.class,
@@ -121,17 +121,17 @@ public class RefreshTokenTest {
     val responseUser = responseUsers.get(issuedToken);
 
     val requestDTO = new RefreshTokenRequestDTO()
-        .setAccessToken(issuedToken.getJwtToken())
+        .setAccessToken(issuedToken.getAccessToken())
         .setRefreshToken(issuedToken.getRefreshToken());
 
     GetTokenResponseDTO token = new RefreshToken(userDAO, tokenDAO).execute(requestDTO);
 
-    assertNotNull(token.getJwtToken());
+    assertNotNull(token.getAccessToken());
     assertNotNull(token.getRefreshToken());
 
 
     val newRequestDTO = new RefreshTokenRequestDTO()
-        .setAccessToken(token.getJwtToken())
+        .setAccessToken(token.getAccessToken())
         .setRefreshToken(token.getRefreshToken());
 
     GetTokenResponseDTO newToken = new RefreshToken(userDAO, tokenDAO).execute(newRequestDTO);
@@ -147,7 +147,7 @@ public class RefreshTokenTest {
             AlgorithmIdentifiers.RSA_USING_SHA256))
         .build();
 
-    JwtClaims jwtClaims = jwtConsumer.processToClaims(newToken.getJwtToken());
+    JwtClaims jwtClaims = jwtConsumer.processToClaims(newToken.getAccessToken());
 
     val claims = jwtClaims.getClaimsMap();
     assertEquals(claims.get("sub"), responseUser.getId().toString());
@@ -182,7 +182,7 @@ public class RefreshTokenTest {
             AlgorithmIdentifiers.RSA_USING_SHA256))
         .build();
 
-    JwtClaims jwtClaims = jwtConsumer.processToClaims(token.getJwtToken());
+    JwtClaims jwtClaims = jwtConsumer.processToClaims(token.getAccessToken());
 
     val claims = jwtClaims.getClaimsMap();
     assertEquals(claims.get("sub"), responseUser.getId().toString());
@@ -199,7 +199,7 @@ public class RefreshTokenTest {
     val invalidToken = CryptoUtils.randomToken();
 
     val requestDTO = new RefreshTokenRequestDTO()
-        .setAccessToken(issuedToken.getJwtToken())
+        .setAccessToken(issuedToken.getAccessToken())
         .setRefreshToken(invalidToken);
 
     assertThrows(CredentialsNotFoundException.class,
