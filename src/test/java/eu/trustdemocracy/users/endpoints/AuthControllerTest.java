@@ -162,10 +162,10 @@ public class AuthControllerTest {
     val getTokenResponse = authInteractor.execute(inputUser);
 
     val tokenRequest = new RefreshTokenRequestDTO()
-        .setAccessToken(getTokenResponse.getAccessToken())
         .setRefreshToken(getTokenResponse.getRefreshToken());
 
     val single = client.post(port, HOST, "/token/refresh")
+        .putHeader("Authorization", "Bearer " + getTokenResponse.getAccessToken())
         .rxSendJson(tokenRequest);
 
     single.subscribe(response -> {
@@ -178,8 +178,8 @@ public class AuthControllerTest {
       context.assertNotNull(tokenResponse.getAccessToken());
       context.assertNotNull(tokenResponse.getRefreshToken());
 
-      context.assertNotEquals(tokenRequest.getAccessToken(), tokenResponse.getAccessToken());
-      context.assertNotEquals(tokenRequest.getRefreshToken(), tokenResponse.getAccessToken());
+      context.assertNotEquals(getTokenResponse.getAccessToken(), tokenResponse.getAccessToken());
+      context.assertNotEquals(getTokenResponse.getRefreshToken(), tokenResponse.getAccessToken());
 
 
       val jwtConsumer = new JwtConsumerBuilder()
@@ -228,10 +228,10 @@ public class AuthControllerTest {
     val getTokenResponse = authInteractor.execute(inputUser);
 
     val tokenRequest = new RefreshTokenRequestDTO()
-        .setAccessToken(getTokenResponse.getAccessToken())
         .setRefreshToken(CryptoUtils.randomToken());
 
     val single = client.post(port, HOST, "/token/refresh")
+        .putHeader("Authorization", "Bearer " + getTokenResponse.getAccessToken())
         .rxSendJson(tokenRequest);
 
     assertBadCredentials(context, async, single);
