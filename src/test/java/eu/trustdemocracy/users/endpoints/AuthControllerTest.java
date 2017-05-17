@@ -1,6 +1,7 @@
 package eu.trustdemocracy.users.endpoints;
 
 
+import eu.trustdemocracy.users.core.entities.util.CryptoUtils;
 import eu.trustdemocracy.users.core.interactors.user.CreateUser;
 import eu.trustdemocracy.users.core.models.request.RefreshTokenRequestDTO;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
@@ -11,9 +12,12 @@ import eu.trustdemocracy.users.infrastructure.JWTKeyFactory;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import io.vertx.rxjava.core.Vertx;
+import io.vertx.rxjava.core.buffer.Buffer;
+import io.vertx.rxjava.ext.web.client.HttpResponse;
 import io.vertx.rxjava.ext.web.client.WebClient;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -30,6 +34,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import rx.Single;
 
 @RunWith(VertxUnitRunner.class)
 public class AuthControllerTest {
@@ -137,19 +142,7 @@ public class AuthControllerTest {
     val single = client.post(port, HOST, "/token")
         .rxSendJson(jsonUser);
 
-    single.subscribe(response -> {
-      context.assertEquals(response.statusCode(), 401);
-      context.assertTrue(response.headers().get("content-type").contains("application/json"));
-
-      val errorMessage = response.body().toJsonObject().getString("message");
-
-      context.assertEquals(errorMessage, APIMessages.BAD_CREDENTIALS);
-
-      async.complete();
-    }, error -> {
-      context.fail(error);
-      async.complete();
-    });
+    assertBadCredentials(context, async, single);
   }
 
   @Test
@@ -212,6 +205,49 @@ public class AuthControllerTest {
       } finally {
         async.complete();
       }
+    }, error -> {
+      context.fail(error);
+      async.complete();
+    });
+  }
+
+  @Test
+  public void refreshInvalidToken(TestContext context) {
+    val async = context.async();
+
+    val inputUser = new UserRequestDTO()
+        .setUsername("test")
+        .setEmail("test@test.com")
+        .setPassword("password")
+        .setName("TestName")
+        .setSurname("TestSurname");
+    val userInteractor = interactorFactory.createUserInteractor(CreateUser.class);
+    userInteractor.execute(inputUser);
+
+    val authInteractor = interactorFactory.createGetTokenInteractor();
+    val getTokenResponse = authInteractor.execute(inputUser);
+
+    val tokenRequest = new RefreshTokenRequestDTO()
+        .setAccessToken(getTokenResponse.getAccessToken())
+        .setRefreshToken(CryptoUtils.randomToken());
+
+    val single = client.post(port, HOST, "/token/refresh")
+        .rxSendJson(tokenRequest);
+
+    assertBadCredentials(context, async, single);
+  }
+
+  private void assertBadCredentials(TestContext context, Async async,
+      Single<HttpResponse<Buffer>> single) {
+    single.subscribe(response -> {
+      context.assertEquals(response.statusCode(), 401);
+      context.assertTrue(response.headers().get("content-type").contains("application/json"));
+
+      val errorMessage = response.body().toJsonObject().getString("message");
+
+      context.assertEquals(errorMessage, APIMessages.BAD_CREDENTIALS);
+
+      async.complete();
     }, error -> {
       context.fail(error);
       async.complete();

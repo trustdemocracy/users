@@ -48,11 +48,22 @@ public class AuthController extends Controller {
     val requestDTO = Json
         .decodeValue(routingContext.getBodyAsString(), RefreshTokenRequestDTO.class);
     val interactor = getInteractorFactory().createRefreshTokenInteractor();
-    val tokenResponse = interactor.execute(requestDTO);
 
-    routingContext.response()
-        .putHeader("content-type", "application/json")
-        .setStatusCode(200)
-        .end(Json.encodePrettily(tokenResponse));
+    try {
+      val tokenResponse = interactor.execute(requestDTO);
+
+      routingContext.response()
+          .putHeader("content-type", "application/json")
+          .setStatusCode(200)
+          .end(Json.encodePrettily(tokenResponse));
+    } catch (CredentialsNotFoundException e) {
+      val json = new JsonObject()
+          .put("message", APIMessages.BAD_CREDENTIALS);
+
+      routingContext.response()
+          .putHeader("content-type", "application/json")
+          .setStatusCode(401)
+          .end(Json.encodePrettily(json));
+    }
   }
 }
