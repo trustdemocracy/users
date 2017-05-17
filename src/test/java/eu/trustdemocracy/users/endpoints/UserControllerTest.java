@@ -175,10 +175,10 @@ public class UserControllerTest extends ControllerTest {
           .setName("NewName")
           .setSurname("NewName");
 
-      client.put(port, HOST, "/users/" + userRequest.getId())
+      val updateSingle = client.put(port, HOST, "/users/" + userRequest.getId())
           .rxSendJson(userRequest);
 
-      assertBadCredentials(context, async, single);
+      assertBadCredentials(context, async, updateSingle);
     }, error -> {
       context.fail(error);
       async.complete();
@@ -254,9 +254,9 @@ public class UserControllerTest extends ControllerTest {
 
     single.subscribe(response -> {
       val responseUser = Json.decodeValue(response.body().toString(), UserResponseDTO.class);
-      client.delete(port, HOST, "/users/" + responseUser.getId())
+      val deletionSingle = client.delete(port, HOST, "/users/" + responseUser.getId())
           .rxSend();
-      assertBadCredentials(context, async, single);
+      assertBadCredentials(context, async, deletionSingle);
     }, error -> {
       context.fail(error);
       async.complete();
