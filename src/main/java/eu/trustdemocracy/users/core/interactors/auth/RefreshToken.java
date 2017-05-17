@@ -52,6 +52,7 @@ public class RefreshToken implements Interactor<RefreshTokenRequestDTO, GetToken
       val user = userDAO.findByUsername(username);
 
       val refreshToken = CryptoUtils.randomToken();
+      tokenDAO.storeRefreshToken(id, refreshToken);
 
       return TokenMapper.createResponse(user, refreshToken);
     } catch (InvalidJwtException | IllegalArgumentException e) {
