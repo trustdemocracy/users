@@ -46,7 +46,14 @@ public class UserController extends Controller {
   }
 
   private void findUser(RoutingContext routingContext) {
-    val id = UUID.fromString(routingContext.pathParam("id"));
+    UUID id;
+    try {
+      id = UUID.fromString(routingContext.pathParam("id"));
+    } catch (Exception e) {
+      serveBadRequest(routingContext);
+      return;
+    }
+
     val requestUser = new UserRequestDTO().setId(id);
     val interactor = getInteractorFactory().createUserInteractor(GetUser.class);
     val user = interactor.execute(requestUser);
@@ -56,7 +63,17 @@ public class UserController extends Controller {
 
   private void updateUser(RoutingContext routingContext) {
     val accessToken = getAuthorizationToken(routingContext.request());
-    val requestUser = Json.decodeValue(routingContext.getBodyAsString(), UserRequestDTO.class);
+    UserRequestDTO requestUser;
+    try {
+      if (routingContext.getBodyAsJson().isEmpty()) {
+        throw new Exception();
+      }
+
+      requestUser = Json.decodeValue(routingContext.getBodyAsString(), UserRequestDTO.class);
+    } catch (Exception e) {
+      serveBadRequest(routingContext);
+      return;
+    }
     requestUser.setAccessToken(accessToken);
     val interactor = getInteractorFactory().createUserInteractor(UpdateUser.class);
 

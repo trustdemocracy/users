@@ -8,6 +8,7 @@ import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import java.util.UUID;
 import lombok.val;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -264,7 +265,6 @@ public class UserControllerTest extends ControllerTest {
     });
   }
 
-
   @Test
   public void createUserBadRequest(TestContext context) {
     val async = context.async();
@@ -272,6 +272,28 @@ public class UserControllerTest extends ControllerTest {
     val single = client.post(port, HOST, "/users")
             .putHeader("Authorization", getRandomToken())
             .rxSendJson(new JsonObject());
+
+    assertBadRequest(context, async, single);
+  }
+
+  @Test
+  public void findUserBadRequest(TestContext context) {
+    val async = context.async();
+
+    val single = client.get(port, HOST, "/users/notAnId")
+        .putHeader("Authorization", getRandomToken())
+        .rxSend();
+
+    assertBadRequest(context, async, single);
+  }
+
+  @Test
+  public void updateUserBadRequest(TestContext context) {
+    val async = context.async();
+
+    val single = client.put(port, HOST, "/users/" + UUID.randomUUID())
+        .putHeader("Authorization", getRandomToken())
+        .rxSendJson(new JsonObject());
 
     assertBadRequest(context, async, single);
   }
