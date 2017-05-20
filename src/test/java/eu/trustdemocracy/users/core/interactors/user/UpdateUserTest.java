@@ -163,4 +163,27 @@ public class UpdateUserTest {
     assertTrue(CryptoUtils.validate(userInDB.getPassword(), "newPassword"));
   }
 
+  @Test
+  public void updateEmptyPassword() {
+    val accessToken = responseUsers.keySet().iterator().next();
+    val responseUser = responseUsers.get(accessToken);
+
+    val inputUser = new UserRequestDTO()
+        .setAccessToken(accessToken)
+        .setPassword("newPassword");
+    new UpdateUser(userDAO).execute(inputUser);
+
+    assertTrue(CryptoUtils.validate(userDAO.findById(responseUser.getId()).getPassword(), "newPassword"));
+
+
+    inputUser.setPassword("");
+    new UpdateUser(userDAO).execute(inputUser);
+    assertTrue(CryptoUtils.validate(userDAO.findById(responseUser.getId()).getPassword(), "newPassword"));
+
+
+    inputUser.setPassword("newValidPassword");
+    new UpdateUser(userDAO).execute(inputUser);
+    assertTrue(CryptoUtils.validate(userDAO.findById(responseUser.getId()).getPassword(), "newValidPassword"));
+  }
+
 }
