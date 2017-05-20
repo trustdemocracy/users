@@ -64,7 +64,6 @@ public class AuthController extends Controller {
 
     try {
       val tokenResponse = interactor.execute(requestDTO);
-      ;
       serveJsonResponse(routingContext, 200, Json.encodePrettily(tokenResponse));
     } catch (CredentialsNotFoundException e) {
       serveBadCredentials(routingContext);
