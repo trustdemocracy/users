@@ -209,7 +209,7 @@ public class RefreshTokenTest {
   private String createOutdatedJwt(UUID id, String username) {
     try {
       val pastDate = NumericDate.now();
-      Thread.sleep(100);
+      pastDate.addSeconds(-100000L);
 
       val claims = new JwtClaims();
       claims.setExpirationTime(pastDate);
