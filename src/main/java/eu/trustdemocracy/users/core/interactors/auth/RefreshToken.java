@@ -30,7 +30,7 @@ public class RefreshToken implements Interactor<RefreshTokenRequestDTO, GetToken
   @Override
   public GetTokenResponseDTO execute(RefreshTokenRequestDTO requestDTO) {
     val jwtConsumer = new JwtConsumerBuilder()
-        .setAllowedClockSkewInSeconds(30)
+        .setSkipAllDefaultValidators()
         .setRequireSubject()
         .setVerificationKey(JWTKeyFactory.getPublicKey())
         .setJwsAlgorithmConstraints(new AlgorithmConstraints(ConstraintType.WHITELIST,
