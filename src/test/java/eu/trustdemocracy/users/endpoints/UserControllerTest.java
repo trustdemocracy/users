@@ -307,14 +307,63 @@ public class UserControllerTest extends ControllerTest {
   }
 
   @Test
-  public void findUserBadRequest(TestContext context) {
+  public void findUserByUsername(TestContext context) {
     val async = context.async();
 
-    val single = client.get(port, HOST, "/users/notAnId")
-        .putHeader("Authorization", getRandomToken())
-        .rxSend();
+    val userRequest = new UserRequestDTO()
+        .setUsername("test")
+        .setEmail("test@test.com")
+        .setPassword("password")
+        .setName("TestName")
+        .setSurname("TestSurname");
 
-    assertBadRequest(context, async, single);
+    val single = client.post(port, HOST, "/users")
+        .rxSendJson(userRequest);
+
+    single.subscribe(response -> {
+      context.assertEquals(201, response.statusCode());
+
+      client.get(port, HOST, "/users/" + userRequest.getUsername())
+          .rxSend()
+          .subscribe(getResponse -> {
+            context.assertEquals(200, getResponse.statusCode());
+            val responseUser = Json
+                .decodeValue(getResponse.body().toString(), UserResponseDTO.class);
+            context.assertNotNull(responseUser.getId());
+            async.complete();
+          });
+    }, error -> {
+      context.fail(error);
+      async.complete();
+    });
+  }
+
+  @Test
+  public void findNonExistingUser(TestContext context) {
+    val async = context.async();
+
+    val userRequest = new UserRequestDTO()
+        .setUsername("test")
+        .setEmail("test@test.com")
+        .setPassword("password")
+        .setName("TestName")
+        .setSurname("TestSurname");
+
+    val single = client.post(port, HOST, "/users")
+        .rxSendJson(userRequest);
+
+    single.subscribe(response -> {
+      context.assertEquals(201, response.statusCode());
+      client.get(port, HOST, "/users/notAnId")
+          .rxSend()
+          .subscribe(getResponse -> {
+            context.assertEquals(404, getResponse.statusCode());
+            async.complete();
+          });
+    }, error -> {
+      context.fail(error);
+      async.complete();
+    });
   }
 
   @Test
