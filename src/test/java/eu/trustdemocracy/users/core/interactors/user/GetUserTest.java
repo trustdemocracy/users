@@ -1,7 +1,9 @@
 package eu.trustdemocracy.users.core.interactors.user;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import eu.trustdemocracy.users.core.interactors.exceptions.UserNotFoundException;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
 import eu.trustdemocracy.users.gateways.UserDAO;
@@ -51,6 +53,14 @@ public class GetUserTest {
         .setUsername(responseUser.getUsername());
 
     assertEquals(responseUser, new GetUser(userDAO).execute(inputUser));
+  }
+
+  @Test
+  public void getNonExistingUser() {
+    val inputUser = new UserRequestDTO()
+        .setUsername("IDontExist");
+
+    assertThrows(UserNotFoundException.class, () -> new GetUser(userDAO).execute(inputUser));
   }
 
 }
