@@ -55,15 +55,23 @@ public class UserController extends Controller {
   }
 
   private void findUser(RoutingContext routingContext) {
-    UUID id;
+    val requestUser = new UserRequestDTO();
     try {
-      id = UUID.fromString(routingContext.pathParam("id"));
+      val id = routingContext.pathParam("id");
+      if (id == null || id.isEmpty()) {
+        throw new Exception();
+      }
+
+      try {
+        requestUser.setId(UUID.fromString(id));
+      } catch (IllegalArgumentException e) {
+        requestUser.setUsername(id);
+      }
     } catch (Exception e) {
       serveBadRequest(routingContext);
       return;
     }
 
-    val requestUser = new UserRequestDTO().setId(id);
     val interactor = getInteractorFactory().createUserInteractor(GetUser.class);
     val user = interactor.execute(requestUser);
 
