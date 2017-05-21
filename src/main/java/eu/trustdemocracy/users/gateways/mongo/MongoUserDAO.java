@@ -7,6 +7,7 @@ import com.mongodb.client.MongoDatabase;
 import eu.trustdemocracy.users.core.entities.User;
 import eu.trustdemocracy.users.core.entities.UserVisibility;
 import eu.trustdemocracy.users.gateways.UserDAO;
+import java.util.List;
 import java.util.UUID;
 import lombok.val;
 import org.bson.Document;
@@ -79,6 +80,11 @@ public class MongoUserDAO implements UserDAO {
 
     collection.deleteOne(userDocument);
     return buildFromDocument(userDocument);
+  }
+
+  @Override
+  public List<User> findAll() {
+    return null;
   }
 
   private UUID getUniqueUUID() {

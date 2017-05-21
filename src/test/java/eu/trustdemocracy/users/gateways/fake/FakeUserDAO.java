@@ -2,7 +2,9 @@ package eu.trustdemocracy.users.gateways.fake;
 
 import eu.trustdemocracy.users.core.entities.User;
 import eu.trustdemocracy.users.gateways.UserDAO;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.val;
@@ -45,6 +47,11 @@ public class FakeUserDAO implements UserDAO {
     val user = users.get(id);
     users.remove(id);
     return user;
+  }
+
+  @Override
+  public List<User> findAll() {
+    return new ArrayList<>(users.values());
   }
 
   public UUID getUniqueUUID() {

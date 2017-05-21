@@ -4,8 +4,10 @@ import eu.trustdemocracy.users.core.entities.User;
 import eu.trustdemocracy.users.core.entities.UserVisibility;
 import eu.trustdemocracy.users.core.interactors.exceptions.InvalidTokenException;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
+import eu.trustdemocracy.users.core.models.response.GetUsersResponseDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
 import eu.trustdemocracy.users.infrastructure.JWTKeyFactory;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.val;
@@ -93,5 +95,15 @@ public final class UserMapper {
       throw new InvalidTokenException(
           "The access token provided is not valid. Access token: [" + token + "]");
     }
+  }
+
+  public static GetUsersResponseDTO createResponse(List<User> users) {
+    val response = new GetUsersResponseDTO();
+
+    for (val user : users) {
+      response.getUsers().add(createResponse(user));
+    }
+
+    return response;
   }
 }
