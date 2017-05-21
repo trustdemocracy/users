@@ -1,6 +1,7 @@
 package eu.trustdemocracy.users.endpoints.controllers;
 
 import eu.trustdemocracy.users.core.interactors.exceptions.InvalidTokenException;
+import eu.trustdemocracy.users.core.interactors.exceptions.UserNotFoundException;
 import eu.trustdemocracy.users.core.interactors.exceptions.UsernameAlreadyExistsException;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.endpoints.APIMessages;
@@ -70,9 +71,13 @@ public class UserController extends Controller {
     }
 
     val interactor = getInteractorFactory().getGetUser();
-    val user = interactor.execute(requestUser);
+    try {
+      val user = interactor.execute(requestUser);
+      serveJsonResponse(routingContext, 200, Json.encodePrettily(user));
+    } catch (UserNotFoundException e) {
+      serveNotFound(routingContext);
+    }
 
-    serveJsonResponse(routingContext, 200, Json.encodePrettily(user));
   }
 
   private void findAll(RoutingContext routingContext) {

@@ -246,14 +246,9 @@ public class UserControllerTest extends ControllerTest {
             client.get(port, HOST, "/users/" + responseUser.getId())
                 .rxSend()
                 .subscribe(getResponse -> {
-
-                  val newResponseUser = Json
-                      .decodeValue(getResponse.body().toString(), UserResponseDTO.class);
-                  context.assertNull(newResponseUser.getId());
-                  context.assertNull(newResponseUser.getUsername());
-                  context.assertNull(newResponseUser.getEmail());
-                  context.assertNull(newResponseUser.getName());
-                  context.assertNull(newResponseUser.getSurname());
+                  context.assertEquals(404, getResponse.statusCode());
+                  val errorMessage = getResponse.body().toJsonObject().getString("message");
+                  context.assertEquals(errorMessage, APIMessages.RESOURCE_NOT_FOUND);
 
                   async.complete();
                 }, error -> {
@@ -358,6 +353,8 @@ public class UserControllerTest extends ControllerTest {
           .rxSend()
           .subscribe(getResponse -> {
             context.assertEquals(404, getResponse.statusCode());
+            val errorMessage = getResponse.body().toJsonObject().getString("message");
+            context.assertEquals(errorMessage, APIMessages.RESOURCE_NOT_FOUND);
             async.complete();
           });
     }, error -> {
