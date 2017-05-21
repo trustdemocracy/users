@@ -2,8 +2,6 @@ package eu.trustdemocracy.users.core.interactors.user;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import eu.trustdemocracy.users.core.interactors.user.CreateUser;
-import eu.trustdemocracy.users.core.interactors.user.GetUser;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
 import eu.trustdemocracy.users.gateways.UserDAO;
@@ -42,6 +40,15 @@ public class GetUserTest {
     val responseUser = responseUsers.values().iterator().next();
     val inputUser = new UserRequestDTO()
         .setId(responseUser.getId());
+
+    assertEquals(responseUser, new GetUser(userDAO).execute(inputUser));
+  }
+
+  @Test
+  public void getUserByUsername() {
+    val responseUser = responseUsers.values().iterator().next();
+    val inputUser = new UserRequestDTO()
+        .setUsername(responseUser.getUsername());
 
     assertEquals(responseUser, new GetUser(userDAO).execute(inputUser));
   }
