@@ -1,6 +1,7 @@
 package eu.trustdemocracy.users.gateways;
 
 import eu.trustdemocracy.users.core.entities.User;
+import java.util.List;
 import java.util.UUID;
 
 public interface UserDAO {
@@ -14,4 +15,6 @@ public interface UserDAO {
   User findById(UUID id);
 
   User deleteById(UUID id);
+
+  List<User> findAll();
 }

@@ -33,7 +33,7 @@ public class AuthController extends Controller {
       return;
     }
 
-    val interactor = getInteractorFactory().createGetTokenInteractor();
+    val interactor = getInteractorFactory().getGetToken();
 
     try {
       val tokenResponse = interactor.execute(requestUser);
@@ -60,7 +60,7 @@ public class AuthController extends Controller {
 
     requestDTO.setAccessToken(accessToken);
 
-    val interactor = getInteractorFactory().createRefreshTokenInteractor();
+    val interactor = getInteractorFactory().getRefreshToken();
 
     try {
       val tokenResponse = interactor.execute(requestDTO);

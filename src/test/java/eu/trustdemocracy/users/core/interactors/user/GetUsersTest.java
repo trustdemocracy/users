@@ -1,12 +1,14 @@
 package eu.trustdemocracy.users.core.interactors.user;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import eu.trustdemocracy.users.core.interactors.exceptions.UserNotFoundException;
+import eu.trustdemocracy.users.core.interactors.auth.GetToken;
+import eu.trustdemocracy.users.core.interactors.utils.TokenUtils;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
+import eu.trustdemocracy.users.core.models.response.GetUsersResponseDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
 import eu.trustdemocracy.users.gateways.UserDAO;
+import eu.trustdemocracy.users.gateways.fake.FakeTokenDAO;
 import eu.trustdemocracy.users.gateways.fake.FakeUserDAO;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,12 +17,13 @@ import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class GetUserTest {
+public class GetUsersTest {
   private static Map<UUID, UserResponseDTO> responseUsers;
   private UserDAO userDAO;
 
   @BeforeEach
   public void init() {
+    TokenUtils.generateKeys();
     userDAO = new FakeUserDAO();
     responseUsers = new HashMap<>();
 
@@ -38,29 +41,18 @@ public class GetUserTest {
   }
 
   @Test
-  public void getSingleUser() {
-    val responseUser = responseUsers.values().iterator().next();
+  public void getUsers() {
+    val getToken = new GetToken(userDAO, new FakeTokenDAO());
+
+    val accessToken = getToken.execute(new UserRequestDTO()
+        .setUsername("user1")
+        .setPassword("test1"));
+
     val inputUser = new UserRequestDTO()
-        .setId(responseUser.getId());
+        .setAccessToken(accessToken.getAccessToken());
 
-    assertEquals(responseUser, new GetUser(userDAO).execute(inputUser));
-  }
-
-  @Test
-  public void getUserByUsername() {
-    val responseUser = responseUsers.values().iterator().next();
-    val inputUser = new UserRequestDTO()
-        .setUsername(responseUser.getUsername());
-
-    assertEquals(responseUser, new GetUser(userDAO).execute(inputUser));
-  }
-
-  @Test
-  public void getNonExistingUser() {
-    val inputUser = new UserRequestDTO()
-        .setUsername("IDontExist");
-
-    assertThrows(UserNotFoundException.class, () -> new GetUser(userDAO).execute(inputUser));
+    GetUsersResponseDTO response = new GetUsers(userDAO).execute(inputUser);
+    assertEquals(responseUsers.values().size(), response.getUsers().size());
   }
 
 }

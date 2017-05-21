@@ -1,6 +1,5 @@
 package eu.trustdemocracy.users.endpoints;
 
-import eu.trustdemocracy.users.core.interactors.user.CreateUser;
 import eu.trustdemocracy.users.core.interactors.utils.TokenUtils;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.infrastructure.FakeInteractorFactory;
@@ -98,9 +97,9 @@ public class ControllerTest {
         .setName("TestName")
         .setSurname("TestSurname");
 
-    val createUser = interactorFactory.createUserInteractor(CreateUser.class);
+    val createUser = interactorFactory.getCreateUser();
     createUser.execute(userRequest);
-    val authInteractor = interactorFactory.createGetTokenInteractor();
+    val authInteractor = interactorFactory.getGetToken();
     val getTokenResponse = authInteractor.execute(userRequest);
 
     return "Bearer " + getTokenResponse.getAccessToken();

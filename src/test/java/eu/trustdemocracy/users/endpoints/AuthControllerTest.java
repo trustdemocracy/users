@@ -2,7 +2,6 @@ package eu.trustdemocracy.users.endpoints;
 
 
 import eu.trustdemocracy.users.core.entities.util.CryptoUtils;
-import eu.trustdemocracy.users.core.interactors.user.CreateUser;
 import eu.trustdemocracy.users.core.models.request.RefreshTokenRequestDTO;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.GetTokenResponseDTO;
@@ -33,7 +32,7 @@ public class AuthControllerTest extends ControllerTest {
         .setPassword("password")
         .setName("TestName")
         .setSurname("TestSurname");
-    val interactor = interactorFactory.createUserInteractor(CreateUser.class);
+    val interactor = interactorFactory.getCreateUser();
     val responseUser = interactor.execute(inputUser);
 
     val jsonUser = new JsonObject()
@@ -106,10 +105,10 @@ public class AuthControllerTest extends ControllerTest {
         .setPassword("password")
         .setName("TestName")
         .setSurname("TestSurname");
-    val userInteractor = interactorFactory.createUserInteractor(CreateUser.class);
+    val userInteractor = interactorFactory.getCreateUser();
     val responseUser = userInteractor.execute(inputUser);
 
-    val authInteractor = interactorFactory.createGetTokenInteractor();
+    val authInteractor = interactorFactory.getGetToken();
     val getTokenResponse = authInteractor.execute(inputUser);
 
     val tokenRequest = new RefreshTokenRequestDTO()
@@ -171,10 +170,10 @@ public class AuthControllerTest extends ControllerTest {
         .setPassword("password")
         .setName("TestName")
         .setSurname("TestSurname");
-    val userInteractor = interactorFactory.createUserInteractor(CreateUser.class);
+    val userInteractor = interactorFactory.getCreateUser();
     userInteractor.execute(inputUser);
 
-    val authInteractor = interactorFactory.createGetTokenInteractor();
+    val authInteractor = interactorFactory.getGetToken();
     val getTokenResponse = authInteractor.execute(inputUser);
 
     val tokenRequest = new RefreshTokenRequestDTO()

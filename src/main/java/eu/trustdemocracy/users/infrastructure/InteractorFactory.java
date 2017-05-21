@@ -1,18 +1,26 @@
 package eu.trustdemocracy.users.infrastructure;
 
-import eu.trustdemocracy.users.core.interactors.Interactor;
-import eu.trustdemocracy.users.core.interactors.UserInteractor;
 import eu.trustdemocracy.users.core.interactors.auth.GetToken;
 import eu.trustdemocracy.users.core.interactors.auth.RefreshToken;
-import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
-import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
+import eu.trustdemocracy.users.core.interactors.user.CreateUser;
+import eu.trustdemocracy.users.core.interactors.user.DeleteUser;
+import eu.trustdemocracy.users.core.interactors.user.GetUser;
+import eu.trustdemocracy.users.core.interactors.user.GetUsers;
+import eu.trustdemocracy.users.core.interactors.user.UpdateUser;
 
 public interface InteractorFactory {
 
-  Interactor<UserRequestDTO, UserResponseDTO> createUserInteractor(
-      Class<? extends UserInteractor> concreteClass);
+  CreateUser getCreateUser();
 
-  GetToken createGetTokenInteractor();
+  DeleteUser getDeleteUser();
 
-  RefreshToken createRefreshTokenInteractor();
+  GetUser getGetUser();
+
+  GetUsers getGetUsers();
+
+  UpdateUser getUpdateUser();
+
+  GetToken getGetToken();
+
+  RefreshToken getRefreshToken();
 }

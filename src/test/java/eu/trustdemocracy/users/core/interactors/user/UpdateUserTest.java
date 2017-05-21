@@ -139,11 +139,6 @@ public class UpdateUserTest {
 
     inputUser = new UserRequestDTO()
         .setAccessToken(accessToken)
-        .setVisibility(UserVisibility.NORMAL);
-    assertEquals(UserVisibility.NORMAL, new UpdateUser(userDAO).execute(inputUser).getVisibility());
-
-    inputUser = new UserRequestDTO()
-        .setAccessToken(accessToken)
         .setVisibility(UserVisibility.PRIVATE);
     assertEquals(UserVisibility.PRIVATE, new UpdateUser(userDAO).execute(inputUser).getVisibility());
   }

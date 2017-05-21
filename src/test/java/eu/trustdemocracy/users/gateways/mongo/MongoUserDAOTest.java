@@ -143,6 +143,21 @@ public class MongoUserDAOTest {
 
   }
 
+  @Test
+  public void findAll() {
+    for (int i = 0; i < 30; i++) {
+      val user = new User()
+          .setUsername("test" + i)
+          .setEmail("test@email.com")
+          .setVisibility(UserVisibility.PRIVATE)
+          .setPassword(CryptoUtils.hash("test" + i));
+
+      createUserAndAssignId(user);
+    }
+
+    assertEquals(30, userDAO.findAll().size());
+  }
+
   private User createUserAndAssignId(User user) {
     val createdUser = userDAO.create(user);
     user.setId(createdUser.getId());
