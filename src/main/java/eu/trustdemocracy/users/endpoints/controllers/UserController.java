@@ -2,10 +2,6 @@ package eu.trustdemocracy.users.endpoints.controllers;
 
 import eu.trustdemocracy.users.core.interactors.exceptions.InvalidTokenException;
 import eu.trustdemocracy.users.core.interactors.exceptions.UsernameAlreadyExistsException;
-import eu.trustdemocracy.users.core.interactors.user.CreateUser;
-import eu.trustdemocracy.users.core.interactors.user.DeleteUser;
-import eu.trustdemocracy.users.core.interactors.user.GetUser;
-import eu.trustdemocracy.users.core.interactors.user.UpdateUser;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.endpoints.APIMessages;
 import eu.trustdemocracy.users.endpoints.App;
@@ -23,6 +19,7 @@ public class UserController extends Controller {
 
   @Override
   public void buildRoutes() {
+    getRouter().get("/users").handler(this::findAll);
     getRouter().post("/users").handler(this::createUser);
     getRouter().get("/users/:id").handler(this::findUser);
     getRouter().put("/users/:id").handler(this::updateUser);
@@ -42,7 +39,7 @@ public class UserController extends Controller {
       return;
     }
 
-    val interactor = getInteractorFactory().createUserInteractor(CreateUser.class);
+    val interactor = getInteractorFactory().getCreateUser();
 
     try {
       val user = interactor.execute(requestUser);
@@ -72,10 +69,21 @@ public class UserController extends Controller {
       return;
     }
 
-    val interactor = getInteractorFactory().createUserInteractor(GetUser.class);
+    val interactor = getInteractorFactory().getGetUser();
     val user = interactor.execute(requestUser);
 
     serveJsonResponse(routingContext, 200, Json.encodePrettily(user));
+  }
+
+  private void findAll(RoutingContext routingContext) {
+    val accessToken = getAuthorizationToken(routingContext.request());
+    val requestUser = new UserRequestDTO()
+        .setAccessToken(accessToken);
+
+    val interactor = getInteractorFactory().getGetUsers();
+    val users = interactor.execute(requestUser);
+
+    serveJsonResponse(routingContext, 200, Json.encodePrettily(users));
   }
 
   private void updateUser(RoutingContext routingContext) {
@@ -92,7 +100,7 @@ public class UserController extends Controller {
       return;
     }
     requestUser.setAccessToken(accessToken);
-    val interactor = getInteractorFactory().createUserInteractor(UpdateUser.class);
+    val interactor = getInteractorFactory().getUpdateUser();
 
     try {
       val user = interactor.execute(requestUser);
@@ -106,7 +114,7 @@ public class UserController extends Controller {
     val accessToken = getAuthorizationToken(routingContext.request());
     val requestUser = new UserRequestDTO()
         .setAccessToken(accessToken);
-    val interactor = getInteractorFactory().createUserInteractor(DeleteUser.class);
+    val interactor = getInteractorFactory().getDeleteUser();
 
     try {
       val user = interactor.execute(requestUser);

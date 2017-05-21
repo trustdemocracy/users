@@ -141,7 +141,7 @@ public class UserControllerTest extends ControllerTest {
     single.subscribe(response -> {
       val responseUser = Json.decodeValue(response.body().toString(), UserResponseDTO.class);
 
-      val authInteractor = interactorFactory.createGetTokenInteractor();
+      val authInteractor = interactorFactory.getGetToken();
       val getTokenResponse = authInteractor.execute(userRequest);
 
       userRequest.setId(responseUser.getId())
@@ -234,7 +234,7 @@ public class UserControllerTest extends ControllerTest {
     single.subscribe(response -> {
       val responseUser = Json.decodeValue(response.body().toString(), UserResponseDTO.class);
 
-      val authInteractor = interactorFactory.createGetTokenInteractor();
+      val authInteractor = interactorFactory.getGetToken();
       val getTokenResponse = authInteractor.execute(userRequest);
 
       client.delete(port, HOST, "/users/" + responseUser.getId())

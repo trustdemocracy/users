@@ -109,7 +109,7 @@ public class AuthControllerTest extends ControllerTest {
     val userInteractor = interactorFactory.createUserInteractor(CreateUser.class);
     val responseUser = userInteractor.execute(inputUser);
 
-    val authInteractor = interactorFactory.createGetTokenInteractor();
+    val authInteractor = interactorFactory.getGetToken();
     val getTokenResponse = authInteractor.execute(inputUser);
 
     val tokenRequest = new RefreshTokenRequestDTO()
@@ -174,7 +174,7 @@ public class AuthControllerTest extends ControllerTest {
     val userInteractor = interactorFactory.createUserInteractor(CreateUser.class);
     userInteractor.execute(inputUser);
 
-    val authInteractor = interactorFactory.createGetTokenInteractor();
+    val authInteractor = interactorFactory.getGetToken();
     val getTokenResponse = authInteractor.execute(inputUser);
 
     val tokenRequest = new RefreshTokenRequestDTO()

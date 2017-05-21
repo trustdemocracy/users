@@ -1,13 +1,14 @@
 package eu.trustdemocracy.users.infrastructure;
 
-import eu.trustdemocracy.users.core.interactors.Interactor;
-import eu.trustdemocracy.users.core.interactors.UserInteractor;
 import eu.trustdemocracy.users.core.interactors.auth.GetToken;
 import eu.trustdemocracy.users.core.interactors.auth.RefreshToken;
-import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
-import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
+import eu.trustdemocracy.users.core.interactors.user.CreateUser;
+import eu.trustdemocracy.users.core.interactors.user.DeleteUser;
+import eu.trustdemocracy.users.core.interactors.user.GetUser;
+import eu.trustdemocracy.users.core.interactors.user.GetUsers;
+import eu.trustdemocracy.users.core.interactors.user.UpdateUser;
+import eu.trustdemocracy.users.gateways.TokenDAO;
 import eu.trustdemocracy.users.gateways.UserDAO;
-import lombok.val;
 
 public class DefaultInteractorFactory implements InteractorFactory {
 
@@ -24,24 +25,45 @@ public class DefaultInteractorFactory implements InteractorFactory {
   }
 
   @Override
-  public Interactor<UserRequestDTO, UserResponseDTO> createUserInteractor(
-      Class<? extends UserInteractor> concreteClass) {
-    try {
-      val constructor = concreteClass.getConstructor(UserDAO.class);
-      val userDAO = DAOFactory.getUserDAO();
-      return constructor.newInstance(userDAO);
-    } catch (ReflectiveOperationException e) {
-      throw new RuntimeException(e);
-    }
+  public CreateUser getCreateUser() {
+    return new CreateUser(getUserDAO());
   }
 
   @Override
-  public GetToken createGetTokenInteractor() {
-    return new GetToken(DAOFactory.getUserDAO(), DAOFactory.getTokenDAO());
+  public DeleteUser getDeleteUser() {
+    return new DeleteUser(getUserDAO());
   }
 
   @Override
-  public RefreshToken createRefreshTokenInteractor() {
-    return new RefreshToken(DAOFactory.getUserDAO(), DAOFactory.getTokenDAO());
+  public GetUser getGetUser() {
+    return new GetUser(getUserDAO());
+  }
+
+  @Override
+  public GetUsers getGetUsers() {
+    return new GetUsers(getUserDAO());
+  }
+
+  @Override
+  public UpdateUser getUpdateUser() {
+    return new UpdateUser(getUserDAO());
+  }
+
+  @Override
+  public GetToken getGetToken() {
+    return new GetToken(getUserDAO(), getTokenDAO());
+  }
+
+  @Override
+  public RefreshToken getRefreshToken() {
+    return new RefreshToken(getUserDAO(), getTokenDAO());
+  }
+
+  private UserDAO getUserDAO() {
+    return DAOFactory.getUserDAO();
+  }
+
+  private TokenDAO getTokenDAO() {
+    return DAOFactory.getTokenDAO();
   }
 }

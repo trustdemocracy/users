@@ -1,12 +1,13 @@
 package eu.trustdemocracy.users.infrastructure;
 
 import com.github.fakemongo.Fongo;
-import eu.trustdemocracy.users.core.interactors.Interactor;
-import eu.trustdemocracy.users.core.interactors.UserInteractor;
 import eu.trustdemocracy.users.core.interactors.auth.GetToken;
 import eu.trustdemocracy.users.core.interactors.auth.RefreshToken;
-import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
-import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
+import eu.trustdemocracy.users.core.interactors.user.CreateUser;
+import eu.trustdemocracy.users.core.interactors.user.DeleteUser;
+import eu.trustdemocracy.users.core.interactors.user.GetUser;
+import eu.trustdemocracy.users.core.interactors.user.GetUsers;
+import eu.trustdemocracy.users.core.interactors.user.UpdateUser;
 import eu.trustdemocracy.users.gateways.TokenDAO;
 import eu.trustdemocracy.users.gateways.UserDAO;
 import eu.trustdemocracy.users.gateways.mongo.MongoTokenDAO;
@@ -19,28 +20,41 @@ public class FakeInteractorFactory implements InteractorFactory {
   private TokenDAO tokenDAO;
 
   @Override
-  public Interactor<UserRequestDTO, UserResponseDTO> createUserInteractor(
-      Class<? extends UserInteractor> concreteClass) {
-    try {
-      val constructor = concreteClass.getConstructor(UserDAO.class);
-      val userDAO = getFakeUserDAO();
-      return constructor.newInstance(userDAO);
-    } catch (ReflectiveOperationException e) {
-      throw new RuntimeException(e);
-    }
+  public CreateUser getCreateUser() {
+    return new CreateUser(getUserDAO());
   }
 
   @Override
-  public GetToken createGetTokenInteractor() {
-    return new GetToken(getFakeUserDAO(), getFakeTokenDAO());
+  public DeleteUser getDeleteUser() {
+    return new DeleteUser(getUserDAO());
   }
 
   @Override
-  public RefreshToken createRefreshTokenInteractor() {
-    return new RefreshToken(getFakeUserDAO(), getFakeTokenDAO());
+  public GetUser getGetUser() {
+    return new GetUser(getUserDAO());
   }
 
-  private UserDAO getFakeUserDAO() {
+  @Override
+  public GetUsers getGetUsers() {
+    return new GetUsers(getUserDAO());
+  }
+
+  @Override
+  public UpdateUser getUpdateUser() {
+    return new UpdateUser(getUserDAO());
+  }
+
+  @Override
+  public GetToken getGetToken() {
+    return new GetToken(getUserDAO(), getTokenDAO());
+  }
+
+  @Override
+  public RefreshToken getRefreshToken() {
+    return new RefreshToken(getUserDAO(), getTokenDAO());
+  }
+
+  private UserDAO getUserDAO() {
     if (userDAO == null) {
       val fongo = new Fongo("test server");
       val db = fongo.getDatabase("test_database");
@@ -49,7 +63,7 @@ public class FakeInteractorFactory implements InteractorFactory {
     return userDAO;
   }
 
-  private TokenDAO getFakeTokenDAO() {
+  private TokenDAO getTokenDAO() {
     if (tokenDAO == null) {
       val fongo = new Fongo("test server");
       val db = fongo.getDatabase("test_database");

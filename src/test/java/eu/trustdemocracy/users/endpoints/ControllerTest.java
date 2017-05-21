@@ -100,7 +100,7 @@ public class ControllerTest {
 
     val createUser = interactorFactory.createUserInteractor(CreateUser.class);
     createUser.execute(userRequest);
-    val authInteractor = interactorFactory.createGetTokenInteractor();
+    val authInteractor = interactorFactory.getGetToken();
     val getTokenResponse = authInteractor.execute(userRequest);
 
     return "Bearer " + getTokenResponse.getAccessToken();
