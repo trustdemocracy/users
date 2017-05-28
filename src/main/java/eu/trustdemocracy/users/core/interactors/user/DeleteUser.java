@@ -22,6 +22,9 @@ public class DeleteUser  implements Interactor<UserRequestDTO, UserResponseDTO> 
     val inputUser = UserMapper.createEntity(requestDTO.getAccessToken());
 
     val user = userRepository.deleteById(inputUser.getId());
+
+    mainGateway.deleteUser(user);
+
     return UserMapper.createResponse(user);
   }
 }

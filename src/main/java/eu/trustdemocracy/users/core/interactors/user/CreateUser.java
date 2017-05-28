@@ -20,6 +20,7 @@ public class CreateUser implements Interactor<UserRequestDTO, UserResponseDTO> {
       MainGateway mainGateway
   ) {
     this.userRepository = userRepository;
+    this.mainGateway = mainGateway;
   }
 
   public UserResponseDTO execute(UserRequestDTO userRequestDTO) {
@@ -32,6 +33,9 @@ public class CreateUser implements Interactor<UserRequestDTO, UserResponseDTO> {
 
     userRequestDTO.setVisibility(UserVisibility.PRIVATE);
     val user = userRepository.create(UserMapper.createEntity(userRequestDTO));
+
+    mainGateway.addUser(user);
+
     return UserMapper.createResponse(user);
   }
 
