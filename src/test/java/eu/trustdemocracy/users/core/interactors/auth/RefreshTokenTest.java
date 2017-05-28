@@ -11,10 +11,11 @@ import eu.trustdemocracy.users.core.models.request.RefreshTokenRequestDTO;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.GetTokenResponseDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
-import eu.trustdemocracy.users.gateways.TokenRepository;
-import eu.trustdemocracy.users.gateways.UserRepository;
-import eu.trustdemocracy.users.gateways.fake.FakeTokenRepository;
-import eu.trustdemocracy.users.gateways.fake.FakeUserRepository;
+import eu.trustdemocracy.users.gateways.out.FakeMainGateway;
+import eu.trustdemocracy.users.gateways.repositories.TokenRepository;
+import eu.trustdemocracy.users.gateways.repositories.UserRepository;
+import eu.trustdemocracy.users.gateways.repositories.fake.FakeTokenRepository;
+import eu.trustdemocracy.users.gateways.repositories.fake.FakeUserRepository;
 import eu.trustdemocracy.users.infrastructure.JWTKeyFactory;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,7 +52,7 @@ public class RefreshTokenTest {
     tokenRepository = new FakeTokenRepository();
     responseUsers = new HashMap<>();
 
-    val interactor = new CreateUser(userRepository);
+    val interactor = new CreateUser(userRepository, new FakeMainGateway());
     for (int i = 0; i < 10; i++) {
       val inputUser = new UserRequestDTO()
           .setUsername("user" + i)

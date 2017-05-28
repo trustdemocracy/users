@@ -5,12 +5,12 @@ import eu.trustdemocracy.users.core.entities.util.UserMapper;
 import eu.trustdemocracy.users.core.interactors.Interactor;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
-import eu.trustdemocracy.users.gateways.UserRepository;
+import eu.trustdemocracy.users.gateways.repositories.UserRepository;
 import lombok.val;
 
 public class UpdateUser  implements Interactor<UserRequestDTO, UserResponseDTO> {
 
-  protected UserRepository userRepository;
+  private UserRepository userRepository;
 
   public UpdateUser(UserRepository userRepository) {
     this.userRepository = userRepository;

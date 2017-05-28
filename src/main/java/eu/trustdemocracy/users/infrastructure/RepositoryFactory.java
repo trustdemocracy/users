@@ -2,10 +2,10 @@ package eu.trustdemocracy.users.infrastructure;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;
-import eu.trustdemocracy.users.gateways.TokenRepository;
-import eu.trustdemocracy.users.gateways.UserRepository;
-import eu.trustdemocracy.users.gateways.mongo.MongoTokenRepository;
-import eu.trustdemocracy.users.gateways.mongo.MongoUserRepository;
+import eu.trustdemocracy.users.gateways.repositories.TokenRepository;
+import eu.trustdemocracy.users.gateways.repositories.UserRepository;
+import eu.trustdemocracy.users.gateways.repositories.mongo.MongoTokenRepository;
+import eu.trustdemocracy.users.gateways.repositories.mongo.MongoUserRepository;
 import java.util.Properties;
 import lombok.val;
 

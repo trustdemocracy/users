@@ -5,7 +5,7 @@ import eu.trustdemocracy.users.core.entities.util.UserMapper;
 import eu.trustdemocracy.users.core.interactors.Interactor;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.GetUsersResponseDTO;
-import eu.trustdemocracy.users.gateways.UserRepository;
+import eu.trustdemocracy.users.gateways.repositories.UserRepository;
 import java.util.List;
 
 public class GetUsers implements Interactor<UserRequestDTO, GetUsersResponseDTO> {

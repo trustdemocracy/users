@@ -1,4 +1,4 @@
-package eu.trustdemocracy.users.gateways.mongo;
+package eu.trustdemocracy.users.gateways.repositories.mongo;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -6,7 +6,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import eu.trustdemocracy.users.core.entities.User;
 import eu.trustdemocracy.users.core.entities.UserVisibility;
-import eu.trustdemocracy.users.gateways.UserRepository;
+import eu.trustdemocracy.users.gateways.repositories.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;

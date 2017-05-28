@@ -1,4 +1,4 @@
-package eu.trustdemocracy.users.gateways.mongo;
+package eu.trustdemocracy.users.gateways.repositories.mongo;
 
 import static com.mongodb.client.model.Filters.eq;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -11,7 +11,7 @@ import com.mongodb.client.MongoCollection;
 import eu.trustdemocracy.users.core.entities.User;
 import eu.trustdemocracy.users.core.entities.UserVisibility;
 import eu.trustdemocracy.users.core.entities.util.CryptoUtils;
-import eu.trustdemocracy.users.gateways.UserRepository;
+import eu.trustdemocracy.users.gateways.repositories.UserRepository;
 import java.util.UUID;
 import lombok.val;
 import org.bson.Document;

@@ -1,11 +1,11 @@
-package eu.trustdemocracy.users.gateways.mongo;
+package eu.trustdemocracy.users.gateways.repositories.mongo;
 
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import eu.trustdemocracy.users.gateways.TokenRepository;
+import eu.trustdemocracy.users.gateways.repositories.TokenRepository;
 import java.util.UUID;
 import lombok.val;
 import org.bson.Document;

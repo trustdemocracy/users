@@ -6,14 +6,19 @@ import eu.trustdemocracy.users.core.interactors.Interactor;
 import eu.trustdemocracy.users.core.interactors.exceptions.UsernameAlreadyExistsException;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
-import eu.trustdemocracy.users.gateways.UserRepository;
+import eu.trustdemocracy.users.gateways.repositories.UserRepository;
+import eu.trustdemocracy.users.gateways.out.MainGateway;
 import lombok.val;
 
 public class CreateUser implements Interactor<UserRequestDTO, UserResponseDTO> {
 
-  protected UserRepository userRepository;
+  private UserRepository userRepository;
+  private MainGateway mainGateway;
 
-  public CreateUser(UserRepository userRepository) {
+  public CreateUser(
+      UserRepository userRepository,
+      MainGateway mainGateway
+  ) {
     this.userRepository = userRepository;
   }
 

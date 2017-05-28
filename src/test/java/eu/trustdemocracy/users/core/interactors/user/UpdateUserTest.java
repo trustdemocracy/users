@@ -11,9 +11,10 @@ import eu.trustdemocracy.users.core.interactors.exceptions.InvalidTokenException
 import eu.trustdemocracy.users.core.interactors.utils.TokenUtils;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
-import eu.trustdemocracy.users.gateways.UserRepository;
-import eu.trustdemocracy.users.gateways.fake.FakeTokenRepository;
-import eu.trustdemocracy.users.gateways.fake.FakeUserRepository;
+import eu.trustdemocracy.users.gateways.out.FakeMainGateway;
+import eu.trustdemocracy.users.gateways.repositories.UserRepository;
+import eu.trustdemocracy.users.gateways.repositories.fake.FakeTokenRepository;
+import eu.trustdemocracy.users.gateways.repositories.fake.FakeUserRepository;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.val;
@@ -31,7 +32,7 @@ public class UpdateUserTest {
     userRepository = new FakeUserRepository();
     responseUsers = new HashMap<>();
 
-    val interactor = new CreateUser(userRepository);
+    val interactor = new CreateUser(userRepository, new FakeMainGateway());
     val getToken = new GetToken(userRepository, new FakeTokenRepository());
     for (int i = 0; i < 10; i++) {
       val inputUser = new UserRequestDTO()

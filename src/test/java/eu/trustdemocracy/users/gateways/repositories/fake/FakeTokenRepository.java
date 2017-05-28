@@ -1,6 +1,6 @@
-package eu.trustdemocracy.users.gateways.fake;
+package eu.trustdemocracy.users.gateways.repositories.fake;
 
-import eu.trustdemocracy.users.gateways.TokenRepository;
+import eu.trustdemocracy.users.gateways.repositories.TokenRepository;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;

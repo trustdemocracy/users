@@ -8,10 +8,12 @@ import eu.trustdemocracy.users.core.interactors.user.DeleteUser;
 import eu.trustdemocracy.users.core.interactors.user.GetUser;
 import eu.trustdemocracy.users.core.interactors.user.GetUsers;
 import eu.trustdemocracy.users.core.interactors.user.UpdateUser;
-import eu.trustdemocracy.users.gateways.TokenRepository;
-import eu.trustdemocracy.users.gateways.UserRepository;
-import eu.trustdemocracy.users.gateways.mongo.MongoTokenRepository;
-import eu.trustdemocracy.users.gateways.mongo.MongoUserRepository;
+import eu.trustdemocracy.users.gateways.out.FakeMainGateway;
+import eu.trustdemocracy.users.gateways.out.MainGateway;
+import eu.trustdemocracy.users.gateways.repositories.TokenRepository;
+import eu.trustdemocracy.users.gateways.repositories.UserRepository;
+import eu.trustdemocracy.users.gateways.repositories.mongo.MongoTokenRepository;
+import eu.trustdemocracy.users.gateways.repositories.mongo.MongoUserRepository;
 import lombok.val;
 
 public class FakeInteractorFactory implements InteractorFactory {
@@ -21,12 +23,12 @@ public class FakeInteractorFactory implements InteractorFactory {
 
   @Override
   public CreateUser getCreateUser() {
-    return new CreateUser(getUserRepository());
+    return new CreateUser(getUserRepository(), getMainGateway());
   }
 
   @Override
   public DeleteUser getDeleteUser() {
-    return new DeleteUser(getUserRepository());
+    return new DeleteUser(getUserRepository(), getMainGateway());
   }
 
   @Override
@@ -70,5 +72,9 @@ public class FakeInteractorFactory implements InteractorFactory {
       tokenRepository = new MongoTokenRepository(db);
     }
     return tokenRepository;
+  }
+
+  private MainGateway getMainGateway() {
+    return new FakeMainGateway();
   }
 }

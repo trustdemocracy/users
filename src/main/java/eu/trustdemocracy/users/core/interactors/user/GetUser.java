@@ -6,11 +6,11 @@ import eu.trustdemocracy.users.core.interactors.Interactor;
 import eu.trustdemocracy.users.core.interactors.exceptions.UserNotFoundException;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
-import eu.trustdemocracy.users.gateways.UserRepository;
+import eu.trustdemocracy.users.gateways.repositories.UserRepository;
 
 public class GetUser  implements Interactor<UserRequestDTO, UserResponseDTO> {
 
-  protected UserRepository userRepository;
+  private UserRepository userRepository;
 
   public GetUser(UserRepository userRepository) {
     this.userRepository = userRepository;

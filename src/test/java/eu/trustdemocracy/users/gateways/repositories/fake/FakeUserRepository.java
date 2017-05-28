@@ -1,7 +1,7 @@
-package eu.trustdemocracy.users.gateways.fake;
+package eu.trustdemocracy.users.gateways.repositories.fake;
 
 import eu.trustdemocracy.users.core.entities.User;
-import eu.trustdemocracy.users.gateways.UserRepository;
+import eu.trustdemocracy.users.gateways.repositories.UserRepository;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

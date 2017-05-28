@@ -1,4 +1,4 @@
-package eu.trustdemocracy.users.gateways;
+package eu.trustdemocracy.users.gateways.repositories;
 
 import eu.trustdemocracy.users.core.entities.User;
 import java.util.List;

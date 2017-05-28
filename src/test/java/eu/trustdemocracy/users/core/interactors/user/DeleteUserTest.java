@@ -8,9 +8,10 @@ import eu.trustdemocracy.users.core.interactors.exceptions.InvalidTokenException
 import eu.trustdemocracy.users.core.interactors.utils.TokenUtils;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
-import eu.trustdemocracy.users.gateways.UserRepository;
-import eu.trustdemocracy.users.gateways.fake.FakeTokenRepository;
-import eu.trustdemocracy.users.gateways.fake.FakeUserRepository;
+import eu.trustdemocracy.users.gateways.out.FakeMainGateway;
+import eu.trustdemocracy.users.gateways.repositories.UserRepository;
+import eu.trustdemocracy.users.gateways.repositories.fake.FakeTokenRepository;
+import eu.trustdemocracy.users.gateways.repositories.fake.FakeUserRepository;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.val;
@@ -21,15 +22,17 @@ public class DeleteUserTest {
 
   private static Map<String, UserResponseDTO> responseUsers;
   private UserRepository userRepository;
+  private FakeMainGateway mainGateway;
 
   @BeforeEach
   public void init() {
     TokenUtils.generateKeys();
 
     userRepository = new FakeUserRepository();
+    mainGateway = new FakeMainGateway();
     responseUsers = new HashMap<>();
 
-    val createUser = new CreateUser(userRepository);
+    val createUser = new CreateUser(userRepository, mainGateway);
     val getToken = new GetToken(userRepository, new FakeTokenRepository());
     for (int i = 0; i < 10; i++) {
       val inputUser = new UserRequestDTO()
@@ -50,7 +53,8 @@ public class DeleteUserTest {
     val inputUser = new UserRequestDTO()
         .setId(responseUser.getId());
 
-    assertThrows(InvalidTokenException.class, () -> new DeleteUser(userRepository).execute(inputUser));
+    assertThrows(InvalidTokenException.class,
+        () -> new DeleteUser(userRepository, mainGateway).execute(inputUser));
   }
 
   @Test
@@ -60,14 +64,14 @@ public class DeleteUserTest {
     val inputUser = new UserRequestDTO()
         .setAccessToken(accessToken);
 
-    new DeleteUser(userRepository).execute(inputUser);
+    new DeleteUser(userRepository, mainGateway).execute(inputUser);
 
     assertEquals(null, userRepository.findById(responseUser.getId()));
   }
 
   @Test
   public void deleteSeveralUsers() {
-    val interactor = new DeleteUser(userRepository);
+    val interactor = new DeleteUser(userRepository, mainGateway);
 
     for (val accessToken : responseUsers.keySet()) {
       val responseUser = responseUsers.get(accessToken);
