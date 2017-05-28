@@ -7,8 +7,8 @@ import eu.trustdemocracy.users.core.interactors.user.DeleteUser;
 import eu.trustdemocracy.users.core.interactors.user.GetUser;
 import eu.trustdemocracy.users.core.interactors.user.GetUsers;
 import eu.trustdemocracy.users.core.interactors.user.UpdateUser;
-import eu.trustdemocracy.users.gateways.TokenDAO;
-import eu.trustdemocracy.users.gateways.UserDAO;
+import eu.trustdemocracy.users.gateways.TokenRepository;
+import eu.trustdemocracy.users.gateways.UserRepository;
 
 public class DefaultInteractorFactory implements InteractorFactory {
 
@@ -59,11 +59,11 @@ public class DefaultInteractorFactory implements InteractorFactory {
     return new RefreshToken(getUserDAO(), getTokenDAO());
   }
 
-  private UserDAO getUserDAO() {
-    return DAOFactory.getUserDAO();
+  private UserRepository getUserDAO() {
+    return RepositoryFactory.getUserDAO();
   }
 
-  private TokenDAO getTokenDAO() {
-    return DAOFactory.getTokenDAO();
+  private TokenRepository getTokenDAO() {
+    return RepositoryFactory.getTokenDAO();
   }
 }

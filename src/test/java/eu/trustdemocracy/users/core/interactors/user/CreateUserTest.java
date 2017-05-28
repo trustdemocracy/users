@@ -7,7 +7,7 @@ import eu.trustdemocracy.users.core.entities.UserVisibility;
 import eu.trustdemocracy.users.core.interactors.exceptions.UsernameAlreadyExistsException;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
-import eu.trustdemocracy.users.gateways.fake.FakeUserDAO;
+import eu.trustdemocracy.users.gateways.fake.FakeUserRepository;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.val;
@@ -16,11 +16,11 @@ import org.junit.jupiter.api.Test;
 
 public class CreateUserTest {
   private static List<UserRequestDTO> inputUsers;
-  private FakeUserDAO userDAO;
+  private FakeUserRepository userDAO;
 
   @BeforeEach
   public void init() {
-    userDAO = new FakeUserDAO();
+    userDAO = new FakeUserRepository();
     inputUsers = new ArrayList<>();
     for (int i = 0; i < 10; i++) {
       inputUsers.add(new UserRequestDTO()

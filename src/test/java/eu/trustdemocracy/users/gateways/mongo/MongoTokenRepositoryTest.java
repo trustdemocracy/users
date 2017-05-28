@@ -10,24 +10,24 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.github.fakemongo.Fongo;
 import com.mongodb.client.MongoCollection;
 import eu.trustdemocracy.users.core.entities.util.CryptoUtils;
-import eu.trustdemocracy.users.gateways.TokenDAO;
+import eu.trustdemocracy.users.gateways.TokenRepository;
 import java.util.UUID;
 import lombok.val;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class MongoTokenDAOTest {
+public class MongoTokenRepositoryTest {
 
   private MongoCollection<Document> collection;
-  private TokenDAO tokenDAO;
+  private TokenRepository tokenRepository;
 
   @BeforeEach
   public void init() {
     val fongo = new Fongo("test server");
     val db = fongo.getDatabase("test_database");
     collection = db.getCollection("tokens");
-    tokenDAO = new MongoTokenDAO(db);
+    tokenRepository = new MongoTokenRepository(db);
   }
 
   @Test
@@ -37,7 +37,7 @@ public class MongoTokenDAOTest {
 
     assertEquals(0L, collection.count());
 
-    tokenDAO.storeRefreshToken(id, token);
+    tokenRepository.storeRefreshToken(id, token);
 
     assertEquals(1L, collection.count());
 
@@ -59,10 +59,10 @@ public class MongoTokenDAOTest {
     val token = CryptoUtils.randomToken();
 
     assertEquals(0L, collection.count());
-    tokenDAO.storeRefreshToken(id, token);
+    tokenRepository.storeRefreshToken(id, token);
     assertEquals(1L, collection.count());
 
-    assertTrue(tokenDAO.findAndDeleteRefreshToken(id, token));
+    assertTrue(tokenRepository.findAndDeleteRefreshToken(id, token));
     assertEquals(0L, collection.count());
   }
 
@@ -74,10 +74,10 @@ public class MongoTokenDAOTest {
     val invalidToken = CryptoUtils.randomToken();
 
     assertEquals(0L, collection.count());
-    tokenDAO.storeRefreshToken(id, token);
+    tokenRepository.storeRefreshToken(id, token);
     assertEquals(1L, collection.count());
 
-    assertFalse(tokenDAO.findAndDeleteRefreshToken(id, invalidToken));
+    assertFalse(tokenRepository.findAndDeleteRefreshToken(id, invalidToken));
     assertEquals(1L, collection.count());
   }
 

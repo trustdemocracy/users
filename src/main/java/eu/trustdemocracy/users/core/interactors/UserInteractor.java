@@ -2,13 +2,13 @@ package eu.trustdemocracy.users.core.interactors;
 
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
-import eu.trustdemocracy.users.gateways.UserDAO;
+import eu.trustdemocracy.users.gateways.UserRepository;
 
 public abstract class UserInteractor implements Interactor<UserRequestDTO, UserResponseDTO> {
 
-  protected UserDAO userDAO;
+  protected UserRepository userRepository;
 
-  public UserInteractor(UserDAO userDAO) {
-    this.userDAO = userDAO;
+  public UserInteractor(UserRepository userRepository) {
+    this.userRepository = userRepository;
   }
 }

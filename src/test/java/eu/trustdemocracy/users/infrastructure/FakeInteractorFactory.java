@@ -8,67 +8,67 @@ import eu.trustdemocracy.users.core.interactors.user.DeleteUser;
 import eu.trustdemocracy.users.core.interactors.user.GetUser;
 import eu.trustdemocracy.users.core.interactors.user.GetUsers;
 import eu.trustdemocracy.users.core.interactors.user.UpdateUser;
-import eu.trustdemocracy.users.gateways.TokenDAO;
-import eu.trustdemocracy.users.gateways.UserDAO;
-import eu.trustdemocracy.users.gateways.mongo.MongoTokenDAO;
-import eu.trustdemocracy.users.gateways.mongo.MongoUserDAO;
+import eu.trustdemocracy.users.gateways.TokenRepository;
+import eu.trustdemocracy.users.gateways.UserRepository;
+import eu.trustdemocracy.users.gateways.mongo.MongoTokenRepository;
+import eu.trustdemocracy.users.gateways.mongo.MongoUserRepository;
 import lombok.val;
 
 public class FakeInteractorFactory implements InteractorFactory {
 
-  private UserDAO userDAO;
-  private TokenDAO tokenDAO;
+  private UserRepository userRepository;
+  private TokenRepository tokenRepository;
 
   @Override
   public CreateUser getCreateUser() {
-    return new CreateUser(getUserDAO());
+    return new CreateUser(getUserRepository());
   }
 
   @Override
   public DeleteUser getDeleteUser() {
-    return new DeleteUser(getUserDAO());
+    return new DeleteUser(getUserRepository());
   }
 
   @Override
   public GetUser getGetUser() {
-    return new GetUser(getUserDAO());
+    return new GetUser(getUserRepository());
   }
 
   @Override
   public GetUsers getGetUsers() {
-    return new GetUsers(getUserDAO());
+    return new GetUsers(getUserRepository());
   }
 
   @Override
   public UpdateUser getUpdateUser() {
-    return new UpdateUser(getUserDAO());
+    return new UpdateUser(getUserRepository());
   }
 
   @Override
   public GetToken getGetToken() {
-    return new GetToken(getUserDAO(), getTokenDAO());
+    return new GetToken(getUserRepository(), getTokenRepository());
   }
 
   @Override
   public RefreshToken getRefreshToken() {
-    return new RefreshToken(getUserDAO(), getTokenDAO());
+    return new RefreshToken(getUserRepository(), getTokenRepository());
   }
 
-  private UserDAO getUserDAO() {
-    if (userDAO == null) {
+  private UserRepository getUserRepository() {
+    if (userRepository == null) {
       val fongo = new Fongo("test server");
       val db = fongo.getDatabase("test_database");
-      userDAO = new MongoUserDAO(db);
+      userRepository = new MongoUserRepository(db);
     }
-    return userDAO;
+    return userRepository;
   }
 
-  private TokenDAO getTokenDAO() {
-    if (tokenDAO == null) {
+  private TokenRepository getTokenRepository() {
+    if (tokenRepository == null) {
       val fongo = new Fongo("test server");
       val db = fongo.getDatabase("test_database");
-      tokenDAO = new MongoTokenDAO(db);
+      tokenRepository = new MongoTokenRepository(db);
     }
-    return tokenDAO;
+    return tokenRepository;
   }
 }

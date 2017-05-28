@@ -6,19 +6,19 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import eu.trustdemocracy.users.core.entities.User;
 import eu.trustdemocracy.users.core.entities.UserVisibility;
-import eu.trustdemocracy.users.gateways.UserDAO;
+import eu.trustdemocracy.users.gateways.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.val;
 import org.bson.Document;
 
-public class MongoUserDAO implements UserDAO {
+public class MongoUserRepository implements UserRepository {
 
   private static final String USERS_COLLECTION = "users";
   private MongoCollection<Document> collection;
 
-  public MongoUserDAO(MongoDatabase db) {
+  public MongoUserRepository(MongoDatabase db) {
     this.collection = db.getCollection(USERS_COLLECTION);
   }
 

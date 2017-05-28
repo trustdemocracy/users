@@ -5,13 +5,13 @@ import eu.trustdemocracy.users.core.entities.util.UserMapper;
 import eu.trustdemocracy.users.core.interactors.UserInteractor;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
-import eu.trustdemocracy.users.gateways.UserDAO;
+import eu.trustdemocracy.users.gateways.UserRepository;
 import lombok.val;
 
 public class UpdateUser extends UserInteractor {
 
-  public UpdateUser(UserDAO userDAO) {
-    super(userDAO);
+  public UpdateUser(UserRepository userRepository) {
+    super(userRepository);
   }
 
   public UserResponseDTO execute(UserRequestDTO userRequestDTO) {
@@ -21,11 +21,11 @@ public class UpdateUser extends UserInteractor {
 
 
     val user = sanitizedUser(userRequestDTO);
-    return UserMapper.createResponse(userDAO.update(user));
+    return UserMapper.createResponse(userRepository.update(user));
   }
 
   private User sanitizedUser(UserRequestDTO inputUser) {
-    User user = userDAO.findById(inputUser.getId());
+    User user = userRepository.findById(inputUser.getId());
     if (user == null) {
       throw new IllegalStateException(
           "Trying to update unexisting user with id [" + inputUser.getId() + "]");

@@ -6,25 +6,25 @@ import eu.trustdemocracy.users.core.interactors.UserInteractor;
 import eu.trustdemocracy.users.core.interactors.exceptions.UsernameAlreadyExistsException;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
-import eu.trustdemocracy.users.gateways.UserDAO;
+import eu.trustdemocracy.users.gateways.UserRepository;
 import lombok.val;
 
 public class CreateUser extends UserInteractor {
 
-  public CreateUser(UserDAO userDAO) {
-    super(userDAO);
+  public CreateUser(UserRepository userRepository) {
+    super(userRepository);
   }
 
   public UserResponseDTO execute(UserRequestDTO userRequestDTO) {
     validateUserState(userRequestDTO);
 
-    if (userDAO.findByUsername(userRequestDTO.getUsername()) != null) {
+    if (userRepository.findByUsername(userRequestDTO.getUsername()) != null) {
       throw new UsernameAlreadyExistsException(
           "The username [" + userRequestDTO.getUsername() + "] already exists");
     }
 
     userRequestDTO.setVisibility(UserVisibility.PRIVATE);
-    val user = userDAO.create(UserMapper.createEntity(userRequestDTO));
+    val user = userRepository.create(UserMapper.createEntity(userRequestDTO));
     return UserMapper.createResponse(user);
   }
 

@@ -7,18 +7,18 @@ import eu.trustdemocracy.users.core.interactors.Interactor;
 import eu.trustdemocracy.users.core.interactors.exceptions.CredentialsNotFoundException;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.GetTokenResponseDTO;
-import eu.trustdemocracy.users.gateways.TokenDAO;
-import eu.trustdemocracy.users.gateways.UserDAO;
+import eu.trustdemocracy.users.gateways.TokenRepository;
+import eu.trustdemocracy.users.gateways.UserRepository;
 import lombok.val;
 
 public class GetToken implements Interactor<UserRequestDTO, GetTokenResponseDTO> {
 
-  private UserDAO userDAO;
-  private TokenDAO tokenDAO;
+  private UserRepository userRepository;
+  private TokenRepository tokenRepository;
 
-  public GetToken(UserDAO userDAO, TokenDAO tokenDAO) {
-    this.userDAO = userDAO;
-    this.tokenDAO = tokenDAO;
+  public GetToken(UserRepository userRepository, TokenRepository tokenRepository) {
+    this.userRepository = userRepository;
+    this.tokenRepository = tokenRepository;
   }
 
   /**
@@ -40,7 +40,7 @@ public class GetToken implements Interactor<UserRequestDTO, GetTokenResponseDTO>
 
     val refreshToken = CryptoUtils.randomToken();
 
-    tokenDAO.storeRefreshToken(user.getId(), refreshToken);
+    tokenRepository.storeRefreshToken(user.getId(), refreshToken);
 
     return TokenMapper.createResponse(user, refreshToken);
   }
@@ -54,7 +54,7 @@ public class GetToken implements Interactor<UserRequestDTO, GetTokenResponseDTO>
    * password is wrong
    */
   private User getUser(String username, String password) {
-    val user = userDAO.findByUsername(username);
+    val user = userRepository.findByUsername(username);
     if (user != null && CryptoUtils.validate(user.getPassword(), password)) {
       return user;
     }

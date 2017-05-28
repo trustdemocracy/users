@@ -11,10 +11,10 @@ import eu.trustdemocracy.users.core.models.request.RefreshTokenRequestDTO;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.GetTokenResponseDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
-import eu.trustdemocracy.users.gateways.TokenDAO;
-import eu.trustdemocracy.users.gateways.UserDAO;
-import eu.trustdemocracy.users.gateways.fake.FakeTokenDAO;
-import eu.trustdemocracy.users.gateways.fake.FakeUserDAO;
+import eu.trustdemocracy.users.gateways.TokenRepository;
+import eu.trustdemocracy.users.gateways.UserRepository;
+import eu.trustdemocracy.users.gateways.fake.FakeTokenRepository;
+import eu.trustdemocracy.users.gateways.fake.FakeUserRepository;
 import eu.trustdemocracy.users.infrastructure.JWTKeyFactory;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,8 +37,8 @@ import org.junit.jupiter.api.Test;
 public class RefreshTokenTest {
 
   private static Map<GetTokenResponseDTO, UserResponseDTO> responseUsers;
-  private UserDAO userDAO;
-  private TokenDAO tokenDAO;
+  private UserRepository userRepository;
+  private TokenRepository tokenRepository;
   private RsaJsonWebKey rsaJsonWebKey;
 
   @BeforeEach
@@ -47,11 +47,11 @@ public class RefreshTokenTest {
     JWTKeyFactory.setPrivateKey(rsaJsonWebKey.getPrivateKey());
     JWTKeyFactory.setPublicKey(rsaJsonWebKey.getPublicKey());
 
-    userDAO = new FakeUserDAO();
-    tokenDAO = new FakeTokenDAO();
+    userRepository = new FakeUserRepository();
+    tokenRepository = new FakeTokenRepository();
     responseUsers = new HashMap<>();
 
-    val interactor = new CreateUser(userDAO);
+    val interactor = new CreateUser(userRepository);
     for (int i = 0; i < 10; i++) {
       val inputUser = new UserRequestDTO()
           .setUsername("user" + i)
@@ -60,7 +60,7 @@ public class RefreshTokenTest {
           .setName("Name" + i);
 
       val responseUser = interactor.execute(inputUser);
-      GetTokenResponseDTO tokenDTO = new GetToken(userDAO, tokenDAO).execute(inputUser);
+      GetTokenResponseDTO tokenDTO = new GetToken(userRepository, tokenRepository).execute(inputUser);
       responseUsers.put(tokenDTO, responseUser);
     }
   }
@@ -74,7 +74,7 @@ public class RefreshTokenTest {
         .setAccessToken(issuedToken.getAccessToken())
         .setRefreshToken(issuedToken.getRefreshToken());
 
-    GetTokenResponseDTO token = new RefreshToken(userDAO, tokenDAO).execute(requestDTO);
+    GetTokenResponseDTO token = new RefreshToken(userRepository, tokenRepository).execute(requestDTO);
 
     assertNotNull(token.getRefreshToken());
 
@@ -106,13 +106,13 @@ public class RefreshTokenTest {
         .setAccessToken(issuedToken.getAccessToken())
         .setRefreshToken(issuedToken.getRefreshToken());
 
-    GetTokenResponseDTO token = new RefreshToken(userDAO, tokenDAO).execute(requestDTO);
+    GetTokenResponseDTO token = new RefreshToken(userRepository, tokenRepository).execute(requestDTO);
 
     assertNotNull(token.getAccessToken());
     assertNotNull(token.getRefreshToken());
 
     assertThrows(CredentialsNotFoundException.class,
-        () -> new RefreshToken(userDAO, tokenDAO).execute(requestDTO));
+        () -> new RefreshToken(userRepository, tokenRepository).execute(requestDTO));
   }
 
   @Test
@@ -124,7 +124,7 @@ public class RefreshTokenTest {
         .setAccessToken(issuedToken.getAccessToken())
         .setRefreshToken(issuedToken.getRefreshToken());
 
-    GetTokenResponseDTO token = new RefreshToken(userDAO, tokenDAO).execute(requestDTO);
+    GetTokenResponseDTO token = new RefreshToken(userRepository, tokenRepository).execute(requestDTO);
 
     assertNotNull(token.getAccessToken());
     assertNotNull(token.getRefreshToken());
@@ -134,7 +134,7 @@ public class RefreshTokenTest {
         .setAccessToken(token.getAccessToken())
         .setRefreshToken(token.getRefreshToken());
 
-    GetTokenResponseDTO newToken = new RefreshToken(userDAO, tokenDAO).execute(newRequestDTO);
+    GetTokenResponseDTO newToken = new RefreshToken(userRepository, tokenRepository).execute(newRequestDTO);
 
     assertNotNull(newToken.getRefreshToken());
 
@@ -169,7 +169,7 @@ public class RefreshTokenTest {
         .setAccessToken(outdatedToken)
         .setRefreshToken(issuedToken.getRefreshToken());
 
-    GetTokenResponseDTO token = new RefreshToken(userDAO, tokenDAO).execute(requestDTO);
+    GetTokenResponseDTO token = new RefreshToken(userRepository, tokenRepository).execute(requestDTO);
 
     assertNotNull(token.getRefreshToken());
 
@@ -203,7 +203,7 @@ public class RefreshTokenTest {
         .setRefreshToken(invalidToken);
 
     assertThrows(CredentialsNotFoundException.class,
-        () -> new RefreshToken(userDAO, tokenDAO).execute(requestDTO));
+        () -> new RefreshToken(userRepository, tokenRepository).execute(requestDTO));
   }
 
   private String createOutdatedJwt(UUID id, String username) {

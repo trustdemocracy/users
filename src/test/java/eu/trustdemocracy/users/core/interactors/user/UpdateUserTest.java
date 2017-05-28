@@ -11,9 +11,9 @@ import eu.trustdemocracy.users.core.interactors.exceptions.InvalidTokenException
 import eu.trustdemocracy.users.core.interactors.utils.TokenUtils;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
-import eu.trustdemocracy.users.gateways.UserDAO;
-import eu.trustdemocracy.users.gateways.fake.FakeTokenDAO;
-import eu.trustdemocracy.users.gateways.fake.FakeUserDAO;
+import eu.trustdemocracy.users.gateways.UserRepository;
+import eu.trustdemocracy.users.gateways.fake.FakeTokenRepository;
+import eu.trustdemocracy.users.gateways.fake.FakeUserRepository;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.val;
@@ -22,17 +22,17 @@ import org.junit.jupiter.api.Test;
 
 public class UpdateUserTest {
   private static Map<String, UserResponseDTO> responseUsers;
-  private UserDAO userDAO;
+  private UserRepository userRepository;
 
   @BeforeEach
   public void init() {
     TokenUtils.generateKeys();
 
-    userDAO = new FakeUserDAO();
+    userRepository = new FakeUserRepository();
     responseUsers = new HashMap<>();
 
-    val interactor = new CreateUser(userDAO);
-    val getToken = new GetToken(userDAO, new FakeTokenDAO());
+    val interactor = new CreateUser(userRepository);
+    val getToken = new GetToken(userRepository, new FakeTokenRepository());
     for (int i = 0; i < 10; i++) {
       val inputUser = new UserRequestDTO()
           .setUsername("user" + i)
@@ -56,7 +56,7 @@ public class UpdateUserTest {
         .setName(null)
         .setSurname("TestSurname");
 
-    assertThrows(InvalidTokenException.class, () -> new UpdateUser(userDAO).execute(inputUser));
+    assertThrows(InvalidTokenException.class, () -> new UpdateUser(userRepository).execute(inputUser));
   }
 
   @Test
@@ -77,7 +77,7 @@ public class UpdateUserTest {
         .setSurname(inputUser.getSurname())
         .setVisibility(responseUser.getVisibility());
 
-    val interactor = new UpdateUser(userDAO);
+    val interactor = new UpdateUser(userRepository);
     val resultUser = interactor.execute(inputUser);
 
     assertEquals(expectedUser, resultUser);
@@ -85,7 +85,7 @@ public class UpdateUserTest {
 
   @Test
   public void updateSeveralUsers() {
-    val interactor = new UpdateUser(userDAO);
+    val interactor = new UpdateUser(userRepository);
     for (val accessToken : responseUsers.keySet()) {
       val responseUser = responseUsers.get(accessToken);
       val inputUser = new UserRequestDTO()
@@ -125,7 +125,7 @@ public class UpdateUserTest {
         .setSurname(responseUser.getSurname())
         .setVisibility(responseUser.getVisibility());
 
-    assertEquals(expectedUser, new UpdateUser(userDAO).execute(inputUser));
+    assertEquals(expectedUser, new UpdateUser(userRepository).execute(inputUser));
   }
 
   @Test
@@ -135,12 +135,12 @@ public class UpdateUserTest {
     UserRequestDTO inputUser = new UserRequestDTO()
         .setAccessToken(accessToken)
         .setVisibility(UserVisibility.PUBLIC);
-    assertEquals(UserVisibility.PUBLIC, new UpdateUser(userDAO).execute(inputUser).getVisibility());
+    assertEquals(UserVisibility.PUBLIC, new UpdateUser(userRepository).execute(inputUser).getVisibility());
 
     inputUser = new UserRequestDTO()
         .setAccessToken(accessToken)
         .setVisibility(UserVisibility.PRIVATE);
-    assertEquals(UserVisibility.PRIVATE, new UpdateUser(userDAO).execute(inputUser).getVisibility());
+    assertEquals(UserVisibility.PRIVATE, new UpdateUser(userRepository).execute(inputUser).getVisibility());
   }
 
   @Test
@@ -151,9 +151,9 @@ public class UpdateUserTest {
     val inputUser = new UserRequestDTO()
         .setAccessToken(accessToken)
         .setPassword("newPassword");
-    new UpdateUser(userDAO).execute(inputUser);
+    new UpdateUser(userRepository).execute(inputUser);
 
-    val userInDB = userDAO.findById(responseUser.getId());
+    val userInDB = userRepository.findById(responseUser.getId());
 
     assertTrue(CryptoUtils.validate(userInDB.getPassword(), "newPassword"));
   }
@@ -166,19 +166,19 @@ public class UpdateUserTest {
     val inputUser = new UserRequestDTO()
         .setAccessToken(accessToken)
         .setPassword("newPassword");
-    new UpdateUser(userDAO).execute(inputUser);
+    new UpdateUser(userRepository).execute(inputUser);
 
-    assertTrue(CryptoUtils.validate(userDAO.findById(responseUser.getId()).getPassword(), "newPassword"));
+    assertTrue(CryptoUtils.validate(userRepository.findById(responseUser.getId()).getPassword(), "newPassword"));
 
 
     inputUser.setPassword("");
-    new UpdateUser(userDAO).execute(inputUser);
-    assertTrue(CryptoUtils.validate(userDAO.findById(responseUser.getId()).getPassword(), "newPassword"));
+    new UpdateUser(userRepository).execute(inputUser);
+    assertTrue(CryptoUtils.validate(userRepository.findById(responseUser.getId()).getPassword(), "newPassword"));
 
 
     inputUser.setPassword("newValidPassword");
-    new UpdateUser(userDAO).execute(inputUser);
-    assertTrue(CryptoUtils.validate(userDAO.findById(responseUser.getId()).getPassword(), "newValidPassword"));
+    new UpdateUser(userRepository).execute(inputUser);
+    assertTrue(CryptoUtils.validate(userRepository.findById(responseUser.getId()).getPassword(), "newValidPassword"));
   }
 
 }

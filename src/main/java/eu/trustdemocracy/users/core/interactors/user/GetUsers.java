@@ -5,22 +5,22 @@ import eu.trustdemocracy.users.core.entities.util.UserMapper;
 import eu.trustdemocracy.users.core.interactors.Interactor;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.GetUsersResponseDTO;
-import eu.trustdemocracy.users.gateways.UserDAO;
+import eu.trustdemocracy.users.gateways.UserRepository;
 import java.util.List;
 
 public class GetUsers implements Interactor<UserRequestDTO, GetUsersResponseDTO> {
 
-  private UserDAO userDAO;
+  private UserRepository userRepository;
 
-  public GetUsers(UserDAO userDAO) {
-    this.userDAO = userDAO;
+  public GetUsers(UserRepository userRepository) {
+    this.userRepository = userRepository;
   }
 
   @Override
   public GetUsersResponseDTO execute(UserRequestDTO requestDTO) {
     User user = UserMapper.createEntity(requestDTO.getAccessToken());
 
-    List<User> users = userDAO.findAll();
+    List<User> users = userRepository.findAll();
 
     return UserMapper.createResponse(users);
   }

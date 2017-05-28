@@ -4,7 +4,7 @@ import eu.trustdemocracy.users.core.entities.User;
 import java.util.List;
 import java.util.UUID;
 
-public interface UserDAO {
+public interface UserRepository {
 
   User create(User user);
 

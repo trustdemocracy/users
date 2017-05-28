@@ -8,9 +8,9 @@ import eu.trustdemocracy.users.core.interactors.exceptions.InvalidTokenException
 import eu.trustdemocracy.users.core.interactors.utils.TokenUtils;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
-import eu.trustdemocracy.users.gateways.UserDAO;
-import eu.trustdemocracy.users.gateways.fake.FakeTokenDAO;
-import eu.trustdemocracy.users.gateways.fake.FakeUserDAO;
+import eu.trustdemocracy.users.gateways.UserRepository;
+import eu.trustdemocracy.users.gateways.fake.FakeTokenRepository;
+import eu.trustdemocracy.users.gateways.fake.FakeUserRepository;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.val;
@@ -20,17 +20,17 @@ import org.junit.jupiter.api.Test;
 public class DeleteUserTest {
 
   private static Map<String, UserResponseDTO> responseUsers;
-  private UserDAO userDAO;
+  private UserRepository userRepository;
 
   @BeforeEach
   public void init() {
     TokenUtils.generateKeys();
 
-    userDAO = new FakeUserDAO();
+    userRepository = new FakeUserRepository();
     responseUsers = new HashMap<>();
 
-    val createUser = new CreateUser(userDAO);
-    val getToken = new GetToken(userDAO, new FakeTokenDAO());
+    val createUser = new CreateUser(userRepository);
+    val getToken = new GetToken(userRepository, new FakeTokenRepository());
     for (int i = 0; i < 10; i++) {
       val inputUser = new UserRequestDTO()
           .setUsername("user" + i)
@@ -50,7 +50,7 @@ public class DeleteUserTest {
     val inputUser = new UserRequestDTO()
         .setId(responseUser.getId());
 
-    assertThrows(InvalidTokenException.class, () -> new DeleteUser(userDAO).execute(inputUser));
+    assertThrows(InvalidTokenException.class, () -> new DeleteUser(userRepository).execute(inputUser));
   }
 
   @Test
@@ -60,14 +60,14 @@ public class DeleteUserTest {
     val inputUser = new UserRequestDTO()
         .setAccessToken(accessToken);
 
-    new DeleteUser(userDAO).execute(inputUser);
+    new DeleteUser(userRepository).execute(inputUser);
 
-    assertEquals(null, userDAO.findById(responseUser.getId()));
+    assertEquals(null, userRepository.findById(responseUser.getId()));
   }
 
   @Test
   public void deleteSeveralUsers() {
-    val interactor = new DeleteUser(userDAO);
+    val interactor = new DeleteUser(userRepository);
 
     for (val accessToken : responseUsers.keySet()) {
       val responseUser = responseUsers.get(accessToken);
@@ -76,7 +76,7 @@ public class DeleteUserTest {
 
       interactor.execute(inputUser);
 
-      assertEquals(null, userDAO.findById(responseUser.getId()));
+      assertEquals(null, userRepository.findById(responseUser.getId()));
     }
   }
 }

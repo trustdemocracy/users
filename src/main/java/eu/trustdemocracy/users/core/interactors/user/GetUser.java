@@ -6,21 +6,21 @@ import eu.trustdemocracy.users.core.interactors.UserInteractor;
 import eu.trustdemocracy.users.core.interactors.exceptions.UserNotFoundException;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
-import eu.trustdemocracy.users.gateways.UserDAO;
+import eu.trustdemocracy.users.gateways.UserRepository;
 
 public class GetUser extends UserInteractor {
 
-  public GetUser(UserDAO userDAO) {
-    super(userDAO);
+  public GetUser(UserRepository userRepository) {
+    super(userRepository);
   }
 
   public UserResponseDTO execute(UserRequestDTO inputUser) {
     User user;
     if (inputUser.getId() == null) {
-      user = userDAO.findByUsername(inputUser.getUsername());
+      user = userRepository.findByUsername(inputUser.getUsername());
 
     } else {
-      user = userDAO.findById(inputUser.getId());
+      user = userRepository.findById(inputUser.getId());
     }
 
     if (user == null) {
