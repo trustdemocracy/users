@@ -6,8 +6,8 @@ import eu.trustdemocracy.users.core.interactors.Interactor;
 import eu.trustdemocracy.users.core.interactors.exceptions.CredentialsNotFoundException;
 import eu.trustdemocracy.users.core.models.request.RefreshTokenRequestDTO;
 import eu.trustdemocracy.users.core.models.response.GetTokenResponseDTO;
-import eu.trustdemocracy.users.gateways.TokenDAO;
-import eu.trustdemocracy.users.gateways.UserDAO;
+import eu.trustdemocracy.users.gateways.repositories.TokenRepository;
+import eu.trustdemocracy.users.gateways.repositories.UserRepository;
 import eu.trustdemocracy.users.infrastructure.JWTKeyFactory;
 import java.util.UUID;
 import lombok.val;
@@ -19,12 +19,12 @@ import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 
 public class RefreshToken implements Interactor<RefreshTokenRequestDTO, GetTokenResponseDTO> {
 
-  private UserDAO userDAO;
-  private TokenDAO tokenDAO;
+  private UserRepository userRepository;
+  private TokenRepository tokenRepository;
 
-  public RefreshToken(UserDAO userDAO, TokenDAO tokenDAO) {
-    this.userDAO = userDAO;
-    this.tokenDAO = tokenDAO;
+  public RefreshToken(UserRepository userRepository, TokenRepository tokenRepository) {
+    this.userRepository = userRepository;
+    this.tokenRepository = tokenRepository;
   }
 
   @Override
@@ -43,16 +43,16 @@ public class RefreshToken implements Interactor<RefreshTokenRequestDTO, GetToken
       val id = UUID.fromString(String.valueOf(claims.get("sub")));
       val username = String.valueOf(claims.get("username"));
 
-      val found = tokenDAO.findAndDeleteRefreshToken(id, requestDTO.getRefreshToken());
+      val found = tokenRepository.findAndDeleteRefreshToken(id, requestDTO.getRefreshToken());
       if (!found) {
         throw new CredentialsNotFoundException(
             "Invalid id or refresh token for user [" + username + "]");
       }
 
-      val user = userDAO.findByUsername(username);
+      val user = userRepository.findByUsername(username);
 
       val refreshToken = CryptoUtils.randomToken();
-      tokenDAO.storeRefreshToken(id, refreshToken);
+      tokenRepository.storeRefreshToken(id, refreshToken);
 
       return TokenMapper.createResponse(user, refreshToken);
     } catch (InvalidJwtException | IllegalArgumentException e) {

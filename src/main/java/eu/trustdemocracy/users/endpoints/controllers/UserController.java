@@ -3,6 +3,7 @@ package eu.trustdemocracy.users.endpoints.controllers;
 import eu.trustdemocracy.users.core.interactors.exceptions.InvalidTokenException;
 import eu.trustdemocracy.users.core.interactors.exceptions.UserNotFoundException;
 import eu.trustdemocracy.users.core.interactors.exceptions.UsernameAlreadyExistsException;
+import eu.trustdemocracy.users.core.models.request.RankRequestDTO;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.endpoints.APIMessages;
 import eu.trustdemocracy.users.endpoints.App;
@@ -25,6 +26,7 @@ public class UserController extends Controller {
     getRouter().get("/users/:id").handler(this::findUser);
     getRouter().put("/users/:id").handler(this::updateUser);
     getRouter().delete("/users/:id").handler(this::deleteUser);
+    getRouter().post("/rank").handler(this::updateRank);
   }
 
   private void createUser(RoutingContext routingContext) {
@@ -126,6 +128,16 @@ public class UserController extends Controller {
       serveJsonResponse(routingContext, 200, Json.encodePrettily(user));
     } catch (InvalidTokenException e) {
       serveBadCredentials(routingContext);
+    }
+  }
+
+  private void updateRank(RoutingContext context) {
+    try {
+      val request = Json.decodeValue(context.getBodyAsString(), RankRequestDTO.class);
+      val interactor = getInteractorFactory().getUpdateRank();
+      interactor.execute(request);
+    } catch (Exception e) {
+      serveBadRequest(context);
     }
   }
 }

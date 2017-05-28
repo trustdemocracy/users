@@ -15,6 +15,7 @@ public class User {
   private String name;
   private String surname;
   private UserVisibility visibility;
+  private double rank;
 
   public User setPassword(String password) {
     if (password != null) {

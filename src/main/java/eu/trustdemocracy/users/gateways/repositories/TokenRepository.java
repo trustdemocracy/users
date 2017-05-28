@@ -1,8 +1,8 @@
-package eu.trustdemocracy.users.gateways;
+package eu.trustdemocracy.users.gateways.repositories;
 
 import java.util.UUID;
 
-public interface TokenDAO {
+public interface TokenRepository {
 
   void storeRefreshToken(UUID userId, String refreshToken);
 

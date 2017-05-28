@@ -2,14 +2,14 @@ package eu.trustdemocracy.users.infrastructure;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;
-import eu.trustdemocracy.users.gateways.TokenDAO;
-import eu.trustdemocracy.users.gateways.UserDAO;
-import eu.trustdemocracy.users.gateways.mongo.MongoTokenDAO;
-import eu.trustdemocracy.users.gateways.mongo.MongoUserDAO;
+import eu.trustdemocracy.users.gateways.repositories.TokenRepository;
+import eu.trustdemocracy.users.gateways.repositories.UserRepository;
+import eu.trustdemocracy.users.gateways.repositories.mongo.MongoTokenRepository;
+import eu.trustdemocracy.users.gateways.repositories.mongo.MongoUserRepository;
 import java.util.Properties;
 import lombok.val;
 
-public class DAOFactory {
+public class RepositoryFactory {
 
   private static final String DATABASE_PROPERTIES_FILE = "database.properties";
   private static final String PROPERTIES_KEY_SERVER = "server";
@@ -18,12 +18,12 @@ public class DAOFactory {
 
   private static MongoDatabase db;
 
-  public static UserDAO getUserDAO() {
-    return new MongoUserDAO(getDatabase());
+  public static UserRepository getUserDAO() {
+    return new MongoUserRepository(getDatabase());
   }
 
-  public static TokenDAO getTokenDAO() {
-    return new MongoTokenDAO(getDatabase());
+  public static TokenRepository getTokenDAO() {
+    return new MongoTokenRepository(getDatabase());
   }
 
   private static MongoDatabase getDatabase() {
@@ -60,7 +60,7 @@ public class DAOFactory {
 
   private static Properties getProperties() throws Exception {
     val properties = new Properties();
-    val inputStream = DAOFactory.class.getClassLoader()
+    val inputStream = RepositoryFactory.class.getClassLoader()
         .getResourceAsStream(DATABASE_PROPERTIES_FILE);
     properties.load(inputStream);
     inputStream.close();

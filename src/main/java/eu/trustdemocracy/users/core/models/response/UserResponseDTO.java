@@ -15,4 +15,5 @@ public class UserResponseDTO {
   private String name;
   private String surname;
   private UserVisibility visibility;
+  private double rank;
 }

@@ -1,7 +1,7 @@
-package eu.trustdemocracy.users.gateways.fake;
+package eu.trustdemocracy.users.gateways.repositories.fake;
 
 import eu.trustdemocracy.users.core.entities.User;
-import eu.trustdemocracy.users.gateways.UserDAO;
+import eu.trustdemocracy.users.gateways.repositories.UserRepository;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,7 +9,8 @@ import java.util.Map;
 import java.util.UUID;
 import lombok.val;
 
-public class FakeUserDAO implements UserDAO {
+public class FakeUserRepository implements UserRepository {
+
   private Map<UUID, User> users = new HashMap<>();
   private UUID nextUniqueUUID;
 
@@ -52,6 +53,13 @@ public class FakeUserDAO implements UserDAO {
   @Override
   public List<User> findAll() {
     return new ArrayList<>(users.values());
+  }
+
+  @Override
+  public void updateRanks(Map<UUID, Double> rankings) {
+    for (val entry : rankings.entrySet()) {
+      users.get(entry.getKey()).setRank(entry.getValue());
+    }
   }
 
   public UUID getUniqueUUID() {

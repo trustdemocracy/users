@@ -1,11 +1,11 @@
-package eu.trustdemocracy.users.gateways.fake;
+package eu.trustdemocracy.users.gateways.repositories.fake;
 
-import eu.trustdemocracy.users.gateways.TokenDAO;
+import eu.trustdemocracy.users.gateways.repositories.TokenRepository;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class FakeTokenDAO implements TokenDAO {
+public class FakeTokenRepository implements TokenRepository {
 
   private Map<UUID, String> refreshTokens = new HashMap<>();
 

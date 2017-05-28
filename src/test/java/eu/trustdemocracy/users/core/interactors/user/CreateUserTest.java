@@ -7,7 +7,8 @@ import eu.trustdemocracy.users.core.entities.UserVisibility;
 import eu.trustdemocracy.users.core.interactors.exceptions.UsernameAlreadyExistsException;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
-import eu.trustdemocracy.users.gateways.fake.FakeUserDAO;
+import eu.trustdemocracy.users.gateways.out.FakeMainGateway;
+import eu.trustdemocracy.users.gateways.repositories.fake.FakeUserRepository;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.val;
@@ -15,12 +16,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class CreateUserTest {
+
   private static List<UserRequestDTO> inputUsers;
-  private FakeUserDAO userDAO;
+  private FakeUserRepository userDAO;
+  private FakeMainGateway mainGateway;
 
   @BeforeEach
   public void init() {
-    userDAO = new FakeUserDAO();
+    userDAO = new FakeUserRepository();
+    mainGateway = new FakeMainGateway();
     inputUsers = new ArrayList<>();
     for (int i = 0; i < 10; i++) {
       inputUsers.add(new UserRequestDTO()
@@ -41,7 +45,7 @@ public class CreateUserTest {
         .setId(uuid)
         .setVisibility(UserVisibility.PRIVATE);
 
-    val interactor = new CreateUser(userDAO);
+    val interactor = new CreateUser(userDAO, mainGateway);
     val responseUser = interactor.execute(inputUser);
 
     assertEquals(responseUser, expectedUser);
@@ -62,7 +66,7 @@ public class CreateUserTest {
         .setId(uuid)
         .setVisibility(UserVisibility.PRIVATE);
 
-    val interactor = new CreateUser(userDAO);
+    val interactor = new CreateUser(userDAO, mainGateway);
     val responseUser = interactor.execute(inputUser);
 
     assertEquals(responseUser, expectedUser);
@@ -70,7 +74,7 @@ public class CreateUserTest {
 
   @Test
   public void createSeveralUsers() {
-    val interactor = new CreateUser(userDAO);
+    val interactor = new CreateUser(userDAO, mainGateway);
 
     for (UserRequestDTO inputUser : inputUsers) {
       val uuid = userDAO.getUniqueUUID();
@@ -94,18 +98,21 @@ public class CreateUserTest {
   @Test
   public void createWithEmptyUsername() {
     val inputUser = inputUsers.get(0).setUsername("");
-    assertThrows(IllegalStateException.class, () -> new CreateUser(userDAO).execute(inputUser));
+    assertThrows(IllegalStateException.class,
+        () -> new CreateUser(userDAO, mainGateway).execute(inputUser));
   }
 
   @Test
   public void createWithEmptyEmail() {
     val inputUser = inputUsers.get(0).setEmail("");
-    assertThrows(IllegalStateException.class, () -> new CreateUser(userDAO).execute(inputUser));
+    assertThrows(IllegalStateException.class,
+        () -> new CreateUser(userDAO, mainGateway).execute(inputUser));
   }
 
   @Test
   public void createWithEmptyPassword() {
     val inputUser = inputUsers.get(0).setPassword("");
-    assertThrows(IllegalStateException.class, () -> new CreateUser(userDAO).execute(inputUser));
+    assertThrows(IllegalStateException.class,
+        () -> new CreateUser(userDAO, mainGateway).execute(inputUser));
   }
 }

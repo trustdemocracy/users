@@ -6,8 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import eu.trustdemocracy.users.core.interactors.exceptions.UserNotFoundException;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
-import eu.trustdemocracy.users.gateways.UserDAO;
-import eu.trustdemocracy.users.gateways.fake.FakeUserDAO;
+import eu.trustdemocracy.users.gateways.out.FakeMainGateway;
+import eu.trustdemocracy.users.gateways.repositories.UserRepository;
+import eu.trustdemocracy.users.gateways.repositories.fake.FakeUserRepository;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -17,14 +18,14 @@ import org.junit.jupiter.api.Test;
 
 public class GetUserTest {
   private static Map<UUID, UserResponseDTO> responseUsers;
-  private UserDAO userDAO;
+  private UserRepository userRepository;
 
   @BeforeEach
   public void init() {
-    userDAO = new FakeUserDAO();
+    userRepository = new FakeUserRepository();
     responseUsers = new HashMap<>();
 
-    val interactor = new CreateUser(userDAO);
+    val interactor = new CreateUser(userRepository, new FakeMainGateway());
     for (int i = 0; i < 10; i++) {
       val inputUser = new UserRequestDTO()
           .setUsername("user" + i)
@@ -43,7 +44,7 @@ public class GetUserTest {
     val inputUser = new UserRequestDTO()
         .setId(responseUser.getId());
 
-    assertEquals(responseUser, new GetUser(userDAO).execute(inputUser));
+    assertEquals(responseUser, new GetUser(userRepository).execute(inputUser));
   }
 
   @Test
@@ -52,7 +53,7 @@ public class GetUserTest {
     val inputUser = new UserRequestDTO()
         .setUsername(responseUser.getUsername());
 
-    assertEquals(responseUser, new GetUser(userDAO).execute(inputUser));
+    assertEquals(responseUser, new GetUser(userRepository).execute(inputUser));
   }
 
   @Test
@@ -60,7 +61,7 @@ public class GetUserTest {
     val inputUser = new UserRequestDTO()
         .setUsername("IDontExist");
 
-    assertThrows(UserNotFoundException.class, () -> new GetUser(userDAO).execute(inputUser));
+    assertThrows(UserNotFoundException.class, () -> new GetUser(userRepository).execute(inputUser));
   }
 
 }

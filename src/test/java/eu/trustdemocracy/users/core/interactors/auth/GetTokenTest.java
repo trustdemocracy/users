@@ -9,10 +9,11 @@ import eu.trustdemocracy.users.core.interactors.user.CreateUser;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.GetTokenResponseDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
-import eu.trustdemocracy.users.gateways.TokenDAO;
-import eu.trustdemocracy.users.gateways.UserDAO;
-import eu.trustdemocracy.users.gateways.fake.FakeTokenDAO;
-import eu.trustdemocracy.users.gateways.fake.FakeUserDAO;
+import eu.trustdemocracy.users.gateways.out.FakeMainGateway;
+import eu.trustdemocracy.users.gateways.repositories.TokenRepository;
+import eu.trustdemocracy.users.gateways.repositories.UserRepository;
+import eu.trustdemocracy.users.gateways.repositories.fake.FakeTokenRepository;
+import eu.trustdemocracy.users.gateways.repositories.fake.FakeUserRepository;
 import eu.trustdemocracy.users.infrastructure.JWTKeyFactory;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,8 +35,8 @@ public class GetTokenTest {
 
   private static Map<UUID, UserResponseDTO> responseUsers;
   private static Map<String, UserRequestDTO> inputUsers;
-  private UserDAO userDAO;
-  private TokenDAO tokenDAO;
+  private UserRepository userRepository;
+  private TokenRepository tokenRepository;
   private RsaJsonWebKey rsaJsonWebKey;
 
   @BeforeEach
@@ -43,12 +44,12 @@ public class GetTokenTest {
     rsaJsonWebKey = RsaJwkGenerator.generateJwk(2048);
     JWTKeyFactory.setPrivateKey(rsaJsonWebKey.getPrivateKey());
 
-    userDAO = new FakeUserDAO();
-    tokenDAO = new FakeTokenDAO();
+    userRepository = new FakeUserRepository();
+    tokenRepository = new FakeTokenRepository();
     responseUsers = new HashMap<>();
     inputUsers = new HashMap<>();
 
-    val interactor = new CreateUser(userDAO);
+    val interactor = new CreateUser(userRepository, new FakeMainGateway());
     for (int i = 0; i < 10; i++) {
       val inputUser = new UserRequestDTO()
           .setUsername("user" + i)
@@ -68,7 +69,7 @@ public class GetTokenTest {
     val responseUser = responseUsers.values().iterator().next();
     val inputUser = inputUsers.get(responseUser.getUsername());
 
-    GetTokenResponseDTO token = new GetToken(userDAO, tokenDAO).execute(inputUser);
+    GetTokenResponseDTO token = new GetToken(userRepository, tokenRepository).execute(inputUser);
 
     assertNotNull(token.getRefreshToken());
 
@@ -100,7 +101,7 @@ public class GetTokenTest {
         .setPassword("test");
 
     assertThrows(CredentialsNotFoundException.class,
-        () -> new GetToken(userDAO, tokenDAO).execute(inputUser));
+        () -> new GetToken(userRepository, tokenRepository).execute(inputUser));
   }
 
 }

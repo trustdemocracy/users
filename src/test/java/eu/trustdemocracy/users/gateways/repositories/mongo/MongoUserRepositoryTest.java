@@ -1,4 +1,4 @@
-package eu.trustdemocracy.users.gateways.mongo;
+package eu.trustdemocracy.users.gateways.repositories.mongo;
 
 import static com.mongodb.client.model.Filters.eq;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -11,24 +11,24 @@ import com.mongodb.client.MongoCollection;
 import eu.trustdemocracy.users.core.entities.User;
 import eu.trustdemocracy.users.core.entities.UserVisibility;
 import eu.trustdemocracy.users.core.entities.util.CryptoUtils;
-import eu.trustdemocracy.users.gateways.UserDAO;
+import eu.trustdemocracy.users.gateways.repositories.UserRepository;
 import java.util.UUID;
 import lombok.val;
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class MongoUserDAOTest {
+public class MongoUserRepositoryTest {
 
   private MongoCollection<Document> collection;
-  private UserDAO userDAO;
+  private UserRepository userRepository;
 
   @BeforeEach
   public void init() {
     val fongo = new Fongo("test server");
     val db = fongo.getDatabase("test_database");
     collection = db.getCollection("users");
-    userDAO = new MongoUserDAO(db);
+    userRepository = new MongoUserRepository(db);
   }
 
   @Test
@@ -87,7 +87,7 @@ public class MongoUserDAOTest {
         .setPassword(CryptoUtils.hash("newPassword"))
         .setName("testName")
         .setSurname("testSurname");
-    assertEquals(user, userDAO.update(user));
+    assertEquals(user, userRepository.update(user));
 
     collection.find(eq("id", user.getId().toString()))
         .forEach(assertEqualsBlock(user));
@@ -103,7 +103,7 @@ public class MongoUserDAOTest {
 
     createUserAndAssignId(user);
 
-    val deletedUser = userDAO.deleteById(user.getId());
+    val deletedUser = userRepository.deleteById(user.getId());
     assertEquals(user, deletedUser);
     assertEquals(0L, collection.count(eq("id", user.getId().toString())));
   }
@@ -118,7 +118,7 @@ public class MongoUserDAOTest {
 
     createUserAndAssignId(user);
 
-    val userFound = userDAO.findById(user.getId());
+    val userFound = userRepository.findById(user.getId());
 
     collection.find(eq("id", user.getId().toString()))
         .forEach(assertEqualsBlock(userFound));
@@ -135,7 +135,7 @@ public class MongoUserDAOTest {
 
     createUserAndAssignId(user);
 
-    val userFound = userDAO.findByUsername(username);
+    val userFound = userRepository.findByUsername(username);
     assertNotNull(userFound);
 
     collection.find(eq("username", username))
@@ -155,11 +155,11 @@ public class MongoUserDAOTest {
       createUserAndAssignId(user);
     }
 
-    assertEquals(30, userDAO.findAll().size());
+    assertEquals(30, userRepository.findAll().size());
   }
 
   private User createUserAndAssignId(User user) {
-    val createdUser = userDAO.create(user);
+    val createdUser = userRepository.create(user);
     user.setId(createdUser.getId());
     assertEquals(user, createdUser);
     assertNotEquals(0L, collection.count(eq("id", createdUser.getId().toString())));

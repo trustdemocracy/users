@@ -6,9 +6,12 @@ import eu.trustdemocracy.users.core.interactors.user.CreateUser;
 import eu.trustdemocracy.users.core.interactors.user.DeleteUser;
 import eu.trustdemocracy.users.core.interactors.user.GetUser;
 import eu.trustdemocracy.users.core.interactors.user.GetUsers;
+import eu.trustdemocracy.users.core.interactors.user.UpdateRank;
 import eu.trustdemocracy.users.core.interactors.user.UpdateUser;
-import eu.trustdemocracy.users.gateways.TokenDAO;
-import eu.trustdemocracy.users.gateways.UserDAO;
+import eu.trustdemocracy.users.gateways.out.MainGateway;
+import eu.trustdemocracy.users.gateways.out.MainGatewayImpl;
+import eu.trustdemocracy.users.gateways.repositories.TokenRepository;
+import eu.trustdemocracy.users.gateways.repositories.UserRepository;
 
 public class DefaultInteractorFactory implements InteractorFactory {
 
@@ -26,44 +29,53 @@ public class DefaultInteractorFactory implements InteractorFactory {
 
   @Override
   public CreateUser getCreateUser() {
-    return new CreateUser(getUserDAO());
+    return new CreateUser(getUserRepository(), getMainGateway());
   }
 
   @Override
   public DeleteUser getDeleteUser() {
-    return new DeleteUser(getUserDAO());
+    return new DeleteUser(getUserRepository(), getMainGateway());
   }
 
   @Override
   public GetUser getGetUser() {
-    return new GetUser(getUserDAO());
+    return new GetUser(getUserRepository());
   }
 
   @Override
   public GetUsers getGetUsers() {
-    return new GetUsers(getUserDAO());
+    return new GetUsers(getUserRepository());
   }
 
   @Override
   public UpdateUser getUpdateUser() {
-    return new UpdateUser(getUserDAO());
+    return new UpdateUser(getUserRepository());
   }
 
   @Override
   public GetToken getGetToken() {
-    return new GetToken(getUserDAO(), getTokenDAO());
+    return new GetToken(getUserRepository(), getTokenRepository());
   }
 
   @Override
   public RefreshToken getRefreshToken() {
-    return new RefreshToken(getUserDAO(), getTokenDAO());
+    return new RefreshToken(getUserRepository(), getTokenRepository());
   }
 
-  private UserDAO getUserDAO() {
-    return DAOFactory.getUserDAO();
+  @Override
+  public UpdateRank getUpdateRank() {
+    return new UpdateRank(getUserRepository());
   }
 
-  private TokenDAO getTokenDAO() {
-    return DAOFactory.getTokenDAO();
+  private UserRepository getUserRepository() {
+    return RepositoryFactory.getUserDAO();
+  }
+
+  private TokenRepository getTokenRepository() {
+    return RepositoryFactory.getTokenDAO();
+  }
+
+  private MainGateway getMainGateway() {
+    return new MainGatewayImpl();
   }
 }

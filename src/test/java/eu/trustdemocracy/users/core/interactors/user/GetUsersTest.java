@@ -7,9 +7,10 @@ import eu.trustdemocracy.users.core.interactors.utils.TokenUtils;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.GetUsersResponseDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
-import eu.trustdemocracy.users.gateways.UserDAO;
-import eu.trustdemocracy.users.gateways.fake.FakeTokenDAO;
-import eu.trustdemocracy.users.gateways.fake.FakeUserDAO;
+import eu.trustdemocracy.users.gateways.out.FakeMainGateway;
+import eu.trustdemocracy.users.gateways.repositories.UserRepository;
+import eu.trustdemocracy.users.gateways.repositories.fake.FakeTokenRepository;
+import eu.trustdemocracy.users.gateways.repositories.fake.FakeUserRepository;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -19,15 +20,15 @@ import org.junit.jupiter.api.Test;
 
 public class GetUsersTest {
   private static Map<UUID, UserResponseDTO> responseUsers;
-  private UserDAO userDAO;
+  private UserRepository userRepository;
 
   @BeforeEach
   public void init() {
     TokenUtils.generateKeys();
-    userDAO = new FakeUserDAO();
+    userRepository = new FakeUserRepository();
     responseUsers = new HashMap<>();
 
-    val interactor = new CreateUser(userDAO);
+    val interactor = new CreateUser(userRepository, new FakeMainGateway());
     for (int i = 0; i < 10; i++) {
       val inputUser = new UserRequestDTO()
           .setUsername("user" + i)
@@ -42,7 +43,7 @@ public class GetUsersTest {
 
   @Test
   public void getUsers() {
-    val getToken = new GetToken(userDAO, new FakeTokenDAO());
+    val getToken = new GetToken(userRepository, new FakeTokenRepository());
 
     val accessToken = getToken.execute(new UserRequestDTO()
         .setUsername("user1")
@@ -51,7 +52,7 @@ public class GetUsersTest {
     val inputUser = new UserRequestDTO()
         .setAccessToken(accessToken.getAccessToken());
 
-    GetUsersResponseDTO response = new GetUsers(userDAO).execute(inputUser);
+    GetUsersResponseDTO response = new GetUsers(userRepository).execute(inputUser);
     assertEquals(responseUsers.values().size(), response.getUsers().size());
   }
 

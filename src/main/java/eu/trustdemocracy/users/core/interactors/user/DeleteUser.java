@@ -1,22 +1,30 @@
 package eu.trustdemocracy.users.core.interactors.user;
 
 import eu.trustdemocracy.users.core.entities.util.UserMapper;
-import eu.trustdemocracy.users.core.interactors.UserInteractor;
+import eu.trustdemocracy.users.core.interactors.Interactor;
 import eu.trustdemocracy.users.core.models.request.UserRequestDTO;
 import eu.trustdemocracy.users.core.models.response.UserResponseDTO;
-import eu.trustdemocracy.users.gateways.UserDAO;
+import eu.trustdemocracy.users.gateways.out.MainGateway;
+import eu.trustdemocracy.users.gateways.repositories.UserRepository;
 import lombok.val;
 
-public class DeleteUser extends UserInteractor {
+public class DeleteUser  implements Interactor<UserRequestDTO, UserResponseDTO> {
 
-  public DeleteUser(UserDAO userDAO) {
-    super(userDAO);
+  private UserRepository userRepository;
+  private MainGateway mainGateway;
+
+  public DeleteUser(UserRepository userRepository, MainGateway mainGateway) {
+    this.userRepository = userRepository;
+    this.mainGateway = mainGateway;
   }
 
   public UserResponseDTO execute(UserRequestDTO requestDTO) {
     val inputUser = UserMapper.createEntity(requestDTO.getAccessToken());
 
-    val user = userDAO.deleteById(inputUser.getId());
+    val user = userRepository.deleteById(inputUser.getId());
+
+    mainGateway.deleteUser(user);
+
     return UserMapper.createResponse(user);
   }
 }
