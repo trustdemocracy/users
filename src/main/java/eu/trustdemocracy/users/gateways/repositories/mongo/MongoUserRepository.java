@@ -127,7 +127,7 @@ public class MongoUserRepository implements UserRepository {
     val name = userDocument.getString("name");
     val surname = userDocument.getString("surname");
 
-    return new User()
+    val user = new User()
         .setId(UUID.fromString((String) userDocument.get("id")))
         .setUsername(userDocument.getString("username"))
         .setEmail(userDocument.getString("email"))
@@ -135,5 +135,12 @@ public class MongoUserRepository implements UserRepository {
         .setName(name.isEmpty() ? null : name)
         .setSurname(surname.isEmpty() ? null : surname)
         .setVisibility(UserVisibility.valueOf(userDocument.getString("visibility")));
+
+    val rank = userDocument.getDouble("rank");
+    if (rank != null) {
+      user.setRank(rank);
+    }
+
+    return user;
   }
 }

@@ -28,6 +28,7 @@ public class TokenMapper {
     claims.setClaim("name", user.getName());
     claims.setClaim("surname", user.getSurname());
     claims.setClaim("visibility", user.getVisibility());
+    claims.setClaim("rank", user.getRank());
 
     JsonWebSignature jws = new JsonWebSignature();
     jws.setPayload(claims.toJson());
