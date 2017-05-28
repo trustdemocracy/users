@@ -10,6 +10,7 @@ import java.util.UUID;
 import lombok.val;
 
 public class FakeUserRepository implements UserRepository {
+
   private Map<UUID, User> users = new HashMap<>();
   private UUID nextUniqueUUID;
 
@@ -52,6 +53,13 @@ public class FakeUserRepository implements UserRepository {
   @Override
   public List<User> findAll() {
     return new ArrayList<>(users.values());
+  }
+
+  @Override
+  public void updateRanks(Map<UUID, Double> rankings) {
+    for (val entry : rankings.entrySet()) {
+      users.get(entry.getKey()).setRank(entry.getValue());
+    }
   }
 
   public UUID getUniqueUUID() {

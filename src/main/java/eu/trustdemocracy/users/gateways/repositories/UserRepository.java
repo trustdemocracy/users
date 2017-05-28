@@ -2,6 +2,7 @@ package eu.trustdemocracy.users.gateways.repositories;
 
 import eu.trustdemocracy.users.core.entities.User;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public interface UserRepository {
@@ -17,4 +18,6 @@ public interface UserRepository {
   User deleteById(UUID id);
 
   List<User> findAll();
+
+  void updateRanks(Map<UUID, Double> rankings);
 }

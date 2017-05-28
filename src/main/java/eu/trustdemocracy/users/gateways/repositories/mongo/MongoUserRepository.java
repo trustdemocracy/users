@@ -4,12 +4,16 @@ import static com.mongodb.client.model.Filters.eq;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.BulkWriteOptions;
+import com.mongodb.client.model.UpdateOneModel;
 import eu.trustdemocracy.users.core.entities.User;
 import eu.trustdemocracy.users.core.entities.UserVisibility;
 import eu.trustdemocracy.users.gateways.repositories.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.val;
 import org.bson.Document;
 
@@ -94,6 +98,21 @@ public class MongoUserRepository implements UserRepository {
     }
 
     return users;
+  }
+
+  @Override
+  public void updateRanks(Map<UUID, Double> rankings) {
+    collection.bulkWrite(
+        rankings.entrySet().stream()
+            .map(entry ->
+                new UpdateOneModel<Document>(
+                    eq("id", entry.getKey().toString()),
+                    new Document("$set", new Document("rank", entry.getValue()))
+                )
+            )
+            .collect(Collectors.toList()),
+        new BulkWriteOptions().ordered(false)
+    );
   }
 
   private UUID getUniqueUUID() {

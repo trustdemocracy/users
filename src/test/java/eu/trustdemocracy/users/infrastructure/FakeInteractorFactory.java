@@ -7,6 +7,7 @@ import eu.trustdemocracy.users.core.interactors.user.CreateUser;
 import eu.trustdemocracy.users.core.interactors.user.DeleteUser;
 import eu.trustdemocracy.users.core.interactors.user.GetUser;
 import eu.trustdemocracy.users.core.interactors.user.GetUsers;
+import eu.trustdemocracy.users.core.interactors.user.UpdateRank;
 import eu.trustdemocracy.users.core.interactors.user.UpdateUser;
 import eu.trustdemocracy.users.gateways.out.FakeMainGateway;
 import eu.trustdemocracy.users.gateways.out.MainGateway;
@@ -54,6 +55,11 @@ public class FakeInteractorFactory implements InteractorFactory {
   @Override
   public RefreshToken getRefreshToken() {
     return new RefreshToken(getUserRepository(), getTokenRepository());
+  }
+
+  @Override
+  public UpdateRank getUpdateRank() {
+    return new UpdateRank(getUserRepository());
   }
 
   private UserRepository getUserRepository() {

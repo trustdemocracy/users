@@ -71,7 +71,8 @@ public final class UserMapper {
           .setEmail(user.getEmail())
           .setName(user.getName())
           .setSurname(user.getSurname())
-          .setVisibility(user.getVisibility());
+          .setVisibility(user.getVisibility())
+          .setRank(user.getRank());
     }
 
     return userResponse;

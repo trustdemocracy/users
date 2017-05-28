@@ -20,7 +20,7 @@ public class MainGatewayImpl implements MainGateway {
   @Override
   public void addUser(User user) {
     val json = new JsonObject()
-        .put("id", user.getId());
+        .put("id", user.getId().toString());
 
     getWebClient()
         .post(getRankerPort(), getRankerHost(), "/users")
